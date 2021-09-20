@@ -14,6 +14,9 @@ export default {
     name: "App",
     components: {
         titleBar
+    },
+    mounted () {
+        console.log(this.$PDFJS);
     }
 };
 </script>

@@ -16,6 +16,7 @@
     "core-js": "^3.6.5",
     "node-sass": "^4.14.1",
     "npm-check": "^5.9.2",
+    "pdfjs-dist": "2.6.347",
     "sass-loader": "^8.0.2",
     "vfluentdesign": "0.1.33",
     "vue": "^2.6.11",
