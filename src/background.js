@@ -14,12 +14,13 @@ async function createWindow() {
     // Create the browser window.
     const win = new BrowserWindow({
         frame: false,
-        width: 800,
+        width: 1500,
         height: 600,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
             nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+            webSecurity: false,
             devTools: true
         }
     })
@@ -29,7 +30,7 @@ async function createWindow() {
     });
 
     ipcMain.on("max", () => {
-        if(win.isMaximized())
+        if (win.isMaximized())
             win.restore();
         else
             win.maximize();
