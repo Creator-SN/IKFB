@@ -134,6 +134,7 @@ export default {
                     name: () => this.local("Templates"),
                     icon: "FileTemplate",
                     iconColor: "rgba(0, 90, 158, 1)",
+                    func: () => this.Go('/templates'),
                     disabled: () => this.ds_db === null
                 },
                 {
