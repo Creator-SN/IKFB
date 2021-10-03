@@ -9,7 +9,7 @@
             <fv-button :theme="theme" icon="OneDriveAdd" style="width: 150px;" @click="addSource">{{local('Add New Source')}}</fv-button>
             <fv-list-view :value="dbList" :theme="theme" style="width: 100%; height: auto; margin-top: 15px;">
                 <template v-slot:listItem="x">
-                    <div class="list-view-item">
+                    <div class="list-view-item" @click="switchDSDB(x.item)">
                         <i class="ms-Icon ms-Icon--Link"></i>
                         <p class="item-name">{{x.item.name}}</p>
                         <fv-button v-show="x.item.status == 502" :theme="theme" class="control-btn" background="rgba(255, 200, 0, 1)" :title="local(`Can't find data_structure.json on this source, shall we init new one ?`)" @click="showInitDS(x.item)">
@@ -75,6 +75,7 @@ export default {
     },
     computed: {
         ...mapState({
+            data_index: (state) => state.data_index,
             data_path: state => state.data_path,
             language: state => state.language,
             theme: (state) => state.theme
@@ -107,8 +108,8 @@ export default {
             })
         },
         dataSourceSync () {
-            let urls = this.data_path;
-            let db_array_result = this.$load_ds_file(urls);
+            let pathList = this.data_path;
+            let db_array_result = this.$load_ds_file(pathList);
             if(db_array_result.status == 404) {
                 this.$barWarning(this.local('There is no source, please add a data source to getting started.'), {
                     status: 'warning'
@@ -120,8 +121,10 @@ export default {
             let ds_db_list = [];
             db_array.forEach((el, idx) => {
                 dbList.push({
-                    key: urls[idx],
-                    name: urls[idx],
+                    key: idx,
+                    name: pathList[idx],
+                    path: pathList[idx],
+                    choosen: idx === this.data_index,
                     status: el.status,
                     msg: el.msg,
                     disabled: () => el.status === 500,
@@ -140,14 +143,21 @@ export default {
             })).filePaths[0];
             if(!path)
                 return;
-            let urls = this.data_path;
-            if(!urls.find(url => url === path))
-                urls.push(path);
+            let pathList = this.data_path;
+            if(!pathList.find(url => url === path))
+                pathList.push(path);
             this.reviseConfig({
                 v: this,
-                data_path: urls,
+                data_path: pathList,
             });
             this.dataSourceSync();
+        },
+        switchDSDB (item) {
+            let index = this.data_path.indexOf(item.path);
+            this.reviseConfig({
+                v: this,
+                data_index: index
+            });
         },
         showInitDS (db_item) {
             this.db_item = db_item;
@@ -163,7 +173,7 @@ export default {
                     cancelTitle: this.local("Cancel"),
                     theme: this.theme,
                     confirm: () => {
-                        let url = db_item.key;
+                        let url = db_item.path;
                         let index = this.data_path.indexOf(url);
                         this.data_path.splice(index, 1);
                         this.dataSourceSync();

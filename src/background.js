@@ -5,6 +5,8 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+var fs = require('fs-extra');
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -38,6 +40,12 @@ async function createWindow() {
 
     ipcMain.on("close", () => {
         win.close();
+    });
+
+    ipcMain.on("ensure-folder", (event, dir) => {
+        fs.ensureDir(dir).then(() => {
+            event.reply('ensure-folder-callback', 200);
+        });
     });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {

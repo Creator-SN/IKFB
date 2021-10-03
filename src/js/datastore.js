@@ -80,12 +80,14 @@ function load_ds_file(data_path = []) {
                     db: ds_db
                 });
             }
-            else
+            else {
                 db_array.push({
                     status: 200,
                     msg: 'success.',
                     db: ds_db
                 });
+                fs.ensureDir(path.join(url, 'root'));
+            }
         }
     }
     return {

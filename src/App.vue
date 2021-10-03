@@ -1,6 +1,6 @@
 <template>
     <div id="app" :class="{dark: theme == 'dark'}">
-        <fv-navigation-panel class="navigation-view" :settingTitle="local('Setting')" @setting-click="Go(`/settings`)"></fv-navigation-panel>
+        <navigation-view></navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
@@ -17,6 +17,7 @@
 <script>
 import i18n from "@/js/i18n.js";
 import titleBar from "@/components/general/titleBar.vue";
+import navigationView from "@/components/general/navigationView.vue";
 import Extractor from "@/js/extractTitle.js";
 import { config } from '@/js/data_sample';
 import { mapMutations, mapState, mapGetters } from "vuex";
@@ -25,10 +26,17 @@ export default {
     name: "App",
     components: {
         titleBar,
+        navigationView
     },
     data () {
         return {
             extractor: Extractor
+        }
+    },
+    watch: {
+        data_path () {
+            this.syncConfig();
+            this.syncDSDB();
         }
     },
     computed: {
@@ -39,26 +47,23 @@ export default {
         }),
         ...mapGetters([
             'local'
-        ]),
-        navigationViewBackground () {
-            if(this.theme == "light")
-                return "rgba(242, 242, 242, 0.8)";
-            return "rgba(0, 0, 0, 0.8)"
-        }
+        ])
     },
     mounted() {
-        this.syncDB();
+        this.syncConfig();
+        this.syncDSDB();
         this.i18nInit();
     },
     methods: {
         ...mapMutations({
             reviseConfig: "reviseConfig",
+            reviseData: "reviseData",
             reviseI18N: "reviseI18N",
         }),
         i18nInit () {
             this.reviseI18N(i18n);
         },
-        syncDB () {
+        syncConfig () {
             let _config = JSON.parse(JSON.stringify(config));
             for(let key in _config) {
                 _config[key] = this.$config_db.get(key).write();
@@ -78,6 +83,24 @@ export default {
                     this.reviseConfig(object);
                 }
             }
+        },
+        syncDSDB () {
+            let pathList = this.data_path;
+            let db_array_result = this.$load_ds_file(pathList);
+            if(db_array_result.status == 404) {
+                this.$barWarning(this.local('There is no source, please add a data source to getting started.'), {
+                    status: 'warning'
+                });
+                return;
+            }
+            let db_array = db_array_result.db_array;
+            let ds_db_list = [];
+            db_array.forEach(el => {
+                ds_db_list.push(el.db);
+            });
+            this.reviseData({
+                ds_db_list: ds_db_list
+            });
         },
         async gettext(pdfUrl) {
             let pdf = this.$PDFJS.getDocument(pdfUrl);
@@ -187,12 +210,6 @@ export default {
     &.dark
     {
         background: rgba(36, 36, 36, 1);
-    }
-
-    .navigation-view
-    {
-        height: 100%;
-        z-index: 11;
     }
 
     .addition-container

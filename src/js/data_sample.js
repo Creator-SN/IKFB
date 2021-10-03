@@ -11,7 +11,25 @@ export const data_structure = {
     id: null,
     name: null,
     groups: [],
+    partitions: [],
     items: [],
-    data_path: null,
+    templates: [],
+    path: null,
+    createDate: null
+}
+
+export const group = {
+    id: null,
+    name: null,
+    emoji: null,
+    groups: [],
+    partitions: [],
+    createDate: null
+}
+export const partition = {
+    id: null,
+    name: null,
+    emoji: null,
+    items: [], // only item id
     createDate: null
 }

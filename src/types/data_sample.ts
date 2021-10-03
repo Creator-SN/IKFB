@@ -8,6 +8,7 @@
 export declare class group {
     id: string
     name: string
+    emoji: string
     groups: [group]
     partitions: [partition]
     createDate: string
@@ -23,19 +24,9 @@ export declare class group {
 export declare class partition {
     id: string
     name: string
+    emoji: string
     items: [string] // only item id
     createDate: string
-}
-
-
-/**
- * 模板
- *
- * @export
- * @class templates
- */
-export declare class templates {
-    pages: [page]
 }
 
 
@@ -66,6 +57,7 @@ export declare class item {
 export declare class page {
     id: string
     name: string
+    emoji: string
     createDate: string
 }
 
@@ -111,8 +103,10 @@ export declare class data_structure {
     id: string
     name: string
     groups: [group]
+    partitions: [partition]
     items: [item]   //扁平化存储 FLAT, all items is placed in here
-    data_path: string
+    templates: [page]
+    path: string
     createDate: string
 }
 

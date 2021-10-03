@@ -5,17 +5,30 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        // config //
         data_path: [],
         data_index: -1,
         language: 'en',
         theme: 'light',
+        // ds //
+        data_structure: {
+            id: null,
+            name: null,
+            groups: [],
+            partitions: [],
+            items: [],
+            templates: [],
+            path: null,
+            createDate: null,
+        },
+        //
         ds_db_list: [],
         i18n: {}
     },
     mutations: {
         reviseConfig(state, obj) {
             for (let key in obj) {
-                if (key === 'v' || !state[key])
+                if (key === 'v' || state[key] === undefined)
                     continue;
                 state[key] = obj[key];
                 obj.v.$config_db.set(key, state[key]).write();
@@ -23,15 +36,15 @@ export default new Vuex.Store({
         },
         reviseDS(state, obj) {
             for (let key in obj) {
-                if (key === '$index' || !state[key])
+                if (key === '$index' || state.data_structure[key] === undefined)
                     continue;
-                state[key] = obj[key];
-                state.ds_db_list[obj.$index].set(key, state[key]).write();
+                state.data_structure[key] = obj[key];
+                state.ds_db_list[obj.$index].set(key, state.data_structure[key]).write();
             }
         },
         reviseData(state, obj) {
             for (let key in obj) {
-                if (!state[key])
+                if (state[key] === undefined)
                     continue;
                 state[key] = obj[key];
             }
@@ -55,6 +68,13 @@ export default new Vuex.Store({
             if (!result)
                 return text;
             return result[state.language];
+        },
+        ds_db: state => {
+            if(state.data_index < 0)
+                return null;
+            if(!state.ds_db_list[state.data_index])
+                return null;
+            return state.ds_db_list[state.data_index];
         }
     },
     modules: {
