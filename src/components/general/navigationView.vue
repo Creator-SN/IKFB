@@ -144,6 +144,7 @@ export default {
                 }
             ],
             treeList: [],
+            FLAT: [],
             posX: 0,
             posY: 0,
             rightMenuItem: {},
@@ -210,6 +211,7 @@ export default {
         },
         refreshTreeList() {
             let result = [];
+            this.saveExpandedStatus();
             this.groups.forEach((el) => {
                 let treeItem = this.dfsTree(el);
                 result.push(treeItem);
@@ -224,6 +226,11 @@ export default {
             obj.editable = obj.editable == undefined ? false : obj.editable;
             obj.type = "group";
             obj.icon = "Folder";
+            
+            // 从存储状态里获取expand而不是从数据库中获取 //
+            let restore_status = this.FLAT.find(it => it.id === obj.id);
+            if(restore_status)
+                obj.expanded = restore_status.expanded;
 
             if (obj.children == undefined || obj.children.length == 0) {
                 obj.children = this.transPartitions(obj.partitions);
@@ -246,6 +253,15 @@ export default {
                 result[idx] = el;
             });
             return result;
+        },
+        saveExpandedStatus () {
+            this.FLAT = [];
+            let t = [].concat(this.treeList);
+            for(let i = 0; i < t.length; i++) {
+                if(t[i].children)
+                    t = t.concat(t[i].children);
+                this.FLAT.push(t[i]);
+            }
         },
         addGroup(target=null) {
             let _group = JSON.parse(JSON.stringify(group));
