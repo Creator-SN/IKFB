@@ -5,7 +5,9 @@ import router from "@/router";
 import store from "@/store";
 
 import VueFluent from "vfluentdesign";
+import PowerEditor from "@creatorsn/powereditor";
 import "vfluentdesign/lib/index.css";
+import "@creatorsn/powereditor/lib/powereditor.css";
 import "@/style/global.scss";
 
 import D from '@/js/datastore.js'
@@ -18,6 +20,7 @@ let PDFJS = require("pdfjs-dist");
 Vue.use(VueAxios, axios);
 
 Vue.use(VueFluent);
+Vue.use(PowerEditor);
 
 Vue.config.productionTip = false
 

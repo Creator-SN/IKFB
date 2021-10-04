@@ -11,6 +11,7 @@
                 </transition>
             </div>
         </div>
+        <editor-container></editor-container>
     </div>
 </template>
 
@@ -18,6 +19,7 @@
 import i18n from "@/js/i18n.js";
 import titleBar from "@/components/general/titleBar.vue";
 import navigationView from "@/components/general/navigationView.vue";
+import editorContainer from "@/components/general/editorContainer.vue";
 import Extractor from "@/js/extractTitle.js";
 import { config } from '@/js/data_sample';
 import { mapMutations, mapState, mapGetters } from "vuex";
@@ -26,7 +28,8 @@ export default {
     name: "App",
     components: {
         titleBar,
-        navigationView
+        navigationView,
+        editorContainer
     },
     data () {
         return {
@@ -43,7 +46,7 @@ export default {
         ...mapState({
             data_path: state => state.data_path,
             language: state => state.language,
-            theme: (state) => state.theme
+            theme: (state) => state.theme,
         }),
         ...mapGetters([
             'local'

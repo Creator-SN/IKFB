@@ -5,6 +5,7 @@
         :theme="theme"
         :background="navigationViewBackground"
         :settingTitle="local('Setting')"
+        :expandWidth="350"
         @setting-click="Go(`/settings`)"
     >
         <template v-slot:panel>
@@ -60,14 +61,14 @@
                         ></i>
                         <p>{{local("New Item")}}</p>
                     </span>
-                    <span v-show="rightMenuItem.type === 'group'" @click="addGroupAt(rightMenuItem)">
+                    <span v-show="rightMenuItem.type === 'group'" @click="addPartitionAt(rightMenuItem)">
                         <i
                             class="ms-Icon ms-Icon--ReopenPages"
                             style="color: rgba(0, 153, 204, 1);"
                         ></i>
                         <p>{{local("New Partition")}}</p>
                     </span>
-                    <span v-show="rightMenuItem.type === 'group'" @click="addPartitionAt(rightMenuItem)">
+                    <span v-show="rightMenuItem.type === 'group'" @click="addGroupAt(rightMenuItem)">
                         <i
                             class="ms-Icon ms-Icon--ViewListGroup"
                             style="color: rgba(0, 153, 204, 1);"
@@ -395,6 +396,18 @@ export default {
         },
         delete(item) {
             let id = item.id;
+            for(let i = 0; i < this.groups.length; i++) {
+                if(this.groups[i].id === id) {
+                    this.groups.splice(i, 1);
+                    return;
+                }
+            }
+            for(let i = 0; i < this.partitions.length; i++) {
+                if(this.partitions[i].id === id) {
+                    this.partitions.splice(i, 1);
+                    return;
+                }
+            }
             let t = [].concat(this.groups);
             for(let i = 0; i < t.length; i++) {
                 if(t[i].groups)
@@ -404,7 +417,7 @@ export default {
                     let idx = t[i].groups.indexOf(d);
                     if(idx > -1) {
                         t[i].groups.splice(idx, 1);
-                        break;
+                        return;
                     }
                 }
                 if(t[i].partitions && t[i].partitions.length > 0) {
@@ -412,14 +425,8 @@ export default {
                     let idx = t[i].partitions.indexOf(d);
                     if(idx > -1) {
                         t[i].partitions.splice(idx, 1);
-                        break;
+                        return;
                     }
-                }
-            }
-            for(let i = 0; i < this.partitions.length; i++) {
-                if(this.partitions[i].id === id) {
-                    this.partitions.splice(i, 1);
-                    break;
                 }
             }
             this.reviseDS({

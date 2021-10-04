@@ -26,7 +26,7 @@
             </div>
             <div class="row main-table">
                 <fv-details-list
-                    v-model="templates"
+                    :value="templates"
                     :head="head"
                     :filter="currentSearch"
                     style="width: 100%; height: 100%"
@@ -42,34 +42,49 @@
                         <p :title="x.item.emoji">{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_2="x">
-                        <p>{{ x.item.name }}</p>
+                        <p class="highlight" @click="openEditor(x.item)">{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_3="x">
                         <p class="sec">{{ x.item.createDate }}</p>
                     </template>
                     <template v-slot:menu>
                         <div>
-                            <span>
+                            <span @click="show.rename = true">
                                 <i
-                                    class="ms-Icon ms-Icon--Add"
+                                    class="ms-Icon ms-Icon--Rename"
                                     style="color: rgba(0, 153, 204, 1);"
                                 ></i>
-                                <p>{{local("New Item")}}</p>
+                                <p>{{local("Rename Template")}}</p>
+                            </span>
+                            <span @click="deleteTemplate">
+                                <i
+                                    class="ms-Icon ms-Icon--Delete"
+                                    style="color: rgba(173, 38, 45, 1);"
+                                ></i>
+                                <p>{{local("Delete Template")}}</p>
                             </span>
                         </div>
                     </template>
                 </fv-details-list>
             </div>
         </div>
+        <add-template :show.sync="show.add"></add-template>
+        <rename-template :value="currentItem" :show.sync="show.rename"></rename-template>
     </div>
 </template>
 
 <script>
+import addTemplate from "@/components/window/addTemplate.vue";
+import renameTemplate from "@/components/window/renameTemplate.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
 
 export default {
+    components: {
+        addTemplate,
+        renameTemplate
+    },
     data() {
         return {
             cmd: [
@@ -77,8 +92,16 @@ export default {
                     name: () => this.local("Add"),
                     icon: "Add",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null,
+                    disabled: () => this.ds_db === null || !this.lock,
+                    func: () => { this.show.add = true; }
                 },
+                {
+                    name: () => this.local("Delete"),
+                    icon: "Delete",
+                    iconColor: "rgba(173, 38, 45, 1)",
+                    disabled: () => this.currentChoosen.length === 0 || !this.lock,
+                    func: this.deleteTemplates
+                }
             ],
             head: [
                 { content: "No.", width: 120 },
@@ -89,9 +112,11 @@ export default {
             currentItem: {},
             currentChoosen: [],
             currentSearch: "",
-            lock: {
-                folder: true,
+            show: {
+                add: false,
+                rename: false
             },
+            lock: true,
         };
     },
     watch: {
@@ -118,18 +143,86 @@ export default {
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
+            reviseEditor: "reviseEditor",
+            toggleEditor: "toggleEditor"
         }),
         templatesEnsureFolder() {
             if (!this.ds_db || this.data_index == -1) return;
-            this.lock.folder = false;
+            this.lock = false;
             ipc.send(
                 "ensure-folder",
                 path.join(this.data_path[this.data_index], "root/templates")
             );
             ipc.on("ensure-folder-callback", () => {
-                this.lock.folder = true;
+                this.lock = true;
             });
         },
+        deleteTemplate () {
+            if(!this.currentItem.id || !this.lock)
+                return;
+            this.$infoBox(
+                this.local(`Are you sure to delete this template?`),
+                {
+                    status: "error",
+                    title: this.local("Delete Template"),
+                    confirmTitle: this.local("Confirm"),
+                    cancelTitle: this.local("Cancel"),
+                    theme: this.theme,
+                    confirm: () => {
+                        this.lock = false;
+                        let index = this.templates.indexOf(this.templates.find(it => it.id === this.currentItem.id));
+                        this.templates.splice(index, 1);
+                        this.reviseDS({
+                            $index: this.data_index,
+                            templates: this.templates
+                        });
+                        ipc.send('remove-file', path.join(this.data_path[this.data_index], 'root/templates', `${this.currentItem.id}.json`));
+                        this.lock = true;
+                    },
+                    cancel: () => {
+                        
+                    },
+                }
+            );  
+        },
+        deleteTemplates () {
+            if(!this.currentChoosen || !this.lock)
+                return;
+            this.$infoBox(
+                this.local(`Are you sure to delete these templates?`),
+                {
+                    status: "error",
+                    title: this.local("Delete Templates"),
+                    confirmTitle: this.local("Confirm"),
+                    cancelTitle: this.local("Cancel"),
+                    theme: this.theme,
+                    confirm: () => {
+                        this.lock = false;
+                        let copy = JSON.parse(JSON.stringify(this.currentChoosen));
+                        copy.forEach(el => {
+                            let index = this.templates.indexOf(this.templates.find(it => it.id === el.id));
+                            this.templates.splice(index, 1);
+                            this.reviseDS({
+                                $index: this.data_index,
+                                templates: this.templates
+                            });
+                            ipc.send('remove-file', path.join(this.data_path[this.data_index], 'root/templates', `${el.id}.json`));
+                            this.lock = true;
+                        });
+                    },
+                    cancel: () => {
+                        
+                    },
+                }
+            );  
+        },
+        openEditor (item) {
+            this.reviseEditor({
+                type: 'template',
+                target: item
+            });
+            this.toggleEditor(true);
+        }
     },
 };
 </script>

@@ -33,3 +33,11 @@ export const partition = {
     items: [], // only item id
     createDate: null
 }
+
+export const page = {
+    id: null,
+    name: null,
+    emoji: null,
+    createDate: null,
+    updateDate: null
+}

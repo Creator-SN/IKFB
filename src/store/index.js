@@ -22,6 +22,11 @@ export default new Vuex.Store({
             createDate: null,
         },
         //
+        editor: {
+            show: false,
+            type: null,
+            target: null
+        },
         ds_db_list: [],
         i18n: {}
     },
@@ -49,6 +54,13 @@ export default new Vuex.Store({
                 state[key] = obj[key];
             }
         },
+        reviseEditor(state, obj) {
+            for (let key in obj) {
+                if (state.editor[key] === undefined)
+                    continue;
+                state.editor[key] = obj[key];
+            }
+        },
         reviseI18N(state, i18n) {
             state.i18n = i18n
         },
@@ -59,6 +71,9 @@ export default new Vuex.Store({
                 state.theme = 'light'
             }
             v.$config_db.set('theme', state.theme).write();
+        },
+        toggleEditor(state, status) {
+            state.editor.show = status;
         }
     },
     actions: {},
@@ -70,9 +85,9 @@ export default new Vuex.Store({
             return result[state.language];
         },
         ds_db: state => {
-            if(state.data_index < 0)
+            if (state.data_index < 0)
                 return null;
-            if(!state.ds_db_list[state.data_index])
+            if (!state.ds_db_list[state.data_index])
                 return null;
             return state.ds_db_list[state.data_index];
         }

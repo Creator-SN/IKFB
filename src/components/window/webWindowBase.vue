@@ -50,7 +50,8 @@ export default {
 
 <style lang="scss">
 .web-window-base {
-    width: 60%;
+    min-width: 350px;
+    width: 50%;
     height: auto;
 
     .w-row {

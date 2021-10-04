@@ -54,6 +54,33 @@ async function createWindow() {
         });
     });
 
+    ipcMain.on("read-file", (event, path) => {
+        fs.readFile(path, 'utf8', (err, data) => {
+            if (err) return console.error(err)
+            event.reply('read-file-callback', data);
+        });
+    });
+
+    ipcMain.on("output-file", (event, obj) => {
+        fs.outputFile(obj.path, obj.data).then(() => {
+            event.reply('output-file-callback', 200);
+        });
+    });
+
+    ipcMain.on("remove-file", (event, path) => {
+        fs.unlink(path, (err) => {
+            if (err) return console.error(err)
+            event.reply('remove-file-callback', 200);
+        });
+    });
+
+    ipcMain.on("remove-folder", (event, path) => {
+        fs.rmdir(path, { recursive: true }, (err) => {
+            if (err) return console.error(err)
+            event.reply('remove-folder-callback', 200);
+        });
+    });
+
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)

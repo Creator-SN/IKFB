@@ -45,6 +45,7 @@ export declare class item {
     pages: [page]
     labels: [string]
     createDate: string
+    updateDate: string
 }
 
 
@@ -59,6 +60,7 @@ export declare class page {
     name: string
     emoji: string
     createDate: string
+    updateDate: string
 }
 
 
