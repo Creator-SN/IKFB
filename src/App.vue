@@ -70,7 +70,7 @@ export default {
             let _config = JSON.parse(JSON.stringify(config));
             for(let key in _config) {
                 _config[key] = this.$config_db.get(key).write();
-                if(!_config[key]) {
+                if(_config[key] == undefined) {
                     let object = {
                         v: this
                     };

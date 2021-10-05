@@ -7,9 +7,9 @@
         <div class="s-item-block">
             <p class="s-item-title">{{local('Source')}}</p>
             <fv-button :theme="theme" icon="OneDriveAdd" style="width: 150px;" @click="addSource">{{local('Add New Source')}}</fv-button>
-            <fv-list-view :value="dbList" :theme="theme" style="width: 100%; height: auto; margin-top: 15px;">
+            <fv-list-view :value="dbList" :theme="theme" style="width: 100%; height: auto; margin-top: 15px;" @chooseItem="switchDSDB($event.item)">
                 <template v-slot:listItem="x">
-                    <div class="list-view-item" @click="switchDSDB(x.item)">
+                    <div class="list-view-item">
                         <i class="ms-Icon ms-Icon--Link"></i>
                         <p class="item-name">{{x.item.name}}</p>
                         <fv-button v-show="x.item.status == 502" :theme="theme" class="control-btn" background="rgba(255, 200, 0, 1)" :title="local(`Can't find data_structure.json on this source, shall we init new one ?`)" @click="showInitDS(x.item)">
@@ -62,6 +62,9 @@ export default {
             db_item: null,
             show: {
                 initDS: false
+            },
+            lock: {
+                switchDSDB: true
             }
         }
     },
@@ -127,7 +130,7 @@ export default {
                     choosen: idx === this.data_index,
                     status: el.status,
                     msg: el.msg,
-                    disabled: () => el.status === 500,
+                    disabled: () => el.status === 500 || !this.lock.switchDSDB,
                     db: el.db
                 });
                 ds_db_list.push(el.db);
@@ -153,11 +156,13 @@ export default {
             this.dataSourceSync();
         },
         switchDSDB (item) {
+            this.lock.switchDSDB = false;
             let index = this.data_path.indexOf(item.path);
             this.reviseConfig({
                 v: this,
                 data_index: index
             });
+            this.lock.switchDSDB = true;
         },
         showInitDS (db_item) {
             this.db_item = db_item;

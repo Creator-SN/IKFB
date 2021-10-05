@@ -191,7 +191,7 @@ export default {
             let crefInfo = await this.cref_getInfoByTitle(title);
             let _metadata = JSON.parse(JSON.stringify(metadata));
             _metadata.title = title;
-            if (pdfMetadata.Author.indexOf(" ; ") > -1) {
+            if (pdfMetadata.Author && pdfMetadata.Author.indexOf(" ; ") > -1) {
                 let authors = [];
                 let authors_str = pdfMetadata.Author.split(" ; ");
                 authors_str.forEach((el, idx) => {
@@ -238,13 +238,28 @@ export default {
             try {
                 return await new Promise((resolve) => {
                     this.axios
-                        .get(baseUrl, {
-                            params: {
-                                "query.bibliographic": title,
+                        .get(
+                            baseUrl,
+                            {
+                                params: {
+                                    "query.bibliographic": title,
+                                },
                             },
-                        })
+                            {
+                                timeout: 10000,
+                            }
+                        )
                         .then((response) => {
                             resolve(response.data.message.items);
+                        })
+                        .catch((error) => {
+                            this.$barWarning(error, {
+                                status: "error",
+                            });
+                            this.stop = false;
+                            this.thisValue = false;
+                            this.progress = 0;
+                            this.path_title = "";
                         });
                 });
             } catch (e) {

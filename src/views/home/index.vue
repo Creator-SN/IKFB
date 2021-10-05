@@ -37,7 +37,7 @@
                 >
                     <template v-slot:column_0="x">
                         <i
-                            :class="`ms-Icon ms-Icon--${x.item.showInfo ? 'CaretBottomRightCenter8' : 'CaretRight8'}`"
+                            :class="`drop-down-icon ms-Icon ms-Icon--${x.item.showInfo ? 'CaretBottomRightCenter8' : 'CaretRight8'}`"
                             @click="x.item.showInfo ^= true"
                         ></i>
                     </template>
@@ -48,7 +48,10 @@
                         <p :title="x.item.emoji">{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_3="x">
-                        <p class="highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">{{ x.item.name }}</p>
+                        <p
+                            class="highlight"
+                            @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
+                        >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
                         <p class="sec">{{x.item.name}} labels</p>
@@ -68,10 +71,16 @@
                             >
                                 <i class="ms-Icon ms-Icon--PDF"></i>
                                 <p>PDF</p>
-                                <p class="sec highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">{{x.item.pdf}}.pdf</p>
+                                <p
+                                    class="sec highlight"
+                                    @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
+                                >{{x.item.pdf}}.pdf</p>
                                 <p></p>
                             </div>
-                            <div class="item">
+                            <div
+                                v-show="x.item.metadata"
+                                class="item"
+                            >
                                 <i class="ms-Icon ms-Icon--LinkedDatabase"></i>
                                 <p>Metadata</p>
                                 <p class="sec highlight">{{x.item.id}}.metadata</p>
@@ -83,10 +92,18 @@
                                 class="item"
                             >
                                 <p>{{page.emoji}}</p>
-                                <p class="highlight" @click="openEditor(x.item, page)">{{page.name}}</p>
+                                <p
+                                    class="highlight"
+                                    @click="openEditor(x.item, page)"
+                                >{{page.name}}</p>
                                 <p class="sec">{{page.id}}</p>
                                 <p class="sec">{{page.createDate}}</p>
-                                <fv-button background="rgba(255, 180, 0, 1)" style="width: 25px; height: 25px;" :title="local('Rename')" @click="showRenameItemPage(x.item, page)">
+                                <fv-button
+                                    background="rgba(255, 180, 0, 1)"
+                                    style="width: 25px; height: 25px;"
+                                    :title="local('Rename')"
+                                    @click="showRenameItemPage(x.item, page)"
+                                >
                                     <i class="ms-Icon ms-Icon--Rename"></i>
                                 </fv-button>
                             </div>
@@ -334,7 +351,9 @@ export default {
         },
         importPdf() {
             this.mode = "import";
-            this.$refs.pdf_importer.inputInspectClick();
+            setTimeout(() => {
+                this.$refs.pdf_importer.inputInspectClick();
+            }, 300);
         },
         openEditor(item, page) {
             this.reviseEditor({
@@ -447,6 +466,17 @@ export default {
                         text-decoration: underline;
                     }
                 }
+
+                i.drop-down-icon {
+                    @include HcenterVcenter;
+
+                    width: 100%;
+                    height: 100%;
+
+                    &:hover {
+                        background: rgba(200, 200, 200, 0.3);
+                    }
+                }
             }
 
             &.bottom-control {
@@ -461,6 +491,10 @@ export default {
                 align-items: center;
             }
 
+            .fv-rightMenu {
+                z-index: 3;
+            }
+
             .row-item-info {
                 position: absolute;
                 left: 0px;
@@ -471,7 +505,7 @@ export default {
                 display: flex;
                 flex-direction: column;
                 box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1);
-                z-index: 2;
+                z-index: 1;
 
                 .item {
                     width: 100%;
@@ -499,13 +533,11 @@ export default {
                         color: rgba(173, 38, 45, 1);
                     }
 
-                    .ms-Icon--LinkedDatabase
-                    {
+                    .ms-Icon--LinkedDatabase {
                         color: rgba(255, 180, 0, 1);
                     }
 
-                    p.sec
-                    {
+                    p.sec {
                         font-size: 12px;
                         font-weight: normal;
                     }
