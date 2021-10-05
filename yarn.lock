@@ -858,10 +858,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@creatorsn/powereditor@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.0.5.tgz#b0164418a3f0d386b9a6837eb09939e9b0282dc8"
-  integrity sha512-2PaXTbNDyPQNec6oIJwaTDEBP91Cx3Xe/fKKNNKa5brOY+Y2iMvxbWwoLOix6GcvO4fmrUFxGP/Yj9hdseEYpQ==
+"@creatorsn/powereditor@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.0.6.tgz#c94382b2ebac748fb4ec86c57882448997415147"
+  integrity sha512-qtw/b/MZ2TAeSHibulTSJDJrrQYLHKi/mPXoXnfiBwmN/EAcABS5e9cgPN8leFeCeU+trevh31DLDRwbtYyYYg==
   dependencies:
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
     "@tiptap/extension-color" "^2.0.0-beta.3"

@@ -400,13 +400,13 @@ export default {
             for(let i = 0; i < this.groups.length; i++) {
                 if(this.groups[i].id === id) {
                     this.groups.splice(i, 1);
-                    return;
+                    break;
                 }
             }
             for(let i = 0; i < this.partitions.length; i++) {
                 if(this.partitions[i].id === id) {
                     this.partitions.splice(i, 1);
-                    return;
+                    break;
                 }
             }
             let t = [].concat(this.groups);
@@ -418,7 +418,7 @@ export default {
                     let idx = t[i].groups.indexOf(d);
                     if(idx > -1) {
                         t[i].groups.splice(idx, 1);
-                        return;
+                        break;
                     }
                 }
                 if(t[i].partitions && t[i].partitions.length > 0) {
@@ -426,7 +426,7 @@ export default {
                     let idx = t[i].partitions.indexOf(d);
                     if(idx > -1) {
                         t[i].partitions.splice(idx, 1);
-                        return;
+                        break;
                     }
                 }
             }
