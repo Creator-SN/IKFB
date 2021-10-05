@@ -199,6 +199,7 @@ export default {
             this.$emit("input", val);
         },
         item() {
+            console.log(this.item)
             this.metadataInit();
         },
     },
@@ -238,8 +239,8 @@ export default {
         },
         async save() {
             let item = this.items.find((it) => it.id === this.item.id);
-            item.metadata = this.metadata;
-            this.item.metadata = this.metadata;
+            item.metadata = JSON.parse(JSON.stringify(this.metadata));
+            this.item.metadata = JSON.parse(JSON.stringify(this.metadata));
             this.reviseDS({
                 $index: this.data_index,
                 items: this.items,
