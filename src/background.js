@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, BrowserWindow, shell } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -86,7 +86,14 @@ async function createWindow() {
             if (err) return console.error(err)
             event.reply('copy-file-callback', 200);
         });
-    })
+    });
+
+    ipcMain.on("open-file", (event, path) => {
+        fs.access(path, err => {
+            shell.openExternal(path);
+            event.reply('open-file-callback', err);
+        });
+    });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode

@@ -61,6 +61,7 @@ export default {
             theme: (state) => state.theme,
             show_editor: (state) => state.editor.show,
             type: (state) => state.editor.type,
+            item: (state) => state.editor.item,
             target: (state) => state.editor.target,
         }),
         ...mapGetters(["local", "ds_db"]),
@@ -74,6 +75,10 @@ export default {
             if (!this.type || !this.target.id) return;
             let folder =
                 this.type === "template" ? "root/templates" : "root/items";
+            if (this.type === "item") {
+                if (!this.item) return;
+                folder = path.join(folder, this.item.id);
+            }
             let url = path.join(
                 this.data_path[this.data_index],
                 folder,
@@ -95,6 +100,10 @@ export default {
             if (!this.type || !this.target.id) return;
             let folder =
                 this.type === "template" ? "root/templates" : "root/items";
+            if (this.type === "item") {
+                if (!this.item) return;
+                folder = path.join(folder, this.item.id);
+            }
             let url = path.join(
                 this.data_path[this.data_index],
                 folder,
@@ -145,6 +154,12 @@ export default {
             width: 30px;
             height: 30px;
             margin: 5px;
+        }
+    }
+
+    .ProseMirror {
+        p {
+            line-height: 2;
         }
     }
 }

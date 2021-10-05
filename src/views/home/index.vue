@@ -48,7 +48,7 @@
                         <p :title="x.item.emoji">{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_3="x">
-                        <p>{{ x.item.name }}</p>
+                        <p class="highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
                         <p class="sec">{{x.item.name}} labels</p>
@@ -62,41 +62,39 @@
                             class="row-item-info"
                         >
                             <div
-                                class="item"
-                                style="color: rgba(95, 95, 95, 0.6);"
-                            >
-                                <p>Type</p>
-                                <p>Name</p>
-                                <p>id</p>
-                                <p>Create Date</p>
-                                <p>Operation</p>
-                            </div>
-                            <div
                                 v-show="x.item.pdf"
                                 class="item"
+                                @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
                             >
                                 <i class="ms-Icon ms-Icon--PDF"></i>
-                                <p>{{x.item.pdf}}</p>
-                                <p>{{x.item.pdf}}</p>
+                                <p>PDF</p>
+                                <p class="sec highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">{{x.item.pdf}}.pdf</p>
                                 <p></p>
                             </div>
                             <div class="item">
-                                <p>1</p>
-                                <p>2</p>
-                                <p>3</p>
-                                <p>4</p>
+                                <i class="ms-Icon ms-Icon--LinkedDatabase"></i>
+                                <p>Metadata</p>
+                                <p class="sec highlight">{{x.item.id}}.metadata</p>
+                                <p></p>
                             </div>
-                            <div class="item">
-                                <p>1</p>
-                                <p>2</p>
-                                <p>3</p>
-                                <p>4</p>
+                            <div
+                                v-for="(page, index) in x.item.pages"
+                                :key="index"
+                                class="item"
+                            >
+                                <p>{{page.emoji}}</p>
+                                <p class="highlight" @click="openEditor(x.item, page)">{{page.name}}</p>
+                                <p class="sec">{{page.id}}</p>
+                                <p class="sec">{{page.createDate}}</p>
+                                <fv-button background="rgba(255, 180, 0, 1)" style="width: 25px; height: 25px;" :title="local('Rename')" @click="showRenameItemPage(x.item, page)">
+                                    <i class="ms-Icon ms-Icon--Rename"></i>
+                                </fv-button>
                             </div>
                         </div>
                     </template>
                     <template v-slot:menu>
                         <div>
-                            <span @click="show.rename = true">
+                            <span @click="show.addItemPage = true">
                                 <i
                                     class="ms-Icon ms-Icon--PageAdd"
                                     style="color: rgba(226, 159, 0, 1);"
@@ -142,6 +140,15 @@
             :value="currentItem"
             :show.sync="show.rename"
         ></rename-item>
+        <add-item-page
+            :show.sync="show.addItemPage"
+            :item="currentItem"
+        ></add-item-page>
+        <rename-item-page
+            :value="currentItemPage"
+            :show.sync="show.renameItemPage"
+            :item="currentItem"
+        ></rename-item-page>
         <pdf-importer
             v-model="show.pdfImporter"
             :mode="mode"
@@ -154,6 +161,8 @@
 <script>
 import addItem from "@/components/home/addItem.vue";
 import renameItem from "@/components/home/renameItem.vue";
+import addItemPage from "@/components/home/addItemPage.vue";
+import renameItemPage from "@/components/home/renameItemPage.vue";
 import pdfImporter from "@/components/general/pdfImporter.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
@@ -163,6 +172,8 @@ export default {
     components: {
         addItem,
         renameItem,
+        addItemPage,
+        renameItemPage,
         pdfImporter,
     },
     data() {
@@ -179,12 +190,10 @@ export default {
                 },
                 {
                     name: () => this.local("Import"),
-                    icon: "Add",
+                    icon: "Upload",
                     iconColor: "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
-                    func: () => {
-                        this.show.add = true;
-                    },
+                    func: this.importPdf,
                 },
                 {
                     name: () => this.local("Delete"),
@@ -197,7 +206,7 @@ export default {
             ],
             head: [
                 { content: "", width: 80 },
-                { content: "No.", width: 120 },
+                { content: "No.", width: 80 },
                 { content: "Icon", sortName: "emoji", width: 80 },
                 { content: "Name", sortName: "name", width: 300 },
                 { content: "Labels", width: 120 },
@@ -205,11 +214,14 @@ export default {
             ],
             currentItem: {},
             currentChoosen: [],
+            currentItemPage: {},
             currentSearch: "",
             mode: "item",
             show: {
                 add: false,
                 rename: false,
+                addItemPage: false,
+                renameItemPage: false,
                 pdfImporter: false,
             },
             lock: true,
@@ -320,12 +332,33 @@ export default {
             this.mode = "item";
             this.$refs.pdf_importer.inputInspectClick();
         },
-        openEditor(item) {
+        importPdf() {
+            this.mode = "import";
+            this.$refs.pdf_importer.inputInspectClick();
+        },
+        openEditor(item, page) {
             this.reviseEditor({
-                type: "template",
-                target: item,
+                type: "item",
+                item: item,
+                target: page,
             });
             this.toggleEditor(true);
+        },
+        openFile(fileName) {
+            let url = path.join(
+                this.data_path[this.data_index],
+                "root/items",
+                fileName
+            );
+            ipc.send("open-file", url);
+            ipc.on("open-file-callback", (event, data) => {
+                console.log(data);
+            });
+        },
+        showRenameItemPage(item, page) {
+            this.currentItem = item;
+            this.currentItemPage = page;
+            this.show.renameItemPage = true;
         },
     },
 };
@@ -438,22 +471,53 @@ export default {
                 display: flex;
                 flex-direction: column;
                 box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1);
-                z-index: 20;
+                z-index: 2;
 
                 .item {
                     width: 100%;
-                    min-height: 35px;
-                    height: 35px;
+                    min-height: 45px;
+                    height: 45px;
                     padding: 0px 15px;
-                    font-size: 12px;
-                    font-weight: 400;
+                    font-size: 13.8px;
+                    font-weight: 600;
                     box-sizing: border-box;
-                    grid-template-columns: 80px 80px 80px 80px 1fr;
+                    grid-template-columns: 50px 80px 80px 150px 1fr;
                     display: grid;
                     align-items: center;
+                    cursor: pointer;
+                    user-select: none;
+
+                    &:hover {
+                        background: rgba(200, 200, 200, 0.3);
+                    }
+
+                    &:active {
+                        background: rgba(200, 200, 200, 0.6);
+                    }
 
                     .ms-Icon--PDF {
                         color: rgba(173, 38, 45, 1);
+                    }
+
+                    .ms-Icon--LinkedDatabase
+                    {
+                        color: rgba(255, 180, 0, 1);
+                    }
+
+                    p.sec
+                    {
+                        font-size: 12px;
+                        font-weight: normal;
+                    }
+
+                    p.highlight {
+                        text-align: left;
+                        cursor: pointer;
+
+                        &:hover {
+                            color: rgba(0, 120, 212, 1);
+                            text-decoration: underline;
+                        }
                     }
                 }
             }

@@ -7,6 +7,7 @@
         :settingTitle="local('Setting')"
         :expandWidth="350"
         @setting-click="Go(`/settings`)"
+        @back="$Back"
     >
         <template v-slot:panel>
             <div class="navigation-view-template">

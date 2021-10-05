@@ -216,10 +216,10 @@ export default {
                 }
             );  
         },
-        openEditor (item) {
+        openEditor (template) {
             this.reviseEditor({
                 type: 'template',
-                target: item
+                target: template
             });
             this.toggleEditor(true);
         }

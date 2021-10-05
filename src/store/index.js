@@ -25,6 +25,7 @@ export default new Vuex.Store({
         editor: {
             show: false,
             type: null,
+            item: null,
             target: null
         },
         ds_db_list: [],
