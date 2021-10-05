@@ -44,7 +44,7 @@
 
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
-import initDs from "@/components/window/initDs.vue";
+import initDs from "@/components/settings/initDs.vue";
 const { dialog } = require('electron').remote
 
 export default {

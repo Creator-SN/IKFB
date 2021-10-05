@@ -165,7 +165,7 @@ export default {
                 console.log('⭐' + title + '⭐');
             }
         },
-        async getMetaData () {
+        async getMetadata () {
             this.extractor.PDFJS = this.$PDFJS;
             let path_list = [];
             for (let i = 0; i < this.$refs.f.files.length; i++)

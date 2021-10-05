@@ -74,8 +74,8 @@
 </template>
 
 <script>
-import addTemplate from "@/components/window/addTemplate.vue";
-import renameTemplate from "@/components/window/renameTemplate.vue";
+import addTemplate from "@/components/templates/addTemplate.vue";
+import renameTemplate from "@/components/templates/renameTemplate.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");

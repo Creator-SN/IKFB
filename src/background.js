@@ -81,6 +81,13 @@ async function createWindow() {
         });
     });
 
+    ipcMain.on("copy-file", (event, obj) => {
+        fs.copy(obj.src, obj.tgt, err => {
+            if (err) return console.error(err)
+            event.reply('copy-file-callback', 200);
+        });
+    })
+
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)

@@ -142,6 +142,7 @@ export default {
                     name: () => this.local("All"),
                     icon: "HardDriveGroup",
                     iconColor: "rgba(0, 90, 158, 1)",
+                    func: () => this.Go('/'),
                     disabled: () => this.ds_db === null
                 }
             ],

@@ -1,5 +1,5 @@
 <template>
-    <web-window-base v-model="thisShow" :title="local('Add Template')" :theme="theme">
+    <web-window-base v-model="thisShow" :title="local('Rename Template')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block">
                 <p class="w-title">{{local('Template Name')}}</p>
@@ -7,24 +7,24 @@
             </div>
         </template>
         <template v-slot:control>
-            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !ds_db" @click="add">{{local('Confirm')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="!value || name === '' || !ds_db" @click="rename">{{local('Confirm')}}</fv-button>
             <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
         </template>
     </web-window-base>
 </template>
 
 <script>
-import webWindowBase from "./webWindowBase.vue";
-import {page} from "@/js/data_sample.js";
+import webWindowBase from "../window/webWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
-const { ipcRenderer: ipc } = require("electron");
-const path = require("path");
 
 export default {
     components: {
         webWindowBase,
     },
     props: {
+        value: {
+            default: null
+        },
         show: {
             default: false
         }
@@ -41,7 +41,10 @@ export default {
         },
         thisShow (val) {
             this.$emit("update:show", val);
-            this.name = "";
+            if(this.value.name)
+                this.name = this.value.name;
+            else
+                this.name = "";
         }
     },
     computed: {
@@ -60,29 +63,16 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
         }),
-        async add () {
-            if(!this.ds_db || this.name === '')
+        async rename () {
+            if(!this.ds_db || !this.value || this.name === '')
                 return;
-            let _page = JSON.parse(JSON.stringify(page));
-            _page.id = this.$Guid();
+            let _page = this.templates.find(it => it.id === this.value.id);
             _page.name = this.name;
-            _page.emoji = '📑';
-            _page.createDate = this.$SDate.DateToString(new Date());
-            this.templates.push(_page);
+            this.value.name = this.name;
             this.reviseDS({
                 $index: this.data_index,
                 templates: this.templates
             });
-            let url = path.join(this.data_path[this.data_index], 'root/templates', `${_page.id}.json`);
-            ipc.send('output-file', {
-                path: url,
-                data: ""
-            });
-            await new Promise(resolve => {
-                ipc.on('output-file-callback', () => {
-                    resolve(1);
-                });
-            })
             this.thisShow = false;
         }
     },

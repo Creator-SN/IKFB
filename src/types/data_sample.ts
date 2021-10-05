@@ -40,8 +40,9 @@ export declare class partition {
 export declare class item {
     id: string
     name: string
+    emoji: string
     pdf: string
-    metadata: string
+    metadata: metadata
     pages: [page]
     labels: [string]
     createDate: string
@@ -78,6 +79,9 @@ export declare class metadata {
     title: string
     url: string
     containerTitle: string //一般是会议名称
+    abstract: string
+    ISSN: string
+    language: string
     authors: [author]
 }
 

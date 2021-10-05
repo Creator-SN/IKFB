@@ -34,10 +34,42 @@ export const partition = {
     createDate: null
 }
 
+export const item = {
+    id: null,
+    name: null,
+    emoji: null,
+    pdf: null,
+    metadata: null,
+    pages: [],
+    labels: [],
+    createDate: null,
+    updateDate: null
+}
+
 export const page = {
     id: null,
     name: null,
     emoji: null,
     createDate: null,
     updateDate: null
+}
+
+export const metadata = {
+    publisher: null,
+    DOI: null,
+    createDate: null,
+    source: null,
+    title: null,
+    url: null,
+    containerTitle: null, //一般是会议名称
+    abstract: null,
+    ISSN: null,
+    language: null,
+    authors: []
+}
+
+export const author = {
+    first: null,
+    last: null,
+    sequence: null
 }

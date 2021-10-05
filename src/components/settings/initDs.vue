@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import webWindowBase from "./webWindowBase.vue";
+import webWindowBase from "../window/webWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
