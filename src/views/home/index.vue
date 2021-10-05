@@ -82,8 +82,14 @@
                                 class="item"
                             >
                                 <i class="ms-Icon ms-Icon--LinkedDatabase"></i>
-                                <p>Metadata</p>
-                                <p class="sec highlight">{{x.item.id}}.metadata</p>
+                                <p
+                                    class="highlight"
+                                    @click="showMetadata(x.item)"
+                                >Metadata</p>
+                                <p
+                                    class="sec highlight"
+                                    @click="showMetadata(x.item)"
+                                >{{x.item.id}}.metadata</p>
                                 <p></p>
                             </div>
                             <div
@@ -124,6 +130,13 @@
                                     style="color: rgba(173, 38, 45, 1);"
                                 ></i>
                                 <p>{{local("Revise PDF")}}</p>
+                            </span>
+                            <span @click="show.metadata = true">
+                                <i
+                                    class="ms-Icon ms-Icon--LinkedDatabase"
+                                    style="color: rgba(255, 180, 0, 1);"
+                                ></i>
+                                <p>{{local("Revise Metadata")}}</p>
                             </span>
                             <span @click="show.rename = true">
                                 <i
@@ -166,6 +179,10 @@
             :show.sync="show.renameItemPage"
             :item="currentItem"
         ></rename-item-page>
+        <metadata-panel
+            v-model="show.metadata"
+            :item="currentItem"
+        ></metadata-panel>
         <pdf-importer
             v-model="show.pdfImporter"
             :mode="mode"
@@ -180,6 +197,7 @@ import addItem from "@/components/home/addItem.vue";
 import renameItem from "@/components/home/renameItem.vue";
 import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
+import metadataPanel from "@/components/home/metadataPanel.vue";
 import pdfImporter from "@/components/general/pdfImporter.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
@@ -191,6 +209,7 @@ export default {
         renameItem,
         addItemPage,
         renameItemPage,
+        metadataPanel,
         pdfImporter,
     },
     data() {
@@ -239,6 +258,7 @@ export default {
                 rename: false,
                 addItemPage: false,
                 renameItemPage: false,
+                metadata: false,
                 pdfImporter: false,
             },
             lock: true,
@@ -378,6 +398,10 @@ export default {
             this.currentItem = item;
             this.currentItemPage = page;
             this.show.renameItemPage = true;
+        },
+        showMetadata(item) {
+            this.currentItem = item;
+            this.show.metadata = true;
         },
     },
 };

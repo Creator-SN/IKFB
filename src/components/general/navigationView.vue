@@ -2,6 +2,7 @@
     <fv-navigation-panel
         :title="local('IKFB')"
         class="navigation-view"
+        :expand.sync="expand"
         :theme="theme"
         :background="navigationViewBackground"
         :settingTitle="local('Setting')"
@@ -12,13 +13,17 @@
         <template v-slot:panel>
             <div class="navigation-view-template">
                 <div
+                    v-show="expand"
                     class="navigation-view-current-ds-block"
                     @click="Go(`/settings`)"
                 >
                     <p>⚡</p>
                     <p class="title">{{name}}</p>
                 </div>
-                <div class="navigation-view-tree-view-block">
+                <div
+                    v-show="expand"
+                    class="navigation-view-tree-view-block"
+                >
                     <fv-TreeView
                         v-model="treeList"
                         :theme="theme"
@@ -31,21 +36,96 @@
                                 @contextmenu="rightClick($event, x.item)"
                             >
                                 <p>{{x.item.emoji}}</p>
-                                <p v-show="!x.item.editable" class="tree-view-custom-label">{{x.item.name}}</p>
-                                <fv-text-box v-model="x.item.name" v-show="x.item.editable" :ref="`t:${x.item.id}`" class="tree-view-custom-text-box" @keyup.native.enter="rename(x.item)"></fv-text-box>
-                                <fv-button v-show="x.item.editable" :theme="theme" borderRadius="50" class="tree-view-custom-confirm" @click="rename(x.item)">
+                                <p
+                                    v-show="!x.item.editable"
+                                    class="tree-view-custom-label"
+                                >{{x.item.name}}</p>
+                                <fv-text-box
+                                    v-model="x.item.name"
+                                    v-show="x.item.editable"
+                                    :ref="`t:${x.item.id}`"
+                                    class="tree-view-custom-text-box"
+                                    @keyup.native.enter="rename(x.item)"
+                                ></fv-text-box>
+                                <fv-button
+                                    v-show="x.item.editable"
+                                    :theme="theme"
+                                    borderRadius="50"
+                                    class="tree-view-custom-confirm"
+                                    @click="rename(x.item)"
+                                >
                                     <i class="ms-Icon ms-Icon--CheckMark"></i>
                                 </fv-button>
                             </div>
                         </template>
                     </fv-TreeView>
                 </div>
-                <div class="navigation-view-command-bar-block">
+                <div
+                    v-show="expand"
+                    class="navigation-view-command-bar-block"
+                >
                     <fv-command-bar
                         :options="cmdList"
                         :theme="theme"
                         toward="up"
                     ></fv-command-bar>
+                </div>
+                <div
+                    v-show="!expand"
+                    class="navigation-view-command-bar-block-collapse"
+                >
+                    <fv-button
+                        :theme="theme"
+                        class="collapse-command-btn"
+                        :borderWidth="1"
+                        :borderRadius="0"
+                        background="rgba(245, 245, 245, 1)"
+                        @click="collapseFunc(addPartition)"
+                    >
+                        <i
+                            class="ms-Icon ms-Icon--ReopenPages"
+                            style="color: rgba(213, 99, 70, 1);"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        class="collapse-command-btn"
+                        :borderWidth="1"
+                        :borderRadius="0"
+                        background="rgba(245, 245, 245, 1)"
+                        @click="collapseFunc(addGroup)"
+                    >
+                        <i
+                            class="ms-Icon ms-Icon--ViewListGroup"
+                            style="color: rgba(172, 84, 206, 1);"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        class="collapse-command-btn"
+                        :borderWidth="1"
+                        :borderRadius="0"
+                        background="rgba(245, 245, 245, 1)"
+                        @click="Go(`/templates`)"
+                    >
+                        <i
+                            class="ms-Icon ms-Icon--FileTemplate"
+                            style="color: rgba(0, 153, 204, 1);"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        class="collapse-command-btn"
+                        :borderWidth="1"
+                        :borderRadius="0"
+                        background="rgba(245, 245, 245, 1)"
+                        @click="Go(`/`)"
+                    >
+                        <i
+                            class="ms-Icon ms-Icon--HardDriveGroup"
+                            style="color: rgba(0, 90, 158, 1);"
+                        ></i>
+                    </fv-button>
                 </div>
             </div>
             <right-menu
@@ -62,14 +142,20 @@
                         ></i>
                         <p>{{local("New Item")}}</p>
                     </span>
-                    <span v-show="rightMenuItem.type === 'group'" @click="addPartitionAt(rightMenuItem)">
+                    <span
+                        v-show="rightMenuItem.type === 'group'"
+                        @click="addPartitionAt(rightMenuItem)"
+                    >
                         <i
                             class="ms-Icon ms-Icon--ReopenPages"
                             style="color: rgba(0, 153, 204, 1);"
                         ></i>
                         <p>{{local("New Partition")}}</p>
                     </span>
-                    <span v-show="rightMenuItem.type === 'group'" @click="addGroupAt(rightMenuItem)">
+                    <span
+                        v-show="rightMenuItem.type === 'group'"
+                        @click="addGroupAt(rightMenuItem)"
+                    >
                         <i
                             class="ms-Icon ms-Icon--ViewListGroup"
                             style="color: rgba(0, 153, 204, 1);"
@@ -108,6 +194,7 @@ export default {
     },
     data() {
         return {
+            expand: true,
             cmdList: [
                 {
                     name: () => this.local("Add"),
@@ -120,7 +207,7 @@ export default {
                             func: this.addPartition,
                             icon: "ReopenPages",
                             disabled: () => this.ds_db === null,
-                            iconColor: "rgba(0, 153, 204, 1)",
+                            iconColor: "rgba(213, 99, 70, 1)",
                         },
                         { type: "divider" },
                         {
@@ -128,24 +215,24 @@ export default {
                             func: this.addGroup,
                             icon: "ViewListGroup",
                             disabled: () => this.ds_db === null,
-                            iconColor: "rgba(0, 153, 204, 1)",
+                            iconColor: "rgba(172, 84, 206, 1)",
                         },
                     ],
                 },
                 {
                     name: () => this.local("Templates"),
                     icon: "FileTemplate",
-                    iconColor: "rgba(0, 90, 158, 1)",
-                    func: () => this.Go('/templates'),
-                    disabled: () => this.ds_db === null
+                    iconColor: "rgba(0, 153, 204, 1)",
+                    func: () => this.Go("/templates"),
+                    disabled: () => this.ds_db === null,
                 },
                 {
                     name: () => this.local("All"),
                     icon: "HardDriveGroup",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    func: () => this.Go('/'),
-                    disabled: () => this.ds_db === null
-                }
+                    func: () => this.Go("/"),
+                    disabled: () => this.ds_db === null,
+                },
             ],
             treeList: [],
             FLAT: [],
@@ -230,11 +317,10 @@ export default {
             obj.editable = obj.editable == undefined ? false : obj.editable;
             obj.type = "group";
             obj.icon = "Folder";
-            
+
             // 从存储状态里获取expand而不是从数据库中获取 //
-            let restore_status = this.FLAT.find(it => it.id === obj.id);
-            if(restore_status)
-                obj.expanded = restore_status.expanded;
+            let restore_status = this.FLAT.find((it) => it.id === obj.id);
+            if (restore_status) obj.expanded = restore_status.expanded;
 
             if (obj.children == undefined || obj.children.length == 0) {
                 obj.children = this.transPartitions(obj.partitions);
@@ -258,26 +344,23 @@ export default {
             });
             return result;
         },
-        saveExpandedStatus () {
+        saveExpandedStatus() {
             this.FLAT = [];
             let t = [].concat(this.treeList);
-            for(let i = 0; i < t.length; i++) {
-                if(t[i].children)
-                    t = t.concat(t[i].children);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].children) t = t.concat(t[i].children);
                 this.FLAT.push(t[i]);
             }
         },
-        addGroup(target=null) {
+        addGroup(target = null) {
             let _group = JSON.parse(JSON.stringify(group));
             _group.id = this.$Guid();
             _group.name = this.local("New Group Name");
             _group.emoji = "📁";
             _group.createDate = this.$SDate.DateToString(new Date());
             _group.editable = true;
-            if(target)
-                target.groups.push(_group);
-            else
-                this.groups.push(_group);
+            if (target) target.groups.push(_group);
+            else this.groups.push(_group);
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
@@ -288,17 +371,15 @@ export default {
                 document.execCommand("selectAll");
             }, 300);
         },
-        addPartition(target=null) {
+        addPartition(target = null) {
             let _partition = JSON.parse(JSON.stringify(partition));
             _partition.id = this.$Guid();
             _partition.name = this.local("New Partition Name");
             _partition.emoji = "📔";
             _partition.createDate = this.$SDate.DateToString(new Date());
             _partition.editable = true;
-            if(target)
-                target.partitions.push(_partition);
-            else
-                this.partitions.push(_partition);
+            if (target) target.partitions.push(_partition);
+            else this.partitions.push(_partition);
             this.reviseDS({
                 $index: this.data_index,
                 partitions: this.partitions,
@@ -309,14 +390,13 @@ export default {
                 document.execCommand("selectAll");
             }, 300);
         },
-        addGroupAt (item) {
-            if(item.type !== 'group')   return;
+        addGroupAt(item) {
+            if (item.type !== "group") return;
             let id = item.id;
             let t = [].concat(this.groups);
-            for(let i = 0; i < t.length; i++) {
-                if(t[i].groups)
-                    t = t.concat(t[i].groups);
-                if(t[i].id === id) {
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].id === id) {
                     this.addGroup(t[i]);
                     t[i].expanded = true;
                     break;
@@ -325,18 +405,17 @@ export default {
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
-                partitions: this.partitions
+                partitions: this.partitions,
             });
             this.refreshTreeList();
         },
-        addPartitionAt (item) {
-            if(item.type !== 'group')   return;
+        addPartitionAt(item) {
+            if (item.type !== "group") return;
             let id = item.id;
             let t = [].concat(this.groups);
-            for(let i = 0; i < t.length; i++) {
-                if(t[i].groups)
-                    t = t.concat(t[i].groups);
-                if(t[i].id === id) {
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].id === id) {
                     this.addPartition(t[i]);
                     t[i].expanded = true;
                     break;
@@ -345,27 +424,25 @@ export default {
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
-                partitions: this.partitions
+                partitions: this.partitions,
             });
             this.refreshTreeList();
         },
-        rename (item) {
+        rename(item) {
             let id = item.id;
             let name = item.name;
             let t = [].concat(this.groups);
-            for(let i = 0; i < t.length; i++) {
-                if(t[i].groups)
-                    t = t.concat(t[i].groups);
-                if(t[i].partitions)
-                    t = t.concat(t[i].partitions);
-                if(t[i].id === id) {
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions) t = t.concat(t[i].partitions);
+                if (t[i].id === id) {
                     t[i].name = name;
                     t[i].editable = false;
                     break;
                 }
             }
-            for(let i = 0; i < this.partitions.length; i++) {
-                if(this.partitions[i].id === id) {
+            for (let i = 0; i < this.partitions.length; i++) {
+                if (this.partitions[i].id === id) {
                     this.partitions[i].name = name;
                     this.partitions[i].editable = false;
                     break;
@@ -374,11 +451,11 @@ export default {
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
-                partitions: this.partitions
+                partitions: this.partitions,
             });
             this.refreshTreeList();
         },
-        deleteConfirm (item) {
+        deleteConfirm(item) {
             this.$infoBox(
                 this.local(`Are you sure to delete this ${item.type}?`),
                 {
@@ -390,42 +467,39 @@ export default {
                     confirm: () => {
                         this.delete(item);
                     },
-                    cancel: () => {
-                        
-                    },
+                    cancel: () => {},
                 }
             );
         },
         delete(item) {
             let id = item.id;
-            for(let i = 0; i < this.groups.length; i++) {
-                if(this.groups[i].id === id) {
+            for (let i = 0; i < this.groups.length; i++) {
+                if (this.groups[i].id === id) {
                     this.groups.splice(i, 1);
                     break;
                 }
             }
-            for(let i = 0; i < this.partitions.length; i++) {
-                if(this.partitions[i].id === id) {
+            for (let i = 0; i < this.partitions.length; i++) {
+                if (this.partitions[i].id === id) {
                     this.partitions.splice(i, 1);
                     break;
                 }
             }
             let t = [].concat(this.groups);
-            for(let i = 0; i < t.length; i++) {
-                if(t[i].groups)
-                    t = t.concat(t[i].groups);
-                if(t[i].groups && t[i].groups.length > 0) {
-                    let d = t[i].groups.find(it => it.id === id);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].groups && t[i].groups.length > 0) {
+                    let d = t[i].groups.find((it) => it.id === id);
                     let idx = t[i].groups.indexOf(d);
-                    if(idx > -1) {
+                    if (idx > -1) {
                         t[i].groups.splice(idx, 1);
                         break;
                     }
                 }
-                if(t[i].partitions && t[i].partitions.length > 0) {
-                    let d = t[i].partitions.find(it => it.id === id);
+                if (t[i].partitions && t[i].partitions.length > 0) {
+                    let d = t[i].partitions.find((it) => it.id === id);
                     let idx = t[i].partitions.indexOf(d);
-                    if(idx > -1) {
+                    if (idx > -1) {
                         t[i].partitions.splice(idx, 1);
                         break;
                     }
@@ -434,7 +508,7 @@ export default {
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
-                partitions: this.partitions
+                partitions: this.partitions,
             });
             this.refreshTreeList();
         },
@@ -455,6 +529,10 @@ export default {
             this.posY = targetPos.y;
 
             this.rightMenuItem = item;
+        },
+        collapseFunc (func) {
+            this.expand = true;
+            func();
         },
         Go(path) {
             if (this.$route.path === path) return 0;
@@ -513,26 +591,22 @@ export default {
                 display: flex;
                 align-items: center;
 
-                .tree-view-custom-label
-                {
+                .tree-view-custom-label {
                     margin-left: 5px;
                 }
 
-                .tree-view-custom-text-box
-                {
+                .tree-view-custom-text-box {
                     margin-left: 5px;
                 }
 
-                .tree-view-custom-confirm
-                {
+                .tree-view-custom-confirm {
                     width: 30px;
                     height: 30px;
                     flex-shrink: 0;
                     margin-left: 5px;
                     margin-right: 25px;
 
-                    i.ms-Icon
-                    {
+                    i.ms-Icon {
                         margin: 0px;
                         padding: 0px;
                         display: flex;
@@ -544,6 +618,19 @@ export default {
 
         .navigation-view-command-bar-block {
             position: relative;
+        }
+
+        .navigation-view-command-bar-block-collapse {
+            @include HcenterVcenterC;
+
+            position: relative;
+            width: 100%;
+            height: 100%;
+
+            .collapse-command-btn {
+                width: 100%;
+                flex: 1;
+            }
         }
     }
 }
