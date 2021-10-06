@@ -22,7 +22,7 @@
     "npm-check": "^5.9.2",
     "pdfjs-dist": "2.2.228",
     "sass-loader": "^8.0.2",
-    "vfluentdesign": "0.1.46",
+    "vfluentdesign": "0.1.47",
     "vue": "^2.6.11",
     "vue-axios": "^3.3.7",
     "vue-router": "^3.4.9",

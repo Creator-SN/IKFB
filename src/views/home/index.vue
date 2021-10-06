@@ -417,6 +417,7 @@ export default {
     flex-direction: column;
     overflow: hidden;
     transition: all 0.3s;
+    z-index: 1;
 
     &.dark {
         background: rgba(36, 36, 36, 1);

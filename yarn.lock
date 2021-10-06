@@ -11492,7 +11492,20 @@ verror@1.10.0, verror@^1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vfluentdesign@0.1.46, vfluentdesign@^0.1.46:
+vfluentdesign@0.1.47:
+  version "0.1.47"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.47.tgz#c4b0299549a0bf1a59dac44ac597605a2dd12e27"
+  integrity sha512-6VOPE8hB7N2kgHCavSlu/5jIpoBg2kJ3A9BDUWPC3FL338Mml5DRNC9UR3hWZp/kr9nX7AUu9eq+P53TI7orxg==
+  dependencies:
+    core-js "^3.4.3"
+    fluent-reveal-effect "^1.1.1"
+    gsap "^3.1.1"
+    office-ui-fabric-core "^11.0.0"
+    onecolor "^3.1.0"
+    vuedraggable "^2.23.2"
+    vuex "^3.1.2"
+
+vfluentdesign@^0.1.46:
   version "0.1.46"
   resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.46.tgz#c8716b438d5b2f581339ff518c368c2b33b074ae"
   integrity sha512-1lU+QVXBeMw42s8OFlGJ0HTTfnOcT5dl/KLId/gEFJnBe7vFvV3FeRSo/0qxLdPjTWY5YGQTWnvNXLYJeuiuRg==

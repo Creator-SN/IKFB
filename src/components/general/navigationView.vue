@@ -7,6 +7,7 @@
         :background="navigationViewBackground"
         :settingTitle="local('Setting')"
         :expandWidth="350"
+        style="z-index: 2;"
         @setting-click="Go(`/settings`)"
         @back="$Back"
     >
@@ -398,6 +399,14 @@ export default {
                 if (t[i].groups) t = t.concat(t[i].groups);
                 if (t[i].id === id) {
                     this.addGroup(t[i]);
+                    break;
+                }
+            }
+            // treeList expand //
+            t = [].concat(this.treeList);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].children) t = t.concat(t[i].children);
+                if (t[i].id === id) {
                     t[i].expanded = true;
                     break;
                 }
@@ -417,6 +426,14 @@ export default {
                 if (t[i].groups) t = t.concat(t[i].groups);
                 if (t[i].id === id) {
                     this.addPartition(t[i]);
+                    break;
+                }
+            }
+            // treeList expand //
+            t = [].concat(this.treeList);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].children) t = t.concat(t[i].children);
+                if (t[i].id === id) {
                     t[i].expanded = true;
                     break;
                 }
@@ -544,8 +561,9 @@ export default {
 
 <style lang="scss">
 .navigation-view {
+    position: relative;
     height: 100%;
-    z-index: 11;
+    z-index: 5;
 
     .navigation-view-template {
         position: relative;
