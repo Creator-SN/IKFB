@@ -73,6 +73,7 @@ export default {
             _page.createDate = this.$SDate.DateToString(new Date());
             let item = this.items.find(it => it.id === this.item.id);
             item.pages.push(_page);
+            this.item.pages = item.pages;
             this.reviseDS({
                 $index: this.data_index,
                 items: this.items
