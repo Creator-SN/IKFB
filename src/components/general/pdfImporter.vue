@@ -1,7 +1,7 @@
 <template>
-    <transition :name="thisValue ? 'move-right-to-left' : 'move-left-to-right'">
+    <transition :name="value ? 'move-right-to-left' : 'move-left-to-right'">
         <div
-            v-show="thisValue"
+            v-show="value"
             class="ikfb-pdf-importer"
             :class="[{dark: theme == 'dark'}]"
         >
@@ -48,32 +48,18 @@ const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
 
 export default {
-    props: {
-        value: {
-            default: false,
-        },
-        item: {
-            default: null,
-        },
-        mode: {
-            default: "item",
-        },
-    },
     data() {
         return {
-            thisValue: this.value,
             extractor: Extractor,
             progress: 0,
             path_title: "",
             stop: false,
+            lock: true,
         };
     },
     watch: {
-        value(val) {
-            this.thisValue = val;
-        },
-        thisValue(val) {
-            this.$emit("input", val);
+        df(val) {
+            if (val.length > 0) this.dropFiles();
         },
     },
     computed: {
@@ -81,6 +67,13 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             items: (state) => state.data_structure.items,
+            groups: (state) => state.data_structure.groups,
+            partitions: (state) => state.data_structure.partitions,
+            value: (state) => state.pdfImporter.value,
+            item: (state) => state.pdfImporter.item,
+            mode: (state) => state.pdfImporter.mode,
+            df: (state) => state.pdfImporter.df,
+            c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", "ds_db"]),
@@ -88,15 +81,18 @@ export default {
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
+            revisePdfImporter: "revisePdfImporter",
         }),
         inputInspectClick() {
             if (!this.item && this.mode === "item") return;
             this.$refs.input.click();
         },
         async getPDFData() {
-            if (!this.item) return;
+            if (!this.lock) return;
+            this.lock = false;
             if (this.$refs.input.files.length === 0) return;
             if (this.mode === "item") {
+                if (!this.item) return;
                 for (let i = 0; i < this.$refs.input.files.length; i++) {
                     let file = this.$refs.input.files[i];
                     let _metadata = await this.getTitleMetadata(file);
@@ -111,11 +107,15 @@ export default {
                     await this.saveMetadata(_metadata);
                 }
             } else if (this.mode === "import") {
-                this.thisValue = true;
+                this.revisePdfImporter({
+                    value: true,
+                });
                 for (let i = 0; i < this.$refs.input.files.length; i++) {
                     if (this.stop) {
                         this.stop = false;
-                        this.thisValue = false;
+                        this.revisePdfImporter({
+                            value: false,
+                        });
                         return;
                     }
                     this.progress =
@@ -136,14 +136,86 @@ export default {
                         $index: this.data_index,
                         items: this.items,
                     });
+                    this.copyToPartition(_item);
                     await this.copyPdf(file.path, _item.id);
                     await this.saveMetadata(_metadata, _item.id);
                 }
                 this.stop = false;
-                this.thisValue = false;
+                this.lock = true;
+                this.revisePdfImporter({
+                    value: false,
+                    c: this.c + 1
+                });
                 this.progress = 0;
                 this.path_title = "";
             }
+        },
+        async dropFiles() {
+            if (!this.lock) return;
+            this.lock = false;
+            this.revisePdfImporter({
+                value: true,
+            });
+            for (let i = 0; i < this.df.length; i++) {
+                if (this.stop) {
+                    this.stop = false;
+                    this.revisePdfImporter({
+                        value: false,
+                    });
+                    return;
+                }
+                this.progress = ((i + 1) / this.df.length) * 100;
+                this.path_title = this.df[i].path;
+
+                let file = this.df[i];
+                let _metadata = await this.getTitleMetadata(file);
+                let _item = JSON.parse(JSON.stringify(item));
+                _item.id = this.$Guid();
+                _item.name = _metadata.title;
+                _item.emoji = "📦";
+                _item.createDate = this.$SDate.DateToString(new Date());
+                _item.pdf = `${_item.id}`;
+                _item.metadata = _metadata;
+                this.items.push(_item);
+                this.reviseDS({
+                    $index: this.data_index,
+                    items: this.items,
+                });
+                this.copyToPartition(_item);
+                await this.copyPdf(file.path, _item.id);
+                await this.saveMetadata(_metadata, _item.id);
+            }
+            this.stop = false;
+            this.lock = true;
+            this.revisePdfImporter({
+                value: false,
+                df: [],
+                c: this.c + 1
+            });
+            this.progress = 0;
+            this.path_title = "";
+        },
+        copyToPartition(item) {
+            let id = this.$route.params.id;
+            if (id === undefined) return;
+            let t = [].concat(this.groups);
+            let partitions = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions[i].id === id) {
+                    partitions[i].items.push(item.id);
+                }
+            }
+            this.reviseDS({
+                $index: this.data_index,
+                groups: this.groups,
+                partitions: this.partitions,
+            });
         },
         async copyPdf(objURL, id = null) {
             if (!id) id = this.item.id;
@@ -257,7 +329,9 @@ export default {
                                 status: "error",
                             });
                             this.stop = false;
-                            this.thisValue = false;
+                            this.revisePdfImporter({
+                                value: false,
+                            });
                             this.progress = 0;
                             this.path_title = "";
                         });

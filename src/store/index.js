@@ -28,6 +28,14 @@ export default new Vuex.Store({
             item: null,
             target: null
         },
+        pdfImporter: {
+            value: false,
+            item: null,
+            mode: "item",
+            pdf_importer: null,
+            df: [],
+            c: 0
+        },
         ds_db_list: [],
         i18n: {}
     },
@@ -60,6 +68,13 @@ export default new Vuex.Store({
                 if (state.editor[key] === undefined)
                     continue;
                 state.editor[key] = obj[key];
+            }
+        },
+        revisePdfImporter(state, obj) {
+            for (let key in obj) {
+                if (state.pdfImporter[key] === undefined)
+                    continue;
+                state.pdfImporter[key] = obj[key];
             }
         },
         reviseI18N(state, i18n) {

@@ -42,10 +42,16 @@
                         ></i>
                     </template>
                     <template v-slot:column_1="x">
-                        <p class="sec" style="user-select: none;">{{ x.row_index + 1 }}</p>
+                        <p
+                            class="sec"
+                            style="user-select: none;"
+                        >{{ x.row_index + 1 }}</p>
                     </template>
                     <template v-slot:column_2="x">
-                        <p :title="x.item.emoji" style="user-select: none;">{{ x.item.emoji }}</p>
+                        <p
+                            :title="x.item.emoji"
+                            style="user-select: none;"
+                        >{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_3="x">
                         <p
@@ -224,12 +230,6 @@
             v-model="show.folder"
             @choose-partitions="copyItemsToPartitions"
         ></folder-window>
-        <pdf-importer
-            v-model="show.pdfImporter"
-            :mode="mode"
-            :item="currentItem"
-            ref="pdf_importer"
-        ></pdf-importer>
     </div>
 </template>
 
@@ -240,7 +240,6 @@ import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
 import metadataPanel from "@/components/home/metadataPanel.vue";
 import folderWindow from "@/components/general/folderWindow.vue";
-import pdfImporter from "@/components/general/pdfImporter.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
@@ -253,7 +252,6 @@ export default {
         renameItemPage,
         metadataPanel,
         folderWindow,
-        pdfImporter,
     },
     data() {
         return {
@@ -318,7 +316,6 @@ export default {
             currentChoosen: [],
             currentItemPage: {},
             currentSearch: "",
-            mode: "item",
             show: {
                 add: false,
                 rename: false,
@@ -340,6 +337,9 @@ export default {
                 this.$refs.table.widthFormat(0);
             }, 300);
         },
+        c() {
+            this.refreshFilterItems();
+        },
     },
     computed: {
         ...mapState({
@@ -348,6 +348,11 @@ export default {
             items: (state) => state.data_structure.items,
             groups: (state) => state.data_structure.groups,
             partitions: (state) => state.data_structure.partitions,
+            value: (state) => state.pdfImporter.value,
+            item: (state) => state.pdfImporter.item,
+            pdf_importer: (state) => state.pdfImporter.pdf_importer,
+            mode: (state) => state.pdfImporter.mode,
+            c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", "ds_db"]),
@@ -403,6 +408,7 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
             reviseEditor: "reviseEditor",
+            revisePdfImporter: "revisePdfImporter",
             toggleEditor: "toggleEditor",
         }),
         refreshFilterItems() {
@@ -452,6 +458,7 @@ export default {
                             `root/items/${this.currentItem.id}`
                         )
                     );
+                    this.delItemsFromPs([this.currentItem.id]);
                     this.lock = true;
                 },
                 cancel: () => {},
@@ -467,8 +474,10 @@ export default {
                 theme: this.theme,
                 confirm: () => {
                     this.lock = false;
+                    let ids = [];
                     let copy = JSON.parse(JSON.stringify(this.currentChoosen));
                     copy.forEach((el) => {
+                        ids.push(el.id);
                         let index = this.items.indexOf(
                             this.items.find((it) => it.id === el.id)
                         );
@@ -484,20 +493,48 @@ export default {
                                 `root/items/${el.id}`
                             )
                         );
+                        this.delItemsFromPs(ids);
                         this.lock = true;
                     });
                 },
                 cancel: () => {},
             });
         },
+        delItemsFromPs(ids) {
+            if (ids.length === 0) return;
+            let t = [].concat(this.groups);
+            let partitions = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            partitions.forEach((p, idx) => {
+                for (let i = 0; i < ids.length; i++) {
+                    let index = p.items.indexOf(ids[i]);
+                    if (index > -1) {
+                        p.items.splice(index, 1);
+                    }
+                }
+                partitions[idx].items = p.items;
+            });
+        },
         reviseItemPdf() {
-            this.mode = "item";
-            this.$refs.pdf_importer.inputInspectClick();
+            this.revisePdfImporter({
+                mode: "item",
+                item: this.currentItem,
+            });
+            setTimeout(() => {
+                this.pdf_importer.inputInspectClick();
+            }, 300);
         },
         importPdf() {
-            this.mode = "import";
+            this.revisePdfImporter({
+                mode: "import",
+            });
             setTimeout(() => {
-                this.$refs.pdf_importer.inputInspectClick();
+                this.pdf_importer.inputInspectClick();
             }, 300);
         },
         openEditor(item, page) {

@@ -1,8 +1,15 @@
 <template>
-    <div id="app" :class="{dark: theme == 'dark'}">
+    <div
+        id="app"
+        :class="{dark: theme == 'dark'}"
+    >
         <navigation-view></navigation-view>
         <div class="addition-container">
-            <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
+            <title-bar
+                class="title-bar"
+                :theme="theme"
+                style="background: transparent;"
+            ></title-bar>
             <div class="global-container">
                 <transition name="move-bottom-to-top">
                     <keep-alive>
@@ -12,6 +19,12 @@
             </div>
         </div>
         <editor-container></editor-container>
+        <pdf-importer ref="pdf_importer"></pdf-importer>
+        <div
+            v-show="show.drop"
+            class="file-drop-mask"
+            ref="drop"
+        ></div>
     </div>
 </template>
 
@@ -20,8 +33,8 @@ import i18n from "@/js/i18n.js";
 import titleBar from "@/components/general/titleBar.vue";
 import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
-import Extractor from "@/js/extractTitle.js";
-import { config } from '@/js/data_sample';
+import pdfImporter from "@/components/general/pdfImporter.vue";
+import { config } from "@/js/data_sample";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
@@ -29,170 +42,169 @@ export default {
     components: {
         titleBar,
         navigationView,
-        editorContainer
+        editorContainer,
+        pdfImporter,
     },
-    data () {
+    data() {
         return {
-            extractor: Extractor
-        }
+            show: {
+                drop: false,
+            },
+        };
     },
     watch: {
-        data_path () {
+        $route() {
+            this.pdfImporterInit();
+        },
+        data_path() {
             this.syncConfig();
             this.syncDSDB();
-        }
+        },
     },
     computed: {
         ...mapState({
-            data_path: state => state.data_path,
-            language: state => state.language,
+            data_path: (state) => state.data_path,
+            language: (state) => state.language,
             theme: (state) => state.theme,
         }),
-        ...mapGetters([
-            'local'
-        ])
+        ...mapGetters(["local"]),
     },
     mounted() {
         this.syncConfig();
         this.syncDSDB();
+        this.pdfImporterInit();
+        this.dropFilesInit();
         this.i18nInit();
     },
     methods: {
         ...mapMutations({
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
+            revisePdfImporter: "revisePdfImporter",
             reviseI18N: "reviseI18N",
         }),
-        i18nInit () {
+        i18nInit() {
             this.reviseI18N(i18n);
         },
-        syncConfig () {
+        syncConfig() {
             let _config = JSON.parse(JSON.stringify(config));
-            for(let key in _config) {
+            for (let key in _config) {
                 _config[key] = this.$config_db.get(key).write();
-                if(_config[key] == undefined) {
+                if (_config[key] == undefined) {
                     let object = {
-                        v: this
+                        v: this,
                     };
                     object[key] = config[key];
                     this.reviseConfig(object);
-                }
-                else
-                {
+                } else {
                     let object = {
-                        v: this
+                        v: this,
                     };
                     object[key] = _config[key];
                     this.reviseConfig(object);
                 }
             }
         },
-        syncDSDB () {
+        syncDSDB() {
             let pathList = this.data_path;
             let db_array_result = this.$load_ds_file(pathList);
-            if(db_array_result.status == 404) {
-                this.$barWarning(this.local('There is no source, please add a data source to getting started.'), {
-                    status: 'warning'
-                });
+            if (db_array_result.status == 404) {
+                this.$barWarning(
+                    this.local(
+                        "There is no source, please add a data source to getting started."
+                    ),
+                    {
+                        status: "warning",
+                    }
+                );
                 return;
             }
             let db_array = db_array_result.db_array;
             let ds_db_list = [];
-            db_array.forEach(el => {
+            db_array.forEach((el) => {
                 ds_db_list.push(el.db);
             });
             this.reviseData({
-                ds_db_list: ds_db_list
+                ds_db_list: ds_db_list,
             });
         },
-        async gettext(pdfUrl) {
-            let pdf = this.$PDFJS.getDocument(pdfUrl);
-            return pdf.promise.then((pdf) => {
-                // get all pages text
-                let maxPages = pdf.numPages;
-                let countPromises = []; // collecting all page promises
-                for (let j = 1; j <= maxPages; j++) {
-                    let page = pdf.getPage(j);
+        pdfImporterInit() {
+            this.revisePdfImporter({
+                pdf_importer: this.$refs.pdf_importer,
+            });
+        },
+        dropFilesInit() {
+            this.$el.addEventListener(
+                "dragenter",
+                (e) => {
+                    this.show.drop = true;
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                false
+            );
 
-                    // push an promise
-                    countPromises.push(
-                        page.then((page) => {
-                            let textContent = page.getTextContent();
-                            return textContent.then((text) => {
-                                return {
-                                    page: j,
-                                    items: text.items
-                                };
-                            });
-                        })
-                    );
+            this.$el.addEventListener(
+                "dragover",
+                (e) => {
+                    this.show.drop = true;
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                false
+            );
+
+            this.$el.addEventListener(
+                "dragleave",
+                (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                false
+            );
+
+            this.$refs.drop.addEventListener(
+                "dragleave",
+                (e) => {
+                    this.show.drop = false;
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                false
+            );
+            
+            this.$el.addEventListener("drop", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                this.show.drop = false;
+                var df = e.dataTransfer;
+                var files = [];
+
+                if (df.items !== undefined) {
+                    for (let i = 0; i < df.items.length; i++) {
+                        let item = df.items[i];
+                        // 用webkitGetAsEntry禁止上传目录
+                        if (
+                            item.kind === "file" &&
+                            item.webkitGetAsEntry().isFile &&
+                            item.type === "application/pdf"
+                        ) {
+                            let file = item.getAsFile();
+                            files.push(file);
+                        }
+                    }
                 }
-                // Wait for all pages and join text
-                return Promise.all(countPromises).then((texts) => {
-                    return texts;
+
+                this.revisePdfImporter({
+                    df: files,
                 });
             });
         },
-        async getPath() {
-            let path_list = [];
-            for (let i = 0; i < this.$refs.f.files.length; i++)
-                path_list.push(this.$refs.f.files[i].path);
-            console.log(path_list);
-            this.$refs.i.src = path_list[0];
-            let text_list = [];
-            for (let i = 0; i < path_list.length; i++) {
-                let file = this.$refs.f.files[i];
-                let text = await this.gettext(URL.createObjectURL(file));
-                text[0].items.forEach((el, idx) => {
-                    text_list.push(el.str);
-                    if(idx >= 100)
-                        return;
-                });
-                console.log(text[0]);
-            }
-            this.$refs.t.innerHTML = text_list.join("\n");
-        },
-        async getTitle () {
-            this.extractor.PDFJS = this.$PDFJS;
-            let path_list = [];
-            for (let i = 0; i < this.$refs.f.files.length; i++)
-                path_list.push(this.$refs.f.files[i].path);
-            console.log(path_list);
-            this.$refs.i.src = path_list[0];
-            for (let i = 0; i < path_list.length; i++) {
-                let file = this.$refs.f.files[i];
-                let title = await this.extractor.getTitle(URL.createObjectURL(file));
-                console.log('⭐' + title + '⭐');
-            }
-        },
-        async getMetadata () {
-            this.extractor.PDFJS = this.$PDFJS;
-            let path_list = [];
-            for (let i = 0; i < this.$refs.f.files.length; i++)
-                path_list.push(this.$refs.f.files[i].path);
-            this.$refs.i.src = path_list[0];
-            for (let i = 0; i < path_list.length; i++) {
-                let file = this.$refs.f.files[i];
-                let metadata = await this.extractor.getMetadata(URL.createObjectURL(file));
-                console.log(metadata);
-            }
-        },
-        async cref_getInfoByTitle(title) {
-            let baseUrl = 'https://api.crossref.org/works';
-            title = title.replace(/ +/g, '+');
-            this.axios.get(baseUrl, {
-                params: {
-                    "query.bibliographic": title
-                }
-            }).then(response => {
-                console.log(response);
-            });
-        },
-        Go (path) {
-            if(this.$route.path === path)
-                return 0;
+        Go(path) {
+            if (this.$route.path === path) return 0;
             this.$Go(path);
-        }
+        },
     },
 };
 </script>
@@ -210,32 +222,44 @@ export default {
     overflow: hidden;
     transition: all 0.3s;
 
-    &.dark
-    {
+    &.dark {
         background: rgba(36, 36, 36, 1);
     }
 
-    .addition-container
-    {
+    .addition-container {
         position: relative;
         width: 100%;
         height: 100%;
         display: flex;
         overflow: hidden;
 
-        .title-bar
-        {
+        .title-bar {
             position: absolute;
             z-index: 10;
         }
 
-        .global-container
-        {
+        .global-container {
             position: relative;
             width: 100%;
             height: 100%;
             overflow: hidden;
         }
+    }
+
+    .file-drop-mask {
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        width: calc(100% - 10px);
+        height: calc(100% - 10px);
+        background: rgba(200, 200, 200, 0.1);
+        border: rgba(200, 200, 200, 0.6) dashed 3px;
+        border-radius: 8px;
+        box-sizing: border-box;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        overflow: hidden;
+        z-index: 6;
     }
 
     .move-bottom-to-top-enter-active {

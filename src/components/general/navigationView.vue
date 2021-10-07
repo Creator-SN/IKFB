@@ -29,6 +29,8 @@
                         v-model="treeList"
                         :theme="theme"
                         expandedIconPosition="right"
+                        background="transparent"
+                        :viewStyle="{backgroundColor:'transparent'}"
                         style="width: 100%; height: 100%;"
                         @click="SwitchPartition"
                     >
@@ -202,13 +204,13 @@ export default {
                     name: () => this.local("Add"),
                     icon: "Add",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null,
+                    disabled: () => this.SourceDisabled,
                     secondary: [
                         {
                             name: () => this.local("New Partition"),
                             func: this.addPartition,
                             icon: "ReopenPages",
-                            disabled: () => this.ds_db === null,
+                            disabled: () => this.SourceDisabled,
                             iconColor: "rgba(213, 99, 70, 1)",
                         },
                         { type: "divider" },
@@ -216,7 +218,7 @@ export default {
                             name: () => this.local("New Group"),
                             func: this.addGroup,
                             icon: "ViewListGroup",
-                            disabled: () => this.ds_db === null,
+                            disabled: () => this.SourceDisabled,
                             iconColor: "rgba(172, 84, 206, 1)",
                         },
                     ],
@@ -226,14 +228,14 @@ export default {
                     icon: "FileTemplate",
                     iconColor: "rgba(0, 153, 204, 1)",
                     func: () => this.Go("/templates"),
-                    disabled: () => this.ds_db === null,
+                    disabled: () => this.SourceDisabled,
                 },
                 {
                     name: () => this.local("All"),
                     icon: "HardDriveGroup",
                     iconColor: "rgba(0, 90, 158, 1)",
                     func: () => this.Go("/"),
-                    disabled: () => this.ds_db === null,
+                    disabled: () => this.SourceDisabled,
                 },
             ],
             treeList: [],
@@ -262,6 +264,7 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             language: (state) => state.language,
+            ds_id: (state) => state.data_structure.id,
             name: (state) => state.data_structure.name,
             groups: (state) => state.data_structure.groups,
             partitions: (state) => state.data_structure.partitions,
@@ -271,6 +274,11 @@ export default {
         navigationViewBackground() {
             if (this.theme == "light") return "rgba(242, 242, 242, 0.8)";
             return "rgba(0, 0, 0, 0.8)";
+        },
+        SourceDisabled() {
+            if (this.ds_db === null) return true;
+            if (!this.ds_id) return true;
+            return false;
         },
     },
     mounted() {
