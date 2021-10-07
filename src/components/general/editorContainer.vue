@@ -62,9 +62,15 @@ export default {
         };
     },
     watch: {
-        target() {
+        $route () {
+            this.unsave = false;
+        },
+        show_editor () {
             this.refreshContent();
         },
+        target() {
+            this.refreshContent();
+        }
     },
     computed: {
         ...mapState({
@@ -88,11 +94,12 @@ export default {
             toggleEditor: "toggleEditor",
         }),
         ShortCutInit() {
-            this.$el.addEventListener("keyup", (event) => {
+            this.$el.addEventListener("keydown", (event) => {
                 if (event.keyCode === 83 && event.ctrlKey) {
                     this.$refs.editor.save();
                     this.unsave = false;
-                } else
+                }
+                else
                 {
                     let filterKey = [17, 16, 20];
                     if(filterKey.indexOf(event.keyCode) < 0)

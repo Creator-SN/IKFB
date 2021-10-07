@@ -49,6 +49,9 @@ export default {
             data_index: (state) => state.data_index,            
             data_path: (state) => state.data_path,
             items: state => state.data_structure.items,
+            groups: (state) => state.data_structure.groups,
+            partitions: (state) => state.data_structure.partitions,
+            c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", 'ds_db']),
@@ -59,6 +62,7 @@ export default {
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
+            revisePdfImporter: "revisePdfImporter",
         }),
         async add () {
             if(!this.ds_db || this.name === '')
@@ -73,6 +77,10 @@ export default {
                 $index: this.data_index,
                 items: this.items
             });
+            this.copyToPartition(_item);
+            this.revisePdfImporter({
+                    c: this.c + 1
+                });
             let url = path.join(this.data_path[this.data_index], `root/items/${_item.id}`);
             ipc.send('ensure-folder', url);
             await new Promise(resolve => {
@@ -81,6 +89,28 @@ export default {
                 });
             })
             this.thisShow = false;
+        },
+        copyToPartition(item) {
+            let id = this.$route.params.id;
+            if (id === undefined) return;
+            let t = [].concat(this.groups);
+            let partitions = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions[i].id === id) {
+                    partitions[i].items.push(item.id);
+                }
+            }
+            this.reviseDS({
+                $index: this.data_index,
+                groups: this.groups,
+                partitions: this.partitions,
+            });
         }
     },
 };
