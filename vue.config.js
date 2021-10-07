@@ -1,7 +1,6 @@
 var path = require("path");
 
-const resolve = url =>
-{
+const resolve = url => {
     return path.join(__dirname, url);
 };
 
@@ -24,7 +23,19 @@ module.exports = {
     },
     pluginOptions: {    // necessary plugins
         electronBuilder: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
+            builderOptions: {
+                win: {
+                    icon: "./logo.ico"
+                },
+                nsis: {
+                    oneClick: false,
+                    allowToChangeInstallationDirectory: true,
+                    createDesktopShortcut: true,
+                    createStartMenuShortcut: true
+                }
+            }
         }
     }
 };
