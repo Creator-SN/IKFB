@@ -18,6 +18,9 @@ import VueAxios from 'vue-axios'
 
 
 let PDFJS = require("pdfjs-dist");
+// fix pdf workerSrc
+const pdfjsWorker = require('pdfjs-dist/build/pdf.worker.entry');
+PDFJS.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 Vue.use(VueAxios, axios);
 
