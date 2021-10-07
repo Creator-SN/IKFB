@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, BrowserWindow, shell } from 'electron'
+import { app, protocol, ipcMain, BrowserWindow, shell,globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -134,6 +134,12 @@ app.on('ready', async () => {
         }
     }
     createWindow()
+
+    // 注册 devtools 用以生产环境的下的异常调试
+    globalShortcut.register('CommandOrControl+Shift+L', () => {
+        let focusWin = BrowserWindow.getFocusedWindow()
+        focusWin && focusWin.toggleDevTools()
+    })
 })
 
 // Exit cleanly on request from parent process in development mode.
