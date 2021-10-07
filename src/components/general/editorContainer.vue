@@ -7,6 +7,7 @@
         >
             <div class="control-banner">
                 <fv-button
+                    :theme="theme"
                     :borderRadius="30"
                     class="control-btn"
                     @click="fullScreen ^= true"
@@ -17,11 +18,21 @@
                     ></i>
                 </fv-button>
                 <fv-button
+                    :theme="theme"
                     :borderRadius="30"
                     class="control-btn"
-                    @click="toggleEditor(false)"
+                    @click="close"
                 >
                     <i class="ms-Icon ms-Icon--Cancel"></i>
+                </fv-button>
+                <fv-button
+                    v-show="unsave"
+                    :theme="theme"
+                    :borderRadius="30"
+                    class="control-btn"
+                    background="rgba(0, 204, 153, 1)"
+                >
+                    {{''}}
                 </fv-button>
             </div>
             <power-editor
@@ -29,6 +40,7 @@
                 :theme="theme"
                 :editorOutSideBackground="theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'"
                 :mobileDisplayWidth="0"
+                ref="editor"
                 style="width: 100%; height: 100%;"
                 @save-json="saveContent"
             ></power-editor>
@@ -46,6 +58,7 @@ export default {
         return {
             content: "",
             fullScreen: false,
+            unsave: false,
         };
     },
     watch: {
@@ -66,11 +79,27 @@ export default {
         }),
         ...mapGetters(["local", "ds_db"]),
     },
+    mounted() {
+        this.ShortCutInit();
+    },
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
             toggleEditor: "toggleEditor",
         }),
+        ShortCutInit() {
+            this.$el.addEventListener("keyup", (event) => {
+                if (event.keyCode === 83 && event.ctrlKey) {
+                    this.$refs.editor.save();
+                    this.unsave = false;
+                } else
+                {
+                    let filterKey = [17, 16, 20];
+                    if(filterKey.indexOf(event.keyCode) < 0)
+                        this.unsave = true;
+                }
+            });
+        },
         async refreshContent() {
             if (!this.type || !this.target.id) return;
             let folder =
@@ -118,6 +147,24 @@ export default {
                     resolve(1);
                 });
             });
+        },
+        close() {
+            if (this.unsave) {
+                this.$infoBox(
+                    this.local(`Are you sure to quit with out saved?`),
+                    {
+                        status: "default",
+                        title: this.local("Confirm"),
+                        confirmTitle: this.local("Confirm"),
+                        cancelTitle: this.local("Cancel"),
+                        theme: this.theme,
+                        confirm: () => {
+                            this.toggleEditor(false);
+                        },
+                        cancel: () => {},
+                    }
+                );
+            } else this.toggleEditor(false);
         },
     },
 };

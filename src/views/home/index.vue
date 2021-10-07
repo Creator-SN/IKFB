@@ -10,7 +10,9 @@
             <div class="row between">
                 <fv-text-box
                     v-model="currentSearch"
-                    placeholder="从当前内容筛选"
+                    :placeholder="local('Filtering from current content')"
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
                     icon="Filter"
                     borderWidth="2"
                     :revealBorder="true"
@@ -20,8 +22,9 @@
             <div class="row command-bar">
                 <fv-command-bar
                     :options="cmd"
-                    :background="'rgba(245, 245, 245, 1)'"
-                    style="flex: 1"
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'"
+                    style="flex: 1;"
                 ></fv-command-bar>
             </div>
             <div class="row main-table">
@@ -29,6 +32,7 @@
                     :value="filterItems"
                     :head="head"
                     :filter="currentSearch"
+                    :theme="theme"
                     style="width: 100%; height: 100%"
                     ref="table"
                     :multiSelection="true"
@@ -663,6 +667,20 @@ export default {
         .s-title {
             color: whitesmoke;
         }
+
+        .m-home-block {
+            .row {
+                &.main-table {
+                    background: black;
+                }
+
+                .row-item-info
+                {
+                    background: rgba(37, 36, 35, 1);
+                    color: whitesmoke;
+                }
+            }
+        }
     }
 
     .s-row {
@@ -708,6 +726,7 @@ export default {
                 padding: 0px 12px;
                 display: flex;
                 align-items: center;
+                overflow-x: auto;
             }
 
             &.main-table {

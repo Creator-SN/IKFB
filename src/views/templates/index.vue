@@ -10,7 +10,9 @@
             <div class="row between">
                 <fv-text-box
                     v-model="currentSearch"
-                    placeholder="从当前内容筛选"
+                    :placeholder="local('Filtering from current content')"
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
                     icon="Filter"
                     borderWidth="2"
                     :revealBorder="true"
@@ -20,7 +22,8 @@
             <div class="row command-bar">
                 <fv-command-bar
                     :options="cmd"
-                    :background="'rgba(245, 245, 245, 1)'"
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'"
                     style="flex: 1"
                 ></fv-command-bar>
             </div>
@@ -29,6 +32,7 @@
                     :value="templates"
                     :head="head"
                     :filter="currentSearch"
+                    :theme="theme"
                     style="width: 100%; height: 100%"
                     ref="table"
                     :multiSelection="true"
@@ -42,7 +46,10 @@
                         <p :title="x.item.emoji">{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_2="x">
-                        <p class="highlight" @click="openEditor(x.item)">{{ x.item.name }}</p>
+                        <p
+                            class="highlight"
+                            @click="openEditor(x.item)"
+                        >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_3="x">
                         <p class="sec">{{ x.item.createDate }}</p>
@@ -69,7 +76,10 @@
             </div>
         </div>
         <add-template :show.sync="show.add"></add-template>
-        <rename-template :value="currentItem" :show.sync="show.rename"></rename-template>
+        <rename-template
+            :value="currentItem"
+            :show.sync="show.rename"
+        ></rename-template>
     </div>
 </template>
 
@@ -83,7 +93,7 @@ const path = require("path");
 export default {
     components: {
         addTemplate,
-        renameTemplate
+        renameTemplate,
     },
     data() {
         return {
@@ -93,15 +103,18 @@ export default {
                     icon: "Add",
                     iconColor: "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
-                    func: () => { this.show.add = true; }
+                    func: () => {
+                        this.show.add = true;
+                    },
                 },
                 {
                     name: () => this.local("Delete"),
                     icon: "Delete",
                     iconColor: "rgba(173, 38, 45, 1)",
-                    disabled: () => this.currentChoosen.length === 0 || !this.lock,
-                    func: this.deleteTemplates
-                }
+                    disabled: () =>
+                        this.currentChoosen.length === 0 || !this.lock,
+                    func: this.deleteTemplates,
+                },
             ],
             head: [
                 { content: "No.", width: 120 },
@@ -114,7 +127,7 @@ export default {
             currentSearch: "",
             show: {
                 add: false,
-                rename: false
+                rename: false,
             },
             lock: true,
         };
@@ -144,7 +157,7 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
             reviseEditor: "reviseEditor",
-            toggleEditor: "toggleEditor"
+            toggleEditor: "toggleEditor",
         }),
         templatesEnsureFolder() {
             if (!this.ds_db || this.data_index == -1) return;
@@ -157,37 +170,41 @@ export default {
                 this.lock = true;
             });
         },
-        deleteTemplate () {
-            if(!this.currentItem.id || !this.lock)
-                return;
-            this.$infoBox(
-                this.local(`Are you sure to delete this template?`),
-                {
-                    status: "error",
-                    title: this.local("Delete Template"),
-                    confirmTitle: this.local("Confirm"),
-                    cancelTitle: this.local("Cancel"),
-                    theme: this.theme,
-                    confirm: () => {
-                        this.lock = false;
-                        let index = this.templates.indexOf(this.templates.find(it => it.id === this.currentItem.id));
-                        this.templates.splice(index, 1);
-                        this.reviseDS({
-                            $index: this.data_index,
-                            templates: this.templates
-                        });
-                        ipc.send('remove-file', path.join(this.data_path[this.data_index], 'root/templates', `${this.currentItem.id}.json`));
-                        this.lock = true;
-                    },
-                    cancel: () => {
-                        
-                    },
-                }
-            );  
+        deleteTemplate() {
+            if (!this.currentItem.id || !this.lock) return;
+            this.$infoBox(this.local(`Are you sure to delete this template?`), {
+                status: "error",
+                title: this.local("Delete Template"),
+                confirmTitle: this.local("Confirm"),
+                cancelTitle: this.local("Cancel"),
+                theme: this.theme,
+                confirm: () => {
+                    this.lock = false;
+                    let index = this.templates.indexOf(
+                        this.templates.find(
+                            (it) => it.id === this.currentItem.id
+                        )
+                    );
+                    this.templates.splice(index, 1);
+                    this.reviseDS({
+                        $index: this.data_index,
+                        templates: this.templates,
+                    });
+                    ipc.send(
+                        "remove-file",
+                        path.join(
+                            this.data_path[this.data_index],
+                            "root/templates",
+                            `${this.currentItem.id}.json`
+                        )
+                    );
+                    this.lock = true;
+                },
+                cancel: () => {},
+            });
         },
-        deleteTemplates () {
-            if(!this.currentChoosen || !this.lock)
-                return;
+        deleteTemplates() {
+            if (!this.currentChoosen || !this.lock) return;
             this.$infoBox(
                 this.local(`Are you sure to delete these templates?`),
                 {
@@ -198,31 +215,40 @@ export default {
                     theme: this.theme,
                     confirm: () => {
                         this.lock = false;
-                        let copy = JSON.parse(JSON.stringify(this.currentChoosen));
-                        copy.forEach(el => {
-                            let index = this.templates.indexOf(this.templates.find(it => it.id === el.id));
+                        let copy = JSON.parse(
+                            JSON.stringify(this.currentChoosen)
+                        );
+                        copy.forEach((el) => {
+                            let index = this.templates.indexOf(
+                                this.templates.find((it) => it.id === el.id)
+                            );
                             this.templates.splice(index, 1);
                             this.reviseDS({
                                 $index: this.data_index,
-                                templates: this.templates
+                                templates: this.templates,
                             });
-                            ipc.send('remove-file', path.join(this.data_path[this.data_index], 'root/templates', `${el.id}.json`));
+                            ipc.send(
+                                "remove-file",
+                                path.join(
+                                    this.data_path[this.data_index],
+                                    "root/templates",
+                                    `${el.id}.json`
+                                )
+                            );
                             this.lock = true;
                         });
                     },
-                    cancel: () => {
-                        
-                    },
+                    cancel: () => {},
                 }
-            );  
+            );
         },
-        openEditor (template) {
+        openEditor(template) {
             this.reviseEditor({
-                type: 'template',
-                target: template
+                type: "template",
+                target: template,
             });
             this.toggleEditor(true);
-        }
+        },
     },
 };
 </script>
@@ -243,6 +269,14 @@ export default {
 
         .s-title {
             color: whitesmoke;
+        }
+
+        .m-templates-block {
+            .row {
+                &.main-table {
+                    background: black;
+                }
+            }
         }
     }
 

@@ -199,7 +199,7 @@ export default {
             this.$emit("input", val);
         },
         item() {
-            console.log(this.item)
+            // console.log(this.item)
             this.metadataInit();
         },
     },

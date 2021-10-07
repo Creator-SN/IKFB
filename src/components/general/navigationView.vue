@@ -7,10 +7,24 @@
         :background="navigationViewBackground"
         :settingTitle="local('Setting')"
         :expandWidth="350"
-        style="z-index: 2;"
+        style="z-index: 1;"
         @setting-click="Go(`/settings`)"
         @back="$Back"
     >
+        <template v-slot:searchBlock>
+            <fv-search-box
+                :options="flatPartitions"
+                icon="Search"
+                :placeholder="local('Search Partitions')"
+                :theme="theme"
+                :revealBorder="true"
+                borderWidth="2"
+                borderRadius="6"
+                :isBoxShadow="true"
+                style="width: 95%;"
+                @choose-result="SwitchPartition"
+            ></fv-search-box>
+        </template>
         <template v-slot:panel>
             <div class="navigation-view-template">
                 <div
@@ -47,6 +61,7 @@
                                 <fv-text-box
                                     v-model="x.item.name"
                                     v-show="x.item.editable"
+                                    :theme="theme"
                                     :ref="`t:${x.item.id}`"
                                     class="tree-view-custom-text-box"
                                     @keyup.native.enter="rename(x.item)"
@@ -83,7 +98,7 @@
                         class="collapse-command-btn"
                         :borderWidth="1"
                         :borderRadius="0"
-                        background="rgba(245, 245, 245, 1)"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
                         @click="collapseFunc(addPartition)"
                     >
                         <i
@@ -96,7 +111,7 @@
                         class="collapse-command-btn"
                         :borderWidth="1"
                         :borderRadius="0"
-                        background="rgba(245, 245, 245, 1)"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
                         @click="collapseFunc(addGroup)"
                     >
                         <i
@@ -109,7 +124,7 @@
                         class="collapse-command-btn"
                         :borderWidth="1"
                         :borderRadius="0"
-                        background="rgba(245, 245, 245, 1)"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
                         @click="Go(`/templates`)"
                     >
                         <i
@@ -122,7 +137,7 @@
                         class="collapse-command-btn"
                         :borderWidth="1"
                         :borderRadius="0"
-                        background="rgba(245, 245, 245, 1)"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
                         @click="Go(`/`)"
                     >
                         <i
@@ -280,6 +295,15 @@ export default {
             if (!this.ds_id) return true;
             return false;
         },
+        flatPartitions () {
+            let result = [];
+            let t = [].concat(this.treeList);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].children) t = t.concat(t[i].children);
+                result.push(t[i]);
+            }
+            return result;
+        }
     },
     mounted() {
         this.syncDS();
@@ -499,6 +523,7 @@ export default {
         },
         delete(item) {
             let id = item.id;
+            if(this.$route.params.id === id) this.$Go('/');
             for (let i = 0; i < this.groups.length; i++) {
                 if (this.groups[i].id === id) {
                     this.groups.splice(i, 1);

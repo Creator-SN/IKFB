@@ -12,6 +12,8 @@
                     :checkable="true"
                     :theme="theme"
                     expandedIconPosition="right"
+                    background="transparent"
+                    :viewStyle="{backgroundColor:'transparent'}"
                     style="width: 100%; height: 100%;"
                 >
                     <template v-slot:default="x">

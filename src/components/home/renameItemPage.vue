@@ -3,7 +3,7 @@
         <template v-slot:content>
             <div class="w-p-block">
                 <p class="w-title">{{local('Page Name')}}</p>
-                <fv-text-box v-model="name" :placeholder="local('Input page name...')" :theme="theme"></fv-text-box>
+                <fv-text-box v-model="name" :placeholder="local('Input page name...')" :theme="theme" @keyup.enter="rename"></fv-text-box>
             </div>
         </template>
         <template v-slot:control>
