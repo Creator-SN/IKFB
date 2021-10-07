@@ -908,10 +908,10 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@creatorsn/powereditor@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.0.6.tgz#c94382b2ebac748fb4ec86c57882448997415147"
-  integrity sha512-qtw/b/MZ2TAeSHibulTSJDJrrQYLHKi/mPXoXnfiBwmN/EAcABS5e9cgPN8leFeCeU+trevh31DLDRwbtYyYYg==
+"@creatorsn/powereditor@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.0.10.tgz#1942a17aa8a12827d9abef8ad802998699baf014"
+  integrity sha512-GtWF2C4LuIxTPnvX0DypOoeUf+dBEymp9zXVIMHWB21PhmidslbYzDP0ff4Mt0qJXY2rR+wo+HbCVh2xJxjkxw==
   dependencies:
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
     "@tiptap/extension-color" "^2.0.0-beta.3"
@@ -929,7 +929,7 @@
     i18next "^21.1.1"
     katex "^0.13.18"
     simplify-js "^1.2.4"
-    vfluentdesign "^0.1.46"
+    vfluentdesign "^0.1.52"
     vue "^2.6.11"
 
 "@develar/schema-utils@~2.6.5":
@@ -11492,23 +11492,10 @@ verror@1.10.0, verror@^1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vfluentdesign@0.1.47:
-  version "0.1.47"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.47.tgz#c4b0299549a0bf1a59dac44ac597605a2dd12e27"
-  integrity sha512-6VOPE8hB7N2kgHCavSlu/5jIpoBg2kJ3A9BDUWPC3FL338Mml5DRNC9UR3hWZp/kr9nX7AUu9eq+P53TI7orxg==
-  dependencies:
-    core-js "^3.4.3"
-    fluent-reveal-effect "^1.1.1"
-    gsap "^3.1.1"
-    office-ui-fabric-core "^11.0.0"
-    onecolor "^3.1.0"
-    vuedraggable "^2.23.2"
-    vuex "^3.1.2"
-
-vfluentdesign@^0.1.46:
-  version "0.1.46"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.46.tgz#c8716b438d5b2f581339ff518c368c2b33b074ae"
-  integrity sha512-1lU+QVXBeMw42s8OFlGJ0HTTfnOcT5dl/KLId/gEFJnBe7vFvV3FeRSo/0qxLdPjTWY5YGQTWnvNXLYJeuiuRg==
+vfluentdesign@0.1.52, vfluentdesign@^0.1.52:
+  version "0.1.52"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.52.tgz#99c3ba7ed4286c0aaa4ecebda7c9825bc706444d"
+  integrity sha512-joDrSN8q+s/R7e1GSPSbk43Xy4hoFjkqxOPyKIgt4H5ohcWPtqXFuPNoRJSKyix1wPQ3Rk6xmZ5Xip/kS/xyfA==
   dependencies:
     core-js "^3.4.3"
     fluent-reveal-effect "^1.1.1"

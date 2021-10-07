@@ -4,7 +4,7 @@
         :class="[{dark: theme === 'dark'}]"
     >
         <div class="s-row">
-            <p class="s-title">{{local('All')}}</p>
+            <p class="s-title">{{pid === false ? local('All') : pname}}</p>
         </div>
         <div class="m-home-block">
             <div class="row between">
@@ -26,7 +26,7 @@
             </div>
             <div class="row main-table">
                 <fv-details-list
-                    :value="items"
+                    :value="filterItems"
                     :head="head"
                     :filter="currentSearch"
                     style="width: 100%; height: 100%"
@@ -42,15 +42,15 @@
                         ></i>
                     </template>
                     <template v-slot:column_1="x">
-                        <p class="sec">{{ x.row_index + 1 }}</p>
+                        <p class="sec" style="user-select: none;">{{ x.row_index + 1 }}</p>
                     </template>
                     <template v-slot:column_2="x">
-                        <p :title="x.item.emoji">{{ x.item.emoji }}</p>
+                        <p :title="x.item.emoji" style="user-select: none;">{{ x.item.emoji }}</p>
                     </template>
                     <template v-slot:column_3="x">
                         <p
                             class="highlight"
-                            @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
+                            @click="x.item.pdf ? openFile(`${x.item.id}/${x.item.pdf}.pdf`) : openFile(`${x.item.id}`)"
                         >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
@@ -76,6 +76,14 @@
                                     @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
                                 >{{x.item.pdf}}.pdf</p>
                                 <p></p>
+                                <fv-button
+                                    background="rgba(255, 180, 0, 1)"
+                                    style="width: 25px; height: 25px;"
+                                    :title="local('Open Folder')"
+                                    @click="openFile(`${x.item.id}`)"
+                                >
+                                    <i class="ms-Icon ms-Icon--FabricFolder"></i>
+                                </fv-button>
                             </div>
                             <div
                                 v-show="x.item.metadata"
@@ -91,6 +99,14 @@
                                     @click="showMetadata(x.item)"
                                 >{{x.item.id}}.metadata</p>
                                 <p></p>
+                                <fv-button
+                                    background="rgba(255, 180, 0, 1)"
+                                    style="width: 25px; height: 25px;"
+                                    :title="local('Open Folder')"
+                                    @click="openFile(`${x.item.id}`)"
+                                >
+                                    <i class="ms-Icon ms-Icon--FabricFolder"></i>
+                                </fv-button>
                             </div>
                             <div
                                 v-for="(page, index) in x.item.pages"
@@ -105,7 +121,8 @@
                                 <p class="sec">{{page.id}}</p>
                                 <p class="sec">{{page.createDate}}</p>
                                 <fv-button
-                                    background="rgba(255, 180, 0, 1)"
+                                    theme="dark"
+                                    background="rgba(0, 120, 212, 1)"
                                     style="width: 25px; height: 25px;"
                                     :title="local('Rename')"
                                     @click="showRenameItemPage(x.item, page)"
@@ -146,6 +163,13 @@
                                 <p>{{local("View Metadata")}}</p>
                             </span>
                             <hr>
+                            <span @click="show.folder = true">
+                                <i
+                                    class="ms-Icon ms-Icon--FabricMovetoFolder"
+                                    style="color: rgba(0, 153, 204, 1);"
+                                ></i>
+                                <p>{{local("Copy to Partitions")}}</p>
+                            </span>
                             <span @click="show.rename = true">
                                 <i
                                     class="ms-Icon ms-Icon--Rename"
@@ -153,7 +177,20 @@
                                 ></i>
                                 <p>{{local("Rename Item")}}</p>
                             </span>
-                            <span @click="deleteItem">
+                            <span
+                                v-show="pid !== false"
+                                @click="deleteItemsFromPartition"
+                            >
+                                <i
+                                    class="ms-Icon ms-Icon--Delete"
+                                    style="color: rgba(173, 38, 45, 1);"
+                                ></i>
+                                <p>{{local("Remove From Partition")}}</p>
+                            </span>
+                            <span
+                                v-show="pid === false"
+                                @click="deleteItem"
+                            >
                                 <i
                                     class="ms-Icon ms-Icon--Delete"
                                     style="color: rgba(173, 38, 45, 1);"
@@ -183,6 +220,10 @@
             v-model="show.metadata"
             :item="currentItem"
         ></metadata-panel>
+        <folder-window
+            v-model="show.folder"
+            @choose-partitions="copyItemsToPartitions"
+        ></folder-window>
         <pdf-importer
             v-model="show.pdfImporter"
             :mode="mode"
@@ -198,6 +239,7 @@ import renameItem from "@/components/home/renameItem.vue";
 import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
 import metadataPanel from "@/components/home/metadataPanel.vue";
+import folderWindow from "@/components/general/folderWindow.vue";
 import pdfImporter from "@/components/general/pdfImporter.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
@@ -210,6 +252,7 @@ export default {
         addItemPage,
         renameItemPage,
         metadataPanel,
+        folderWindow,
         pdfImporter,
     },
     data() {
@@ -232,11 +275,33 @@ export default {
                     func: this.importPdf,
                 },
                 {
+                    name: () => this.local("Copy to Partitions"),
+                    icon: "FabricMovetoFolder",
+                    iconColor: "rgba(0, 90, 158, 1)",
+                    disabled: () =>
+                        this.currentChoosen.length === 0 || !this.lock,
+                    func: () => {
+                        this.show.folder = true;
+                    },
+                },
+                {
+                    name: () => this.local("Remove From Partition"),
+                    icon: "Delete",
+                    iconColor: "rgba(173, 38, 45, 1)",
+                    disabled: () =>
+                        this.currentChoosen.length === 0 ||
+                        !this.lock ||
+                        this.pid === false,
+                    func: this.deleteItemsFromPartition,
+                },
+                {
                     name: () => this.local("Delete"),
                     icon: "Delete",
                     iconColor: "rgba(173, 38, 45, 1)",
                     disabled: () =>
-                        this.currentChoosen.length === 0 || !this.lock,
+                        this.currentChoosen.length === 0 ||
+                        !this.lock ||
+                        this.pid !== false,
                     func: this.deleteItems,
                 },
             ],
@@ -248,6 +313,7 @@ export default {
                 { content: "Labels", width: 120 },
                 { content: "Create Date", sortName: "createDate", width: 120 },
             ],
+            filterItems: [],
             currentItem: {},
             currentChoosen: [],
             currentItemPage: {},
@@ -259,6 +325,7 @@ export default {
                 addItemPage: false,
                 renameItemPage: false,
                 metadata: false,
+                folder: false,
                 pdfImporter: false,
             },
             lock: true,
@@ -267,7 +334,11 @@ export default {
     watch: {
         $route() {
             this.itemsEnsureFolder();
-            this.$refs.table.headInit();
+            this.refreshFilterItems();
+            setTimeout(() => {
+                this.$refs.table.headInit();
+                this.$refs.table.widthFormat(0);
+            }, 300);
         },
     },
     computed: {
@@ -275,15 +346,58 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             items: (state) => state.data_structure.items,
+            groups: (state) => state.data_structure.groups,
+            partitions: (state) => state.data_structure.partitions,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", "ds_db"]),
         v() {
             return this;
         },
+        pid() {
+            if (this.$route.params.id === undefined) return false;
+            return this.$route.params.id;
+        },
+        pname() {
+            if (this.pid === false) return "Unknown";
+            let t = [].concat(this.groups);
+            let partitions = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions[i].id === this.pid) {
+                    return partitions[i].name;
+                }
+            }
+            return "Unknown";
+        },
+        filterItemsId() {
+            if (this.pid === false) return true;
+            let t = [].concat(this.groups);
+            let partitions = [];
+            let result = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions[i].id === this.pid) {
+                    result = JSON.parse(JSON.stringify(partitions[i].items));
+                    break;
+                }
+            }
+            return result;
+        },
     },
     mounted() {
         this.itemsEnsureFolder();
+        this.refreshFilterItems();
     },
     methods: {
         ...mapMutations({
@@ -291,6 +405,17 @@ export default {
             reviseEditor: "reviseEditor",
             toggleEditor: "toggleEditor",
         }),
+        refreshFilterItems() {
+            if (this.filterItemsId === true) this.filterItems = this.items;
+            else {
+                let result = [];
+                this.items.forEach((el, idx) => {
+                    if (this.filterItemsId.indexOf(el.id) > -1)
+                        result.push(this.items[idx]);
+                });
+                this.filterItems = result;
+            }
+        },
         itemsEnsureFolder() {
             if (!this.ds_db || this.data_index == -1) return;
             this.lock = false;
@@ -393,6 +518,82 @@ export default {
             ipc.on("open-file-callback", (event, data) => {
                 console.log(data);
             });
+        },
+        copyItemsToPartitions(partitions_id) {
+            let t = [].concat(this.groups);
+            let partitions = [];
+            let result = [];
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions_id.indexOf(partitions[i].id) > -1)
+                    result.push(partitions[i]);
+            }
+            let choosen = this.currentChoosen;
+            if (
+                this.currentChoosen.find(
+                    (it) => it.id === this.currentItem.id
+                ) === undefined
+            )
+                choosen.push(this.currentItem);
+            if (choosen.length === 0) return;
+            result.forEach((p, idx) => {
+                for (let i = 0; i < choosen.length; i++) {
+                    if (
+                        p.items.find((it) => it === choosen[i].id) !== undefined
+                    )
+                        continue;
+                    p.items.push(choosen[i].id);
+                }
+                result[idx].items = p.items;
+            });
+            this.reviseDS({
+                $index: this.data_index,
+                groups: this.groups,
+                partitions: this.partitions,
+            });
+        },
+        deleteItemsFromPartition() {
+            if (this.pid === false) return;
+            let t = [].concat(this.groups);
+            let partitions = [];
+            let target = {};
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions)
+                    partitions = partitions.concat(t[i].partitions);
+            }
+            partitions = partitions.concat(this.partitions);
+            for (let i = 0; i < partitions.length; i++) {
+                if (partitions[i].id === this.pid) {
+                    target = partitions[i];
+                    break;
+                }
+            }
+            let choosen = this.currentChoosen;
+            if (
+                this.currentChoosen.find(
+                    (it) => it.id === this.currentItem.id
+                ) === undefined
+            )
+                choosen.push(this.currentItem);
+            if (choosen.length === 0) return;
+            for (let i = 0; i < choosen.length; i++) {
+                let index = target.items.indexOf(choosen[i].id);
+                if (index > -1) {
+                    target.items.splice(index, 1);
+                }
+            }
+            this.reviseDS({
+                $index: this.data_index,
+                groups: this.groups,
+                partitions: this.partitions,
+            });
+            this.refreshFilterItems();
         },
         showRenameItemPage(item, page) {
             this.currentItem = item;
@@ -540,7 +741,7 @@ export default {
                     font-size: 13.8px;
                     font-weight: 600;
                     box-sizing: border-box;
-                    grid-template-columns: 50px 80px 80px 150px 1fr;
+                    grid-template-columns: 50px 160px 90px 150px 1fr;
                     display: grid;
                     align-items: center;
                     cursor: pointer;
@@ -562,18 +763,22 @@ export default {
                         color: rgba(255, 180, 0, 1);
                     }
 
-                    p.sec {
-                        font-size: 12px;
-                        font-weight: normal;
-                    }
+                    p {
+                        @include nowrap;
 
-                    p.highlight {
-                        text-align: left;
-                        cursor: pointer;
+                        &.sec {
+                            font-size: 12px;
+                            font-weight: normal;
+                        }
 
-                        &:hover {
-                            color: rgba(0, 120, 212, 1);
-                            text-decoration: underline;
+                        &.highlight {
+                            text-align: left;
+                            cursor: pointer;
+
+                            &:hover {
+                                color: rgba(0, 120, 212, 1);
+                                text-decoration: underline;
+                            }
                         }
                     }
                 }

@@ -14,6 +14,11 @@ const routes = [
         component: () => AsyncLoad(import("@/views/home"))
     },
     {
+        path: "/partitions/:id",
+        name: "Home",
+        component: () => AsyncLoad(import("@/views/home"))
+    },
+    {
         path: "/templates",
         name: "Templates",
         component: () => AsyncLoad(import("@/views/templates"))

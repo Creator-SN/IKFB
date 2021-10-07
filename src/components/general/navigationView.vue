@@ -30,6 +30,7 @@
                         :theme="theme"
                         expandedIconPosition="right"
                         style="width: 100%; height: 100%;"
+                        @click="SwitchPartition"
                     >
                         <template v-slot:default="x">
                             <div
@@ -547,9 +548,15 @@ export default {
 
             this.rightMenuItem = item;
         },
-        collapseFunc (func) {
+        collapseFunc(func) {
             this.expand = true;
             func();
+        },
+        SwitchPartition(item) {
+            if (item.type === "group") return 0;
+            let id = item.id;
+            if (this.$route.params.id === id) return 0;
+            this.$Go(`/partitions/${id}`);
         },
         Go(path) {
             if (this.$route.path === path) return 0;
