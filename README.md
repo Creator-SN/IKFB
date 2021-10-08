@@ -1,3 +1,15 @@
+<div align="center">
+    <img src="./src/assets/logo.svg" width="60" style="width: 80px;"/>
+    <p>IKFB</p>
+    <p><img src="https://img.shields.io/github/v/release/Creator-SN/IKFB" /></p>
+</div>
+
+<p align="center">
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/license-GPL-blue">
+    </a>
+</p>
+
 # IKFB
 
 Involution King Fun Book (IKFB, Chinese: 卷王快乐本) is an integrated management system for papers and literature. Powered by Electron.
