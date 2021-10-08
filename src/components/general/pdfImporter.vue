@@ -106,6 +106,11 @@ export default {
                     await this.copyPdf(file.path);
                     await this.saveMetadata(_metadata);
                 }
+                this.lock = true;
+                this.$barWarning(this.local("Successfully update PDF file."), {
+                    status: "correct",
+                });
+                return;
             } else if (this.mode === "import") {
                 this.revisePdfImporter({
                     value: true,
@@ -144,7 +149,7 @@ export default {
                 this.lock = true;
                 this.revisePdfImporter({
                     value: false,
-                    c: this.c + 1
+                    c: this.c + 1,
                 });
                 this.progress = 0;
                 this.path_title = "";
@@ -190,7 +195,7 @@ export default {
             this.revisePdfImporter({
                 value: false,
                 df: [],
-                c: this.c + 1
+                c: this.c + 1,
             });
             this.progress = 0;
             this.path_title = "";
@@ -259,9 +264,9 @@ export default {
             let pdfMetadata = await this.extractor.getMetadata(
                 URL.createObjectURL(file)
             );
-            if(pdfMetadata.title && pdfMetadata.title != '')
+            if (pdfMetadata.title && pdfMetadata.title != "")
                 title = pdfMetadata.title;
-            else if(pdfMetadata.Title && pdfMetadata.Title != '')
+            else if (pdfMetadata.Title && pdfMetadata.Title != "")
                 title = pdfMetadata.Title;
             let crefInfo = await this.cref_getInfoByTitle(title);
             let _metadata = JSON.parse(JSON.stringify(metadata));

@@ -230,5 +230,13 @@ export default {
     "Are you sure to quit with out saved?": {
         "en": "Are you sure to quit with out saved?",
         "cn": "确定不保存退出吗?"
+    },
+    "There is no source, please add a data source to getting started.": {
+        "en": "There is no source, please add a data source to getting started.",
+        "cn": "找不到任何的数据源, 请在设置添加一个数据源以开始."
+    },
+    "Successfully update PDF file.": {
+        "en": "Successfully update PDF file.",
+        "cn": "成功更新PDF文件."
     }
 }
