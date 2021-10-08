@@ -156,6 +156,7 @@ export default {
                     resolve(1);
                 });
             });
+            this.unsave = false;
         },
         close() {
             if (this.unsave) {
@@ -208,6 +209,7 @@ export default {
         @include Vcenter;
 
         position: relative;
+        min-height: 40px;
         height: 40px;
 
         .control-btn {

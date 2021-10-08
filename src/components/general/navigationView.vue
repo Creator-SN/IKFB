@@ -163,7 +163,7 @@
                             class="ms-Icon ms-Icon--Add"
                             style="color: rgba(0, 153, 204, 1);"
                         ></i>
-                        <p>{{local("New Item")}}</p>
+                        <p>{{local("New Item (Not Useful)")}}</p>
                     </span>
                     <span
                         v-show="rightMenuItem.type === 'group'"
