@@ -259,7 +259,10 @@ export default {
             let pdfMetadata = await this.extractor.getMetadata(
                 URL.createObjectURL(file)
             );
-            title = pdfMetadata.title ? pdfMetadata.title : title;
+            if(pdfMetadata.title && pdfMetadata.title != '')
+                title = pdfMetadata.title;
+            else if(pdfMetadata.Title && pdfMetadata.Title != '')
+                title = pdfMetadata.Title;
             let crefInfo = await this.cref_getInfoByTitle(title);
             let _metadata = JSON.parse(JSON.stringify(metadata));
             _metadata.title = title;
