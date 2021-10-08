@@ -37,11 +37,12 @@
             </div>
             <power-editor
                 :value="content"
+                :placeholder="local('Write something ...')"
                 :theme="theme"
                 :editorOutSideBackground="theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'"
                 :mobileDisplayWidth="0"
                 ref="editor"
-                style="width: 100%; height: 100%;"
+                style="position: relative; width: 100%; flex: 1;"
                 @save-json="saveContent"
             ></power-editor>
         </div>
@@ -62,15 +63,17 @@ export default {
         };
     },
     watch: {
-        $route () {
+        $route() {
             this.unsave = false;
         },
-        show_editor () {
+        show_editor() {
+            this.unsave = false;
             this.refreshContent();
         },
         target() {
+            this.unsave = false;
             this.refreshContent();
-        }
+        },
     },
     computed: {
         ...mapState({
@@ -98,11 +101,9 @@ export default {
                 if (event.keyCode === 83 && event.ctrlKey) {
                     this.$refs.editor.save();
                     this.unsave = false;
-                }
-                else
-                {
+                } else {
                     let filterKey = [17, 16, 20];
-                    if(filterKey.indexOf(event.keyCode) < 0)
+                    if (filterKey.indexOf(event.keyCode) < 0)
                         this.unsave = true;
                 }
             });
@@ -131,6 +132,7 @@ export default {
             } catch (e) {
                 this.content = content;
             }
+            if(this.content === '') this.$refs.editor.focus();
         },
         async saveContent(json) {
             if (!this.type || !this.target.id) return;
@@ -191,6 +193,7 @@ export default {
     flex-direction: column;
     box-shadow: -10px 3px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s;
+    overflow: hidden;
     z-index: 2;
 
     &.dark {
@@ -203,6 +206,9 @@ export default {
 
     .control-banner {
         @include Vcenter;
+
+        position: relative;
+        height: 40px;
 
         .control-btn {
             width: 30px;

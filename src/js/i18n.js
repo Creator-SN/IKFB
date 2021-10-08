@@ -238,5 +238,9 @@ export default {
     "Successfully update PDF file.": {
         "en": "Successfully update PDF file.",
         "cn": "成功更新PDF文件."
+    },
+    "Write something ...": {
+        "en": "Write something ...",
+        "cn": "写点什么吧 ..."
     }
 }

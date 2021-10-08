@@ -99,11 +99,12 @@
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
-                        @click="collapseFunc(addPartition)"
+                        :title="local('All')"
+                        @click="Go(`/`)"
                     >
                         <i
-                            class="ms-Icon ms-Icon--ReopenPages"
-                            style="color: rgba(213, 99, 70, 1);"
+                            class="ms-Icon ms-Icon--HardDriveGroup"
+                            style="color: rgba(0, 90, 158, 1);"
                         ></i>
                     </fv-button>
                     <fv-button
@@ -112,19 +113,7 @@
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
-                        @click="collapseFunc(addGroup)"
-                    >
-                        <i
-                            class="ms-Icon ms-Icon--ViewListGroup"
-                            style="color: rgba(172, 84, 206, 1);"
-                        ></i>
-                    </fv-button>
-                    <fv-button
-                        :theme="theme"
-                        class="collapse-command-btn"
-                        :borderWidth="1"
-                        :borderRadius="0"
-                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
+                        :title="local('Templates')"
                         @click="Go(`/templates`)"
                     >
                         <i
@@ -138,11 +127,26 @@
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
-                        @click="Go(`/`)"
+                        :title="local('Add Partition')"
+                        @click="collapseFunc(addPartition)"
                     >
                         <i
-                            class="ms-Icon ms-Icon--HardDriveGroup"
-                            style="color: rgba(0, 90, 158, 1);"
+                            class="ms-Icon ms-Icon--ReopenPages"
+                            style="color: rgba(213, 99, 70, 1);"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        class="collapse-command-btn"
+                        :borderWidth="1"
+                        :borderRadius="0"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
+                        :title="local('Add Group')"
+                        @click="collapseFunc(addGroup)"
+                    >
+                        <i
+                            class="ms-Icon ms-Icon--ViewListGroup"
+                            style="color: rgba(172, 84, 206, 1);"
                         ></i>
                     </fv-button>
                 </div>
@@ -295,7 +299,7 @@ export default {
             if (!this.ds_id) return true;
             return false;
         },
-        flatPartitions () {
+        flatPartitions() {
             let result = [];
             let t = [].concat(this.treeList);
             for (let i = 0; i < t.length; i++) {
@@ -303,7 +307,7 @@ export default {
                 result.push(t[i]);
             }
             return result;
-        }
+        },
     },
     mounted() {
         this.syncDS();
@@ -523,7 +527,7 @@ export default {
         },
         delete(item) {
             let id = item.id;
-            if(this.$route.params.id === id) this.$Go('/');
+            if (this.$route.params.id === id) this.$Go("/");
             for (let i = 0; i < this.groups.length; i++) {
                 if (this.groups[i].id === id) {
                     this.groups.splice(i, 1);
