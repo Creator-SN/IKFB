@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, BrowserWindow, shell,globalShortcut } from 'electron'
+import { app, protocol, ipcMain, BrowserWindow, shell, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -12,12 +12,15 @@ protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+let win = null;
 async function createWindow() {
     // Create the browser window.
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         frame: false,
-        width: 1500,
+        width: 1200,
         height: 600,
+        minWidth: 500,
+        minHeight: 500,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -141,6 +144,23 @@ app.on('ready', async () => {
         focusWin && focusWin.toggleDevTools()
     })
 })
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+    app.quit()
+} else {
+    app.on('second-instance', () => {
+        // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
+        if (win) {
+            if (win.isMinimized()) win.restore()
+            win.focus()
+            win.show()
+        }
+    })
+    // 创建 myWindow, 加载应用的其余部分, etc...
+    // app.on('ready', () => {
+    // })
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
