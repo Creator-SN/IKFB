@@ -498,6 +498,7 @@ export default {
                             )
                         );
                         this.delItemsFromPs(ids);
+                        this.currentChoosen = [];
                         this.lock = true;
                     });
                 },
@@ -592,6 +593,7 @@ export default {
                 }
                 result[idx].items = p.items;
             });
+            this.currentChoosen = [];
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
@@ -629,6 +631,7 @@ export default {
                     target.items.splice(index, 1);
                 }
             }
+            this.currentChoosen = [];
             this.reviseDS({
                 $index: this.data_index,
                 groups: this.groups,
