@@ -93,7 +93,8 @@ async function createWindow() {
 
     ipcMain.on("open-file", (event, path) => {
         fs.access(path, err => {
-            shell.openExternal(path);
+            // fix: 修复中文路径不能打开的问题
+            shell.openPath(path)
             event.reply('open-file-callback', err);
         });
     });
