@@ -2,11 +2,12 @@
     <img src="./src/assets/logo.svg" width="60" style="width: 80px;"/>
     <p>IKFB</p>
     <p><img src="https://img.shields.io/github/v/release/Creator-SN/IKFB" /></p>
+    <p><img src="https://img.shields.io/github/downloads/Creator-SN/IKFB/total?color=green&style=flat-square">
 </div>
 
 <p align="center">
     <a href="LICENSE">
-      <img src="https://img.shields.io/badge/license-GPL-blue">
+      <img src="https://img.shields.io/badge/license-GPL-blue?color=blue&style=flat-square">
     </a>
 </p>
 
