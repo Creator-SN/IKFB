@@ -908,10 +908,10 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@creatorsn/powereditor@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.1.1.tgz#3a3be5f003f2196ab34994204f6738295bb5ab33"
-  integrity sha512-ATMqHm/UliBhgul2xgvkUSSp3YRkTT9BXlDBIUFh6yTgxIO8YXq68rmk0wD74UIK8Zex9IAudRmd2wlvsP48vQ==
+"@creatorsn/powereditor@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.1.2.tgz#9492438315698767d30777f9d2262c125f2ad197"
+  integrity sha512-Sak3Ckkyc3wUegAbGOllfXbMdzv/qJKH0NOZYiZ/TxH5vxzW3KH2frNsXPF46P0GuPeVTSJVRqscP++z9hg/nQ==
   dependencies:
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
     "@tiptap/extension-color" "^2.0.0-beta.3"

@@ -21,6 +21,15 @@
                     :theme="theme"
                     :borderRadius="30"
                     class="control-btn"
+                    @click="readonly = readonly == true ? false : true"
+                ><i
+                        class="ms-Icon"
+                        :class="[`ms-Icon--${readonly === true ? 'PageEdit' : 'ReadingMode'}`]"
+                    ></i></fv-button>
+                <fv-button
+                    :theme="theme"
+                    :borderRadius="30"
+                    class="control-btn"
                     @click="close"
                 >
                     <i class="ms-Icon ms-Icon--Cancel"></i>
@@ -38,11 +47,12 @@
             <power-editor
                 :value="content"
                 :placeholder="local('Write something ...')"
+                :editable="!readonly"
                 :theme="theme"
                 :editorOutSideBackground="theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'"
                 :mobileDisplayWidth="0"
                 ref="editor"
-                style="position: relative; width: 100%; flex: 1;"
+                style="position: relative; width: 100%; height: calc(100% - 40px); flex: 1;"
                 @save-json="saveContent"
             ></power-editor>
         </div>
@@ -58,6 +68,7 @@ export default {
     data() {
         return {
             content: "",
+            readonly: false,
             fullScreen: false,
             unsave: false,
         };
@@ -103,8 +114,9 @@ export default {
                     this.unsave = false;
                 } else {
                     let filterKey = [17, 16, 20];
-                    if (filterKey.indexOf(event.keyCode) < 0)
-                        this.unsave = true;
+                    if (filterKey.indexOf(event.keyCode) < 0) {
+                        if (!this.readonly) this.unsave = true;
+                    }
                 }
             });
         },
@@ -132,7 +144,7 @@ export default {
             } catch (e) {
                 this.content = content;
             }
-            if(this.content === '') this.$refs.editor.focus();
+            if (this.content === "") this.$refs.editor.focus();
         },
         async saveContent(json) {
             if (!this.type || !this.target.id) return;
