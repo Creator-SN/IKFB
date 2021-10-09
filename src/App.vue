@@ -11,7 +11,7 @@
                 style="background: transparent;"
             ></title-bar>
             <div class="global-container">
-                <transition name="move-bottom-to-top">
+                <transition name="scale-up-to-up" :duration="200">
                     <keep-alive>
                         <router-view></router-view>
                     </keep-alive>
