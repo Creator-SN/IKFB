@@ -33,7 +33,7 @@
                     @click="Go(`/settings`)"
                 >
                     <p>⚡</p>
-                    <p class="title">{{name}}</p>
+                    <p class="title">{{!name ? local('Unselected') : name}}</p>
                 </div>
                 <div
                     v-show="expand"
@@ -78,6 +78,7 @@
                             </div>
                         </template>
                     </fv-TreeView>
+                    <loading v-show="SourceDisabled" :title="local('Choose a source to start.')"></loading>
                 </div>
                 <div
                     v-show="expand"
@@ -96,6 +97,7 @@
                     <fv-button
                         :theme="theme"
                         class="collapse-command-btn"
+                        :disabled="SourceDisabled"
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
@@ -110,6 +112,7 @@
                     <fv-button
                         :theme="theme"
                         class="collapse-command-btn"
+                        :disabled="SourceDisabled"
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
@@ -124,6 +127,7 @@
                     <fv-button
                         :theme="theme"
                         class="collapse-command-btn"
+                        :disabled="SourceDisabled"
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
@@ -138,6 +142,7 @@
                     <fv-button
                         :theme="theme"
                         class="collapse-command-btn"
+                        :disabled="SourceDisabled"
                         :borderWidth="1"
                         :borderRadius="0"
                         :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
@@ -207,13 +212,15 @@
 </template>
 
 <script>
+import loading from "@/components/general/loading.vue";
 import rightMenu from "@/components/general/rightMenu.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 import { data_structure, group, partition } from "@/js/data_sample";
 
 export default {
     components: {
-        rightMenu,
+        loading,
+        rightMenu
     },
     data() {
         return {

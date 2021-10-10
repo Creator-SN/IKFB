@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         // config //
+        init_status: true,
         data_path: [],
         data_index: -1,
         language: 'en',

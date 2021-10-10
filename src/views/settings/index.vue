@@ -26,12 +26,12 @@
                             <i class="ms-Icon ms-Icon--Link"></i>
                             <p class="item-name">{{x.item.name}}</p>
                             <fv-button
-                                v-show="x.item.status == 502"
+                                v-show="x.item.status == 502 || SourceIndexDisabled(x.index)"
                                 :theme="theme"
                                 class="control-btn"
                                 background="rgba(255, 200, 0, 1)"
                                 :title="local(`Can't find data_structure.json on this source, shall we init new one ?`)"
-                                @click="showInitDS(x.item)"
+                                @click="showInitDS(x.index)"
                             >
                                 <i class="ms-Icon ms-Icon--EraseTool"></i>
                             </fv-button>
@@ -77,7 +77,7 @@
         <init-ds
             :show.sync="show.initDS"
             :theme="theme"
-            :db_item="db_item"
+            :db_index="db_index"
         ></init-ds>
     </div>
 </template>
@@ -99,7 +99,7 @@ export default {
                 { key: "cn", text: "简体中文" },
             ],
             dbList: [],
-            db_item: null,
+            db_index: -1,
             show: {
                 initDS: false,
             },
@@ -122,14 +122,23 @@ export default {
     },
     computed: {
         ...mapState({
+            init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
+            ds_db_list: (state) => state.ds_db_list,
             language: (state) => state.language,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local"]),
+        ...mapGetters(["local", "ds_db"]),
         v() {
             return this;
+        },
+        SourceIndexDisabled() {
+            return (index) => {
+                if (!this.ds_db_list[index]) return true;
+                let id = this.ds_db_list[index].get("id").write();
+                return id === null;
+            };
         },
     },
     mounted() {
@@ -142,6 +151,7 @@ export default {
             reviseDS: "reviseDS",
             reviseData: "reviseData",
             toggleTheme: "toggleTheme",
+            syncDS: "syncDS"
         }),
         languageInit() {
             this.cur_language = this.languages.find(
@@ -155,15 +165,18 @@ export default {
             });
         },
         dataSourceSync() {
+            // 此函数初始化数据源的DB //
+            // 同时也会初始化ListView列表项目 //
             let pathList = this.data_path;
             let db_array_result = this.$load_ds_file(pathList);
-            if (db_array_result.status == 404) {
+            if (db_array_result.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
                     ),
                     {
                         status: "warning",
+                        autoClose: -1,
                     }
                 );
                 return;
@@ -198,11 +211,23 @@ export default {
             if (!path) return;
             let pathList = this.data_path;
             if (!pathList.find((url) => url === path)) pathList.push(path);
-            this.reviseConfig({
+            await this.reviseConfig({
                 v: this,
                 data_path: pathList,
             });
             this.dataSourceSync();
+            let index = pathList.indexOf(path);
+            if (!this.SourceIndexDisabled(index)) {
+                if (this.data_index === index)
+                    await this.reviseConfig({
+                        v: this,
+                        data_index: -1,
+                    });
+                this.reviseConfig({
+                    v: this,
+                    data_index: index,
+                });
+            }
         },
         switchDSDB(item) {
             this.lock.switchDSDB = false;
@@ -213,8 +238,8 @@ export default {
             });
             this.lock.switchDSDB = true;
         },
-        showInitDS(db_item) {
-            this.db_item = db_item;
+        showInitDS(db_index) {
+            this.db_index = db_index;
             this.show.initDS = true;
         },
         removeDS(db_item) {

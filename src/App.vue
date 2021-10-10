@@ -11,7 +11,10 @@
                 style="background: transparent;"
             ></title-bar>
             <div class="global-container">
-                <transition name="scale-up-to-up" :duration="200">
+                <transition
+                    name="scale-up-to-up"
+                    :duration="200"
+                >
                     <keep-alive>
                         <router-view></router-view>
                     </keep-alive>
@@ -25,11 +28,15 @@
             class="file-drop-mask"
             ref="drop"
         ></div>
+        <transition name="scale-up-to-up">
+            <starter v-if="init_status"></starter>
+        </transition>
     </div>
 </template>
 
 <script>
 import i18n from "@/js/i18n.js";
+import starter from "@/components/general/starter.vue";
 import titleBar from "@/components/general/titleBar.vue";
 import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
@@ -40,6 +47,7 @@ import { mapMutations, mapState, mapGetters } from "vuex";
 export default {
     name: "App",
     components: {
+        starter,
         titleBar,
         navigationView,
         editorContainer,
@@ -63,6 +71,7 @@ export default {
     },
     computed: {
         ...mapState({
+            init_status: (state) => state.init_status,
             data_path: (state) => state.data_path,
             language: (state) => state.language,
             theme: (state) => state.theme,
@@ -108,13 +117,14 @@ export default {
         syncDSDB() {
             let pathList = this.data_path;
             let db_array_result = this.$load_ds_file(pathList);
-            if (db_array_result.status == 404) {
+            if (db_array_result.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
                     ),
                     {
                         status: "warning",
+                        autoClose: -1,
                     }
                 );
                 return;
@@ -172,7 +182,7 @@ export default {
                 },
                 false
             );
-            
+
             this.$el.addEventListener("drop", (e) => {
                 e.preventDefault();
                 e.stopPropagation();

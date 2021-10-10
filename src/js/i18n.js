@@ -242,5 +242,45 @@ export default {
     "Write something ...": {
         "en": "Write something ...",
         "cn": "写点什么吧 ..."
+    },
+    "Can't find data_structure.json on this source, shall we init new one ?": {
+        "en": "Can't find data_structure.json on this source, shall we init new one ?",
+        "cn": "无法在此数据源找到data_structure.json, 是否初始化新的配置?"
+    },
+    "Choose a source to start.": {
+        "en": "Choose a source to start.",
+        "cn": "选择数据源以开始."
+    },
+    "Unselected": {
+        "en": "Unselected",
+        "cn": "未选择"
+    },
+    "Start": {
+        "en": "Start",
+        "cn": "开始"
+    },
+    "Skip": {
+        "en": "Skip",
+        "cn": "跳过"
+    },
+    "New Data Dource": {
+        "en": "New Data Dource",
+        "cn": "添加新的数据源"
+    },
+    "Click Me to Choose Data Source Path ...": {
+        "en": "Click Me to Choose Data Source Path ...",
+        "cn": "点击此处选择数据源存放在何处 ..."
+    },
+    "Data Source Name'": {
+        "en": "Data Source Name'",
+        "cn": "数据源名称"
+    },
+    "Exists Data Source": {
+        "en": "Exists Data Source",
+        "cn": "从现有数据源恢复"
+    },
+    "Choose from Exists": {
+        "en": "Choose from Exists",
+        "cn": "从现有选择"
     }
 }

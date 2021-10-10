@@ -1,5 +1,5 @@
 import Datastore from 'lowdb'
-import { config, data_structure } from './data_sample'
+import { config } from './data_sample'
 import FileSync from 'lowdb/adapters/FileSync'
 import path from 'path'
 import fs from 'fs-extra'
@@ -18,8 +18,7 @@ init_config();
 
 export default {
     config_db,
-    load_ds_file,
-    init_ds
+    load_ds_file
 } // 暴露出去
 
 
@@ -95,20 +94,4 @@ function load_ds_file(data_path = []) {
         msg: 'success.',
         db_array: db_array
     };
-}
-
-
-/**
- * 初始化源数据数据库内容
- *
- */
-function init_ds(id, name, ds_db) {
-    let ds = data_structure;
-    ds.id = id;
-    ds.name = name;
-    ds.createDate = this.$SDate.DateToString(new Date());
-    if (!ds_db.has(id).value()) { // 先判断该值存不存在
-        ds_db.defaults(ds)
-            .write()
-    }
 }

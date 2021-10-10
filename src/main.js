@@ -31,7 +31,6 @@ Vue.config.productionTip = false
 
 Vue.prototype.$config_db = D.config_db;
 Vue.prototype.$load_ds_file = D.load_ds_file;
-Vue.prototype.$init_ds = D.init_ds;
 
 new Vue({
     router,
