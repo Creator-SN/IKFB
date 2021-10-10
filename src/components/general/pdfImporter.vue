@@ -3,7 +3,7 @@
         <div
             v-show="value"
             class="ikfb-pdf-importer"
-            :class="[{dark: theme == 'dark'}]"
+            :class="[{ dark: theme == 'dark' }]"
         >
             <input
                 v-show="false"
@@ -12,12 +12,12 @@
                 accept=".pdf"
                 ref="input"
                 @change="getPDFData"
-            >
+            />
             <div class="line">
-                <p class="title">{{local('Processing PDF')}}</p>
+                <p class="title">{{ local("Processing PDF") }}</p>
             </div>
             <div class="line">
-                <p class="path">{{path_title}}</p>
+                <p class="path">{{ path_title }}</p>
             </div>
             <div class="line">
                 <fv-progress-bar
@@ -31,9 +31,10 @@
                     theme="dark"
                     :disabled="stop"
                     background="rgba(0, 153, 204, 1)"
-                    style="margin-top: 15px;"
+                    style="margin-top: 15px"
                     @click="cancel"
-                >{{local('Cancel')}}</fv-button>
+                    >{{ local("Cancel") }}</fv-button
+                >
             </div>
         </div>
     </transition>
@@ -118,6 +119,7 @@ export default {
                 for (let i = 0; i < this.$refs.input.files.length; i++) {
                     if (this.stop) {
                         this.stop = false;
+                        this.lock = true;
                         this.revisePdfImporter({
                             value: false,
                         });
@@ -164,6 +166,7 @@ export default {
             for (let i = 0; i < this.df.length; i++) {
                 if (this.stop) {
                     this.stop = false;
+                    this.lock = true;
                     this.revisePdfImporter({
                         value: false,
                     });
@@ -333,15 +336,17 @@ export default {
                             resolve(response.data.message.items);
                         })
                         .catch((error) => {
-                            this.$barWarning(error, {
+                            this.$barWarning(error.message, {
                                 status: "error",
                             });
-                            this.stop = false;
-                            this.revisePdfImporter({
-                                value: false,
-                            });
-                            this.progress = 0;
-                            this.path_title = "";
+                            // this.lock = true;
+                            // this.stop = false;
+                            // this.revisePdfImporter({
+                            //     value: false,
+                            // });
+                            // this.progress = 0;
+                            // this.path_title = "";
+                            resolve([])
                         });
                 });
             } catch (e) {
