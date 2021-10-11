@@ -60,11 +60,12 @@
                     <template v-slot:column_3="x">
                         <p
                             class="highlight"
+                            :title="x.item.name"
                             @click="x.item.pdf ? openFile(`${x.item.id}/${x.item.pdf}.pdf`) : openFile(`${x.item.id}`)"
                         >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
-                        <p class="sec">{{x.item.name}} labels</p>
+                        <p class="sec">{{x.item.emoji}} labels</p>
                     </template>
                     <template v-slot:column_5="x">
                         <p class="sec">{{ x.item.createDate }}</p>
@@ -139,6 +140,15 @@
                                 >
                                     <i class="ms-Icon ms-Icon--Rename"></i>
                                 </fv-button>
+                                <fv-button
+                                    theme="dark"
+                                    background="rgba(173, 38, 45, 1)"
+                                    style="width: 25px; height: 25px;"
+                                    :title="local('Delete')"
+                                    @click="deleteItemPage(x.item.id, page.id)"
+                                >
+                                    <i class="ms-Icon ms-Icon--Delete"></i>
+                                </fv-button>
                             </div>
                         </div>
                     </template>
@@ -165,7 +175,7 @@
                                 ></i>
                                 <p>{{local("Revise Metadata")}}</p>
                             </span>
-                            <span @click="show.rename = true">
+                            <span @click="openFile(`${currentItem.id}`)">
                                 <i
                                     class="ms-Icon ms-Icon--LinkedDatabase"
                                     style="color: rgba(0, 153, 204, 1);"
@@ -648,6 +658,33 @@ export default {
             this.currentItem = item;
             this.show.metadata = true;
         },
+        async deleteItemPage(itemId, pageId) {
+            this.$infoBox(this.local(`Are you sure to delete this page?`), {
+                status: "error",
+                title: this.local("Delete Page"),
+                confirmTitle: this.local("Confirm"),
+                cancelTitle: this.local("Cancel"),
+                theme: this.theme,
+                confirm: async () => {
+                    let item = this.items.find((it) => it.id === itemId);
+                    let index = item.pages.indexOf(pageId);
+                    item.pages.splice(index, 1);
+                    await this.reviseDS({
+                        $index: this.data_index,
+                        items: this.items,
+                    });
+                    ipc.send(
+                        "remove-file",
+                        path.join(
+                            this.data_path[this.data_index],
+                            `root/items/${item.id}`,
+                            `${pageId}.json`
+                        )
+                    );
+                },
+                cancel: () => {},
+            });
+        },
     },
 };
 </script>
@@ -677,8 +714,7 @@ export default {
                     background: black;
                 }
 
-                .row-item-info
-                {
+                .row-item-info {
                     background: rgba(37, 36, 35, 1);
                     color: whitesmoke;
                 }
@@ -800,7 +836,7 @@ export default {
                     font-size: 13.8px;
                     font-weight: 600;
                     box-sizing: border-box;
-                    grid-template-columns: 50px 160px 90px 150px 1fr;
+                    grid-template-columns: 50px 160px 90px 150px 50px 1fr;
                     display: grid;
                     align-items: center;
                     cursor: pointer;
