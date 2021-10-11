@@ -945,10 +945,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@creatorsn/powereditor@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.1.2.tgz#9492438315698767d30777f9d2262c125f2ad197"
-  integrity sha512-Sak3Ckkyc3wUegAbGOllfXbMdzv/qJKH0NOZYiZ/TxH5vxzW3KH2frNsXPF46P0GuPeVTSJVRqscP++z9hg/nQ==
+"@creatorsn/powereditor@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.1.3.tgz#2ec961cf36b9a4e2e7d213c06608259f6104ff2e"
+  integrity sha512-7JhX8TItngClxgi1/W0+aT/j1ruUZiJIJICdt9FVFQzoE7x2mPeM3ydzgE1XReQSd7V2ZdQ8VxDxjGdSN6+Tsw==
   dependencies:
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
     "@tiptap/extension-color" "^2.0.0-beta.3"
