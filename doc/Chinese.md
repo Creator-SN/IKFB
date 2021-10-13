@@ -33,7 +33,7 @@ IKFB 卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是�
 > 数据源是存储所有文件的物理文件夹，数据库将存储在`data_structure.json` 文件中。 当然，你不需要关心文件夹里有什么，我也不建议你更改文件夹里的文件，忽略它，**IKFB**一切正常😊。
 
 或者，如果您已经有一个数据源文件夹，并且希望链接到该文件夹，则可以单击`Exists Data Source`按钮切换模式。
-**强烈建议您将数据源存放在Onedrive当中，实现跨设备的数据同步和版本控制。**
+**强烈建议您将数据源存放在[Onedrive](https://onedrive.live.com/)当中，实现跨设备的数据同步和版本控制。**
 
 ![f2](./assets/f2.png)
 
