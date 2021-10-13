@@ -282,5 +282,13 @@ export default {
     "Choose from Exists": {
         "en": "Choose from Exists",
         "cn": "从现有选择"
+    },
+    "Are you sure to delete this page?": {
+        "en": "Are you sure to delete this page?",
+        "cn": "确定要删除此笔记?"
+    },
+    "Delete Page": {
+        "en": "Delete Page",
+        "cn": "删除笔记"
     }
 }
