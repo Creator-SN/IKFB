@@ -1,6 +1,6 @@
-# 卷王快乐本
+# IKFB 卷王快乐本
 
-卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是论文和文献的综合管理系统。 UI 设计基于[VFluent](https://github.com/aleversn/VFluent)，其灵感来自 Microsft [Fluent Design System](https://developer.microsoft.com/en-us/fluentui#/)。
+IKFB 卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是论文笔记和文献归纳的综合管理系统。 UI 设计基于[VFluent](https://github.com/aleversn/VFluent)，其灵感来自 Microsft [Fluent Design System](https://developer.microsoft.com/en-us/fluentui#/)。
 
 该应用程序支持**跨平台**，由 Electron 提供支持。
 
@@ -8,7 +8,13 @@
 
 ### 🤔 我们为什么需要卷王快乐本?
 
-**IKFB**旨在提供完整的文章管理和性能良好的用户体验。我们提供文献元数据的自动检索，我们的笔记功能支持丰富的文本编辑以及Markdown 编辑（如 typroa）。
+**IKFB**旨在提供完整的文章管理和出色的笔记体验。我们提供文献元数据的自动检索，我们的笔记功能支持丰富的文本编辑以及Markdown 编辑（如 typroa）。
+
+## 🎈 平台
+
+- ✔ Windows 11 [支持]
+- ✔ Windows 10 [支持]
+- ✔ Mac(AMD64) [支持]
 
 ### 📍 使用
 
@@ -27,6 +33,7 @@
 > 数据源是存储所有文件的物理文件夹，数据库将存储在`data_structure.json` 文件中。 当然，你不需要关心文件夹里有什么，我也不建议你更改文件夹里的文件，忽略它，**IKFB**一切正常😊。
 
 或者，如果您已经有一个数据源文件夹，并且希望链接到该文件夹，则可以单击`Exists Data Source`按钮切换模式。
+**强烈建议您将数据源存放在[Onedrive](https://onedrive.live.com/)当中，实现跨设备的数据同步和版本控制。**
 
 ![f2](./assets/f2.png)
 
@@ -50,7 +57,7 @@
 
 - 可以通过根目录下面的`添加` 按钮添加`分区 `或`区组` 。右键单击当前组可以创建组分区。
 
-> 您应该知道，`区组`不能直接包含文章，它只是`分区`的集合。您可以创建嵌套的组，但是**IKFB**数据库是基于lightwight数据库构建的，因此嵌套太深可能会导致性能下降。
+> 您需要了解的是，`区组`不能直接包含文章，它只是`分区`的集合。您可以创建嵌套的组，但是**IKFB**数据库是基于lightwight数据库构建的，因此嵌套太深可能会导致性能下降。
 
 **添加文献**
 

@@ -25,6 +25,12 @@ The Application is **Cross Platform** and powered by Electron.
 
 The **IKFB** aims to provide a complete article management and well-performanced notion user experience. We provide automatic retrieval of literature metadata, and our notebook supports rich text edition and even markdown typing (like typroa).
 
+## 🎈 Platform
+
+- ✔ Windows 11 [Supported]
+- ✔ Windows 10 [Supported]
+- ✔ Mac(AMD64) [Supported]
+
 ### 📍 Usage
 
 **Installation**
