@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     tags:
-      - "v*"
+      - 'v*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -15,7 +15,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  window:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -34,7 +34,7 @@ jobs:
         run: yarn
 
       - name: build win x64
-        run: yarn electron:build:win
+        run: yarn electron:build
 
       - name: Get tag
         id: tag
@@ -46,5 +46,37 @@ jobs:
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "win_x64_IKFB_${{steps.tag.outputs.tag}}.zip"
+          allowUpdates: true
+          artifacts: 'win_x64_IKFB_${{steps.tag.outputs.tag}}.zip'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  macos:
+    run-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Uses NodeJs Environment
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+
+      - name: install dependencies
+        run: yarn
+
+      - name: build macos x64
+        run: yarn electron:build
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
+      - name: Archive Release
+        run: zip -r  -o 'macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip' './dist_electron/'
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: 'macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
