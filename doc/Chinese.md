@@ -10,6 +10,12 @@ IKFB 卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是�
 
 **IKFB**旨在提供完整的文章管理和性能良好的用户体验。我们提供文献元数据的自动检索，我们的笔记功能支持丰富的文本编辑以及Markdown 编辑（如 typroa）。
 
+## 🎈 平台
+
+- ✔ Windows 11 [支持]
+- ✔ Windows 10 [支持]
+- ✔ Mac(AMD64) [支持]
+
 ### 📍 使用
 
 **安装**
