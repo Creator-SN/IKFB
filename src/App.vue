@@ -74,6 +74,7 @@ export default {
             init_status: (state) => state.init_status,
             data_path: (state) => state.data_path,
             language: (state) => state.language,
+            show_editor: (state) => state.editor.show,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local"]),
@@ -147,9 +148,11 @@ export default {
             this.$el.addEventListener(
                 "dragenter",
                 (e) => {
-                    this.show.drop = true;
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (!this.show_editor) {
+                        this.show.drop = true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                 },
                 false
             );
@@ -157,9 +160,11 @@ export default {
             this.$el.addEventListener(
                 "dragover",
                 (e) => {
-                    this.show.drop = true;
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (!this.show_editor) {
+                        this.show.drop = true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                 },
                 false
             );
@@ -184,6 +189,7 @@ export default {
             );
 
             this.$el.addEventListener("drop", (e) => {
+                if (this.show_editor) return;
                 e.preventDefault();
                 e.stopPropagation();
 

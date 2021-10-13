@@ -19,6 +19,8 @@ The Application is **Cross Platform** and powered by Electron.
 
 > This project is still working on, we are welcome you to be a contributor. 😄
 
+[中文文档(Chinese)](./doc/Chinese.md)
+
 ### 🤔 Why we need IKFB?
 
 The **IKFB** aims to provide a complete article management and well-performanced notion user experience. We provide automatic retrieval of literature metadata, and our notebook supports rich text edition and even markdown typing (like typroa).
