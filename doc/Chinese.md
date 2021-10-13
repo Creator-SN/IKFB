@@ -1,6 +1,6 @@
-# 卷王快乐本
+# IKFB 卷王快乐本
 
-卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是论文和文献的综合管理系统。 UI 设计基于[VFluent](https://github.com/aleversn/VFluent)，其灵感来自 Microsft [Fluent Design System](https://developer.microsoft.com/en-us/fluentui#/)。
+IKFB 卷王快乐本（英文：Involution King Fun Book，简称：IKFB）是论文和文献的综合管理系统。 UI 设计基于[VFluent](https://github.com/aleversn/VFluent)，其灵感来自 Microsft [Fluent Design System](https://developer.microsoft.com/en-us/fluentui#/)。
 
 该应用程序支持**跨平台**，由 Electron 提供支持。
 
