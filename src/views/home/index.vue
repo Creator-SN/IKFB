@@ -65,7 +65,7 @@
                         >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
-                        <p class="sec">{{x.item.emoji}} labels</p>
+                        <p class="sec" @click="show.rename = true"><fv-tag :value="x.item.labels" :theme="theme"></fv-tag></p>
                     </template>
                     <template v-slot:column_5="x">
                         <p class="sec">{{ x.item.createDate }}</p>

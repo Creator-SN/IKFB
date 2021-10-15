@@ -5,6 +5,36 @@
                 <p class="w-title">{{local('Item Name')}}</p>
                 <fv-text-box v-model="name" :placeholder="local('Input item name...')" :theme="theme" @keyup.enter="add"></fv-text-box>
             </div>
+            <div class="w-p-block">
+                <p class="w-title">{{local('Item Labels')}}</p>
+            </div>
+            <div class="w-p-row">
+                <fv-check-box
+                    v-model="item.check"
+                    v-for="(item, index) in colorList"
+                    :key="index"
+                    :border-color="item.color"
+                    :background="item.color"
+                    @click="chooseColor(index)"
+                ></fv-check-box>
+            </div>
+            <div class="w-p-block">
+                <fv-text-box
+                    v-model="label"
+                    :placeholder="local('New item label (Press Enter)')"
+                    icon="Tag"
+                    :theme="theme"
+                    :border-color="currentColor"
+                    @keyup.enter="addLabel"
+                ></fv-text-box>
+            </div>
+            <div class="w-p-block" style="overflow-x: auto;">
+                <fv-tag
+                    v-model="labels"
+                    :theme="theme"
+                    :isDel="true"
+                ></fv-tag>
+            </div>
         </template>
         <template v-slot:control>
             <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !ds_db" @click="add">{{local('Confirm')}}</fv-button>
@@ -32,7 +62,23 @@ export default {
     data() {
         return {
             thisShow: this.show,
-            name: ""
+            name: "",
+            label: "",
+            labels: [],
+            colorList: [
+                { name: "purple", color: "#958DF1", check: false },
+                { name: "red", color: "#F98181", check: false },
+                { name: "orange", color: "#FBBC88", check: false },
+                { name: "yellow", color: "#FAF594", check: false },
+                { name: "blue", color: "#70CFF8", check: false },
+                { name: "teal", color: "#94FADB", check: false },
+                { name: "green", color: "#B9F18D", check: false },
+                { name: "red", color: "#ffa8a8", check: false },
+                { name: "orange", color: "#ffc078", check: false },
+                { name: "green", color: "#8ce99a", check: false },
+                { name: "blue", color: "#74c0fc", check: false },
+                { name: "purple", color: "#b197fc", check: false },
+            ]
         };
     },
     watch: {
@@ -42,6 +88,7 @@ export default {
         thisShow (val) {
             this.$emit("update:show", val);
             this.name = "";
+            this.labels = [];
         }
     },
     computed: {
@@ -58,6 +105,12 @@ export default {
         v() {
             return this;
         },
+        currentColor() {
+            for (let item of this.colorList) {
+                if (item.check) return item.color;
+            }
+            return "rgba(25, 106, 167, 1)";
+        }
     },
     methods: {
         ...mapMutations({
@@ -71,6 +124,7 @@ export default {
             _item.id = this.$Guid();
             _item.name = this.name;
             _item.emoji = '📦';
+            _item.labels = this.labels;
             _item.createDate = this.$SDate.DateToString(new Date());
             this.items.push(_item);
             this.reviseDS({
@@ -110,6 +164,22 @@ export default {
                 $index: this.data_index,
                 groups: this.groups,
                 partitions: this.partitions,
+            });
+        },
+        addLabel() {
+            if (this.label === "") return;
+            this.labels.push({
+                text: this.label,
+                background: this.currentColor,
+            });
+            this.label = "";
+        },
+        chooseColor(index) {
+            this.colorList.forEach((el, idx) => {
+                if (index !== idx) {
+                    el.check = false;
+                    this.$set(this.colorList, idx, el);
+                }
             });
         }
     },

@@ -57,10 +57,10 @@ async function createWindow() {
         });
     });
 
-    ipcMain.on("read-file", (event, path) => {
-        fs.readFile(path, 'utf8', (err, data) => {
+    ipcMain.on("read-file", (event, obj) => {
+        fs.readFile(obj.path, 'utf8', (err, data) => {
             if (err) return console.error(err)
-            event.reply('read-file-callback', data);
+            event.reply(`read-file-${obj.id}`, data);
         });
     });
 

@@ -290,5 +290,17 @@ export default {
     "Delete Page": {
         "en": "Delete Page",
         "cn": "删除笔记"
+    },
+    "Item Labels": {
+        "en": "Item Labels",
+        "cn": "项目标签"
+    },
+    "New item label (Press Enter)": {
+        "en": "New item label (Press Enter)",
+        "cn": "新的项目标签 (按回车确认)"
+    },
+    "From Template": {
+        "en": "From Template",
+        "cn": "从模板引用"
     }
 }

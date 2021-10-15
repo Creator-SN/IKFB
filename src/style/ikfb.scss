@@ -1,0 +1,54 @@
+@mixin multi-selection {
+    justify-content: center;
+
+    &:hover {
+        .ll:nth-child(2) {
+            display: none;
+        }
+
+        .ll:nth-child(3) {
+            display: flex;
+        }
+    }
+
+    &.choose {
+        .ll:nth-child(1) {
+            display: flex;
+        }
+
+        .ll:nth-child(2) {
+            display: none;
+        }
+
+        .ll:nth-child(3) {
+            color: whitesmoke;
+            display: flex;
+        }
+    }
+
+    .ll {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        font-size: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        -webkit-font-smoothing: subpixel-antialiased;
+
+        &:nth-child(1) {
+            color: rgba(0, 120, 212, 1);
+            display: none;
+        }
+
+        &:nth-child(2) {
+            opacity: 0;
+        }
+
+        &:nth-child(3) {
+            display: none;
+        }
+    }
+}

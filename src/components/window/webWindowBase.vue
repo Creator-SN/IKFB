@@ -82,6 +82,16 @@ export default {
             flex-direction: column;
         }
 
+        .w-p-row
+        {
+            position: relative;
+            width: 100%;
+            padding: 0px 15px;
+            flex-wrap: wrap;
+            display: flex;
+            align-items: center;
+        }
+
         .w-title {
             font-size: 13.8px;
             user-select: none;

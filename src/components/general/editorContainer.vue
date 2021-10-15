@@ -133,9 +133,12 @@ export default {
                 folder,
                 `${this.target.id}.json`
             );
-            ipc.send("read-file", url);
+            ipc.send("read-file", {
+                id: 'editor',
+                path: url
+            });
             let content = await new Promise((resolve) => {
-                ipc.on("read-file-callback", (event, data) => {
+                ipc.on(`read-file-editor`, (event, data) => {
                     resolve(data);
                 });
             });

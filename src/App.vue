@@ -242,6 +242,29 @@ export default {
         background: rgba(36, 36, 36, 1);
     }
 
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+        &:hover {
+            width: 10px;
+        }
+    }
+    /*定义滚动条轨道
+ 内阴影+圆角*/
+    ::-webkit-scrollbar-track {
+        border-radius: 10px;
+    }
+    /*定义滑块
+ 内阴影+圆角*/
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #bfbebd;
+        cursor: pointer;
+        &:hover {
+            width: 16px;
+        }
+    }
+
     .addition-container {
         position: relative;
         width: 100%;

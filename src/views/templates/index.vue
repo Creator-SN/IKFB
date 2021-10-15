@@ -28,32 +28,13 @@
                 ></fv-command-bar>
             </div>
             <div class="row main-table">
-                <fv-details-list
+                <template-grid
                     :value="templates"
-                    :head="head"
                     :filter="currentSearch"
-                    :theme="theme"
-                    style="width: 100%; height: 100%"
-                    ref="table"
-                    :multiSelection="true"
                     @rightclick="currentItem = $event"
                     @choose-items="currentChoosen = $event"
+                    @item-click="openEditor($event)"
                 >
-                    <template v-slot:column_0="x">
-                        <p class="sec">{{ x.row_index + 1 }}</p>
-                    </template>
-                    <template v-slot:column_1="x">
-                        <p :title="x.item.emoji">{{ x.item.emoji }}</p>
-                    </template>
-                    <template v-slot:column_2="x">
-                        <p
-                            class="highlight"
-                            @click="openEditor(x.item)"
-                        >{{ x.item.name }}</p>
-                    </template>
-                    <template v-slot:column_3="x">
-                        <p class="sec">{{ x.item.createDate }}</p>
-                    </template>
                     <template v-slot:menu>
                         <div>
                             <span @click="show.rename = true">
@@ -72,7 +53,7 @@
                             </span>
                         </div>
                     </template>
-                </fv-details-list>
+                </template-grid>
             </div>
         </div>
         <add-template :show.sync="show.add"></add-template>
@@ -86,6 +67,7 @@
 <script>
 import addTemplate from "@/components/templates/addTemplate.vue";
 import renameTemplate from "@/components/templates/renameTemplate.vue";
+import templateGrid from "@/components/templates/templateGrid.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
@@ -94,6 +76,7 @@ export default {
     components: {
         addTemplate,
         renameTemplate,
+        templateGrid,
     },
     data() {
         return {
@@ -135,7 +118,6 @@ export default {
     watch: {
         $route() {
             this.templatesEnsureFolder();
-            this.$refs.table.headInit();
         },
     },
     computed: {
