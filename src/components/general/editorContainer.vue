@@ -113,10 +113,15 @@ export default {
                     this.$refs.editor.save();
                     this.unsave = false;
                 } else {
-                    let filterKey = [17, 16, 20];
+                    let filterKey = [16, 17, 18, 20];
                     if (filterKey.indexOf(event.keyCode) < 0) {
                         if (!this.readonly) this.unsave = true;
                     }
+                }
+                
+                if(event.keyCode === 9) {
+                    event.preventDefault();
+                    this.$refs.editor.editor.commands.insertContent("    ");
                 }
             });
         },
@@ -134,8 +139,8 @@ export default {
                 `${this.target.id}.json`
             );
             ipc.send("read-file", {
-                id: 'editor',
-                path: url
+                id: "editor",
+                path: url,
             });
             let content = await new Promise((resolve) => {
                 ipc.on(`read-file-editor`, (event, data) => {
@@ -204,6 +209,8 @@ export default {
     right: 0px;
     padding-top: 32px;
     background: white;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+        Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

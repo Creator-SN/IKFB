@@ -65,7 +65,7 @@
                         >{{ x.item.name }}</p>
                     </template>
                     <template v-slot:column_4="x">
-                        <p class="sec" @click="show.rename = true"><fv-tag :value="x.item.labels" :theme="theme"></fv-tag></p>
+                        <p class="sec" @click="() => {currentItem = x.item; show.rename = true}"><fv-tag :value="x.item.labels" :theme="theme"></fv-tag></p>
                     </template>
                     <template v-slot:column_5="x">
                         <p class="sec">{{ x.item.createDate }}</p>
@@ -177,10 +177,10 @@
                             </span>
                             <span @click="openFile(`${currentItem.id}`)">
                                 <i
-                                    class="ms-Icon ms-Icon--LinkedDatabase"
-                                    style="color: rgba(0, 153, 204, 1);"
+                                    class="ms-Icon ms-Icon--FabricFolder"
+                                    style="color: rgba(255, 180, 0, 1);"
                                 ></i>
-                                <p>{{local("View Metadata")}}</p>
+                                <p>{{local("Open Folder")}}</p>
                             </span>
                             <hr>
                             <span @click="show.folder = true">
@@ -717,6 +717,7 @@ export default {
                 .row-item-info {
                     background: rgba(37, 36, 35, 1);
                     color: whitesmoke;
+                    box-shadow: 0px 12px 20px rgba(120, 120, 120, 0.2);
                 }
             }
         }
@@ -825,7 +826,7 @@ export default {
                 background: whitesmoke;
                 display: flex;
                 flex-direction: column;
-                box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1);
+                box-shadow: 3px 8px 8px rgba(0, 0, 0, 0.1);
                 z-index: 1;
 
                 .item {

@@ -13,7 +13,7 @@
             <div class="global-container">
                 <transition
                     name="scale-up-to-up"
-                    :duration="200"
+                    :duration="100"
                 >
                     <keep-alive>
                         <router-view></router-view>
@@ -85,6 +85,7 @@ export default {
         this.pdfImporterInit();
         this.dropFilesInit();
         this.i18nInit();
+        if (this.$route.path !== "/") this.$Go("/");
     },
     methods: {
         ...mapMutations({
