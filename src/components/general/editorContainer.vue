@@ -140,7 +140,6 @@ export default {
         }),
         TimeoutInit() {
             this.timeout.autoSave = setInterval(this.editorSave, 1000);
-            console.log(this.timeout)
         },
         TimeoutDestroy() {
             clearInterval(this.timeout.autoSave);
