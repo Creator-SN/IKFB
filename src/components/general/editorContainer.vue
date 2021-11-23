@@ -1,9 +1,11 @@
 <template>
-    <transition :name="show_editor ? 'move-right-to-left' : 'move-left-to-right'">
+    <transition
+        :name="show_editor ? 'move-right-to-left' : 'move-left-to-right'"
+    >
         <div
             v-show="show_editor"
             class="ikfb-editor-container"
-            :class="[{dark: theme == 'dark', fullScreen: fullScreen}]"
+            :class="[{ dark: theme == 'dark', fullScreen: fullScreen }]"
         >
             <div class="control-banner">
                 <fv-button
@@ -14,7 +16,11 @@
                 >
                     <i
                         class="ms-Icon"
-                        :class="[fullScreen ? 'ms-Icon--BackToWindow' : 'ms-Icon--FullScreen']"
+                        :class="[
+                            fullScreen
+                                ? 'ms-Icon--BackToWindow'
+                                : 'ms-Icon--FullScreen',
+                        ]"
                     ></i>
                 </fv-button>
                 <fv-button
@@ -22,10 +28,15 @@
                     :borderRadius="30"
                     class="control-btn"
                     @click="readonly = readonly == true ? false : true"
-                ><i
+                    ><i
                         class="ms-Icon"
-                        :class="[`ms-Icon--${readonly === true ? 'PageEdit' : 'ReadingMode'}`]"
-                    ></i></fv-button>
+                        :class="[
+                            `ms-Icon--${
+                                readonly === true ? 'PageEdit' : 'ReadingMode'
+                            }`,
+                        ]"
+                    ></i
+                ></fv-button>
                 <fv-button
                     :theme="theme"
                     :borderRadius="30"
@@ -34,6 +45,14 @@
                 >
                     <i class="ms-Icon ms-Icon--Cancel"></i>
                 </fv-button>
+                <fv-toggle-switch
+                    :title="local('Auto Save')"
+                    v-model="auto_save"
+                    class="save-btn"
+                    on=""
+                    off=""
+                >
+                </fv-toggle-switch>
                 <fv-button
                     v-show="unsave"
                     :theme="theme"
@@ -41,7 +60,7 @@
                     class="control-btn"
                     background="rgba(0, 204, 153, 1)"
                 >
-                    {{''}}
+                    {{ "" }}
                 </fv-button>
             </div>
             <power-editor
@@ -49,10 +68,17 @@
                 :placeholder="local('Write something ...')"
                 :editable="!readonly"
                 :theme="theme"
-                :editorOutSideBackground="theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'"
+                :editorOutSideBackground="
+                    theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
+                "
                 :mobileDisplayWidth="0"
                 ref="editor"
-                style="position: relative; width: 100%; height: calc(100% - 40px); flex: 1;"
+                style="
+                    position: relative;
+                    width: 100%;
+                    height: calc(100% - 40px);
+                    flex: 1;
+                "
                 @save-json="saveContent"
             ></power-editor>
         </div>
@@ -71,6 +97,10 @@ export default {
             readonly: false,
             fullScreen: false,
             unsave: false,
+            auto_save: false,
+            timeout: {
+                autoSave: undefined,
+            },
         };
     },
     watch: {
@@ -101,12 +131,19 @@ export default {
     },
     mounted() {
         this.ShortCutInit();
+        this.TimeoutInit();
     },
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
             toggleEditor: "toggleEditor",
         }),
+        TimeoutInit() {
+            this.timeout.autoSave = setInterval(this.editorSave, 1000);
+        },
+        TimeoutDestroy() {
+            clearInterval(this.timeout.autoSave);
+        },
         ShortCutInit() {
             this.$el.addEventListener("keydown", (event) => {
                 if (event.keyCode === 83 && event.ctrlKey) {
@@ -118,8 +155,8 @@ export default {
                         if (!this.readonly) this.unsave = true;
                     }
                 }
-                
-                if(event.keyCode === 9) {
+
+                if (event.keyCode === 9) {
                     event.preventDefault();
                     this.$refs.editor.editor.commands.insertContent("    ");
                 }
@@ -153,6 +190,11 @@ export default {
                 this.content = content;
             }
             if (this.content === "") this.$refs.editor.focus();
+        },
+        editorSave() {
+            if (this.auto_save && this.show_editor && this.unsave){
+                this.$refs.editor.save();
+            }
         },
         async saveContent(json) {
             if (!this.type || !this.target.id) return;
@@ -197,6 +239,9 @@ export default {
             } else this.toggleEditor(false);
         },
     },
+    beforeDestroy() {
+        this.TimeoutDestroy();
+    },
 };
 </script>
 
@@ -238,6 +283,12 @@ export default {
             width: 30px;
             height: 30px;
             margin: 5px;
+        }
+        .save-btn {
+            position: absolute;
+            margin-left: 10px;
+            right: 10px;
+            margin-right: 10px;
         }
     }
 

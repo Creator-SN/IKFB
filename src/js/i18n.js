@@ -302,5 +302,13 @@ export default {
     "From Template": {
         "en": "From Template",
         "cn": "从模板引用"
+    },
+    "Auto Save": {
+        "en": "Auto Save",
+        "cn": "自动保存"
+    },
+    "Input item name...": {
+        "en": "Input item name...",
+        "cn": "请输入新建项的名称..."
     }
 }
