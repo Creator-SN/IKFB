@@ -49,8 +49,8 @@
                     :title="local('Auto Save')"
                     v-model="auto_save"
                     class="save-btn"
-                    on=""
-                    off=""
+                    :on="local('Turn Off Auto Save')"
+                    :off="local('Turn On Auto Save')"
                 >
                 </fv-toggle-switch>
                 <fv-button

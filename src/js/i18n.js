@@ -307,6 +307,14 @@ export default {
         "en": "Auto Save",
         "cn": "自动保存"
     },
+    "Turn On Auto Save": {
+        "en": "Auto Save",
+        "cn": "自动保存"
+    },
+    "Turn Off Auto Save": {
+        "en": "Turn Off",
+        "cn": "关闭自动"
+    },
     "Input item name...": {
         "en": "Input item name...",
         "cn": "请输入新建项的名称..."
