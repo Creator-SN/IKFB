@@ -318,5 +318,17 @@ export default {
     "Input item name...": {
         "en": "Input item name...",
         "cn": "请输入新建项的名称..."
+    },
+    "Create Time": {
+        "en": "Create Time",
+        "cn": "创建时间"
+    },
+    "Multi-Selection": {
+        "en": "Multi-Selection",
+        "cn": "多选"
+    },
+    "Cancel Multi-Selection": {
+        "en": "Cancel Multi-Selection",
+        "cn": "取消多选"
     }
 }

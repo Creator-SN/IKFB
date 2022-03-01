@@ -28,53 +28,18 @@
                 ></fv-command-bar>
             </div>
             <div class="row main-table">
-                <fv-details-list
+                <main-list
                     :value="filterItems"
-                    :head="head"
-                    :filter="currentSearch"
+                    :edit="editable"
                     :theme="theme"
-                    style="width: 100%; height: 100%"
-                    ref="table"
-                    :multiSelection="true"
+                    :filter="currentSearch"
+                    @open-file="openFile"
+                    @label-click="($event) => {currentItem = $event; show.rename = true}"
                     @rightclick="currentItem = $event"
                     @choose-items="currentChoosen = $event"
                 >
-                    <template v-slot:column_0="x">
-                        <i
-                            :class="`drop-down-icon ms-Icon ms-Icon--${x.item.showInfo ? 'CaretBottomRightCenter8' : 'CaretRight8'}`"
-                            @click="x.item.showInfo ^= true"
-                        ></i>
-                    </template>
-                    <template v-slot:column_1="x">
-                        <p
-                            class="sec"
-                            style="user-select: none;"
-                        >{{ x.row_index + 1 }}</p>
-                    </template>
-                    <template v-slot:column_2="x">
-                        <p
-                            :title="x.item.emoji"
-                            style="user-select: none;"
-                        >{{ x.item.emoji }}</p>
-                    </template>
-                    <template v-slot:column_3="x">
-                        <p
-                            class="highlight"
-                            :title="x.item.name"
-                            @click="x.item.pdf ? openFile(`${x.item.id}/${x.item.pdf}.pdf`) : openFile(`${x.item.id}`)"
-                        >{{ x.item.name }}</p>
-                    </template>
-                    <template v-slot:column_4="x">
-                        <p class="sec" @click="() => {currentItem = x.item; show.rename = true}"><fv-tag :value="x.item.labels" :theme="theme"></fv-tag></p>
-                    </template>
-                    <template v-slot:column_5="x">
-                        <p class="sec">{{ x.item.createDate }}</p>
-                    </template>
                     <template v-slot:row_expand="x">
-                        <div
-                            v-show="x.item.showInfo"
-                            class="row-item-info"
-                        >
+                        <div class="main-row-item-info">
                             <div
                                 v-show="x.item.pdf"
                                 class="item"
@@ -89,7 +54,7 @@
                                 <p></p>
                                 <fv-button
                                     background="rgba(255, 180, 0, 1)"
-                                    style="width: 25px; height: 25px;"
+                                    style="width: 35px; height: 35px;"
                                     :title="local('Open Folder')"
                                     @click="openFile(`${x.item.id}`)"
                                 >
@@ -112,7 +77,7 @@
                                 <p></p>
                                 <fv-button
                                     background="rgba(255, 180, 0, 1)"
-                                    style="width: 25px; height: 25px;"
+                                    style="width: 35px; height: 35px;"
                                     :title="local('Open Folder')"
                                     @click="openFile(`${x.item.id}`)"
                                 >
@@ -134,7 +99,7 @@
                                 <fv-button
                                     theme="dark"
                                     background="rgba(0, 120, 212, 1)"
-                                    style="width: 25px; height: 25px;"
+                                    style="width: 35px; height: 35px;"
                                     :title="local('Rename')"
                                     @click="showRenameItemPage(x.item, page)"
                                 >
@@ -142,8 +107,8 @@
                                 </fv-button>
                                 <fv-button
                                     theme="dark"
-                                    background="rgba(173, 38, 45, 1)"
-                                    style="width: 25px; height: 25px;"
+                                    background="rgba(220, 62, 72, 1)"
+                                    style="width: 35px; height: 35px;"
                                     :title="local('Delete')"
                                     @click="deleteItemPage(x.item.id, page.id)"
                                 >
@@ -219,7 +184,7 @@
                             </span>
                         </div>
                     </template>
-                </fv-details-list>
+                </main-list>
             </div>
         </div>
         <add-item :show.sync="show.add"></add-item>
@@ -250,6 +215,7 @@
 <script>
 import addItem from "@/components/home/addItem.vue";
 import renameItem from "@/components/home/renameItem.vue";
+import mainList from "@/components/home/mainList.vue";
 import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
 import metadataPanel from "@/components/home/metadataPanel.vue";
@@ -262,6 +228,7 @@ export default {
     components: {
         addItem,
         renameItem,
+        mainList,
         addItemPage,
         renameItemPage,
         metadataPanel,
@@ -285,6 +252,18 @@ export default {
                     iconColor: "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
                     func: this.importPdf,
+                },
+                {
+                    name: () => {
+                        if (this.editable) return this.local("Cancel Multi-Selection");
+                        return this.local("Multi-Selection");
+                    },
+                    icon: "GroupedList",
+                    iconColor: "rgba(0, 90, 158, 1)",
+                    disabled: () => this.ds_db === null || !this.lock,
+                    func: () => {
+                        this.editable ^= true;
+                    },
                 },
                 {
                     name: () => this.local("Copy to Partitions"),
@@ -325,6 +304,7 @@ export default {
                 { content: "Labels", width: 120 },
                 { content: "Create Date", sortName: "createDate", width: 120 },
             ],
+            editable: false,
             filterItems: [],
             currentItem: {},
             currentChoosen: [],
@@ -346,10 +326,6 @@ export default {
         $route() {
             this.itemsEnsureFolder();
             this.refreshFilterItems();
-            setTimeout(() => {
-                this.$refs.table.headInit();
-                this.$refs.table.widthFormat(0);
-            }, 300);
         },
         c() {
             this.refreshFilterItems();
@@ -799,6 +775,67 @@ export default {
                         background: rgba(200, 200, 200, 0.3);
                     }
                 }
+
+                .main-row-item-info {
+                    position: relative;
+                    width: 100%;
+                    height: auto;
+                    display: flex;
+                    flex-direction: column;
+                    z-index: 1;
+
+                    .item {
+                        width: 100%;
+                        min-height: 55px;
+                        height: 55px;
+                        padding: 0px 15px;
+                        font-size: 13.8px;
+                        font-weight: 600;
+                        border: rgba(200, 200, 200, 0.1) solid thin;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                        grid-template-columns: 50px 160px 90px 150px 50px 1fr;
+                        display: grid;
+                        align-items: center;
+                        cursor: pointer;
+                        user-select: none;
+
+                        &:hover {
+                            background: rgba(200, 200, 200, 0.1);
+                        }
+
+                        &:active {
+                            background: rgba(200, 200, 200, 0.3);
+                        }
+
+                        .ms-Icon--PDF {
+                            color: rgba(245, 62, 72, 1);
+                        }
+
+                        .ms-Icon--LinkedDatabase {
+                            color: rgba(245, 149, 17, 1);
+                        }
+
+                        p {
+                            @include nowrap;
+
+                            &.sec {
+                                font-size: 12px;
+                                font-weight: normal;
+                            }
+
+                            &.highlight {
+                                text-align: left;
+                                cursor: pointer;
+
+                                &:hover {
+                                    color: rgba(0, 120, 212, 1);
+                                    text-decoration: underline;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             &.bottom-control {
@@ -815,69 +852,6 @@ export default {
 
             .fv-rightMenu {
                 z-index: 3;
-            }
-
-            .row-item-info {
-                position: absolute;
-                left: 0px;
-                top: 100%;
-                width: 100%;
-                height: auto;
-                background: whitesmoke;
-                display: flex;
-                flex-direction: column;
-                box-shadow: 3px 8px 8px rgba(0, 0, 0, 0.1);
-                z-index: 1;
-
-                .item {
-                    width: 100%;
-                    min-height: 45px;
-                    height: 45px;
-                    padding: 0px 15px;
-                    font-size: 13.8px;
-                    font-weight: 600;
-                    box-sizing: border-box;
-                    grid-template-columns: 50px 160px 90px 150px 50px 1fr;
-                    display: grid;
-                    align-items: center;
-                    cursor: pointer;
-                    user-select: none;
-
-                    &:hover {
-                        background: rgba(200, 200, 200, 0.3);
-                    }
-
-                    &:active {
-                        background: rgba(200, 200, 200, 0.6);
-                    }
-
-                    .ms-Icon--PDF {
-                        color: rgba(173, 38, 45, 1);
-                    }
-
-                    .ms-Icon--LinkedDatabase {
-                        color: rgba(255, 180, 0, 1);
-                    }
-
-                    p {
-                        @include nowrap;
-
-                        &.sec {
-                            font-size: 12px;
-                            font-weight: normal;
-                        }
-
-                        &.highlight {
-                            text-align: left;
-                            cursor: pointer;
-
-                            &:hover {
-                                color: rgba(0, 120, 212, 1);
-                                text-decoration: underline;
-                            }
-                        }
-                    }
-                }
             }
         }
     }

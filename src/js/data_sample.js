@@ -65,6 +65,11 @@ export const metadata = {
     abstract: null,
     ISSN: null,
     language: null,
+    chapter: null,
+    pages: null,
+    booktitle: null,
+    school: null,
+    note: null,
     authors: []
 }
 

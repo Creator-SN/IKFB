@@ -74,18 +74,19 @@ export default {
     background: rgba(239, 239, 239, 1);
     border-radius: 3px;
     box-sizing: border-box;
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1), 0px 6px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1), 0px 3px 10px rgba(0, 0, 0, 0.3);
     z-index: 3;
 
     div {
         padding: 1px 0px;
 
         span {
-            width: 100%;
-            margin: thin 0px;
-            padding: 8px 15px;
+            width: calc(100% - 10px);
+            margin-left: 5px;
+            padding: 8px 10px;
             background: rgba(239, 239, 239, 1);
             font-size: 13px;
+            border-radius: 3px;
             box-sizing: border-box;
             display: flex;
             justify-content: space-between;
@@ -93,8 +94,12 @@ export default {
             user-select: none;
 
             &:hover {
-                background: rgba(245, 245, 245, 1);
+                background: rgba(200, 200, 200, 0.3);
                 cursor: pointer;
+            }
+
+            &:active {
+                background: rgba(200, 200, 200, 0.5);
             }
 
             p {
@@ -119,7 +124,7 @@ export default {
     &.dark {
         background: rgba(36, 36, 36, 1);
         box-shadow: 0px 0px 0px rgba(173, 173, 173, 0.1),
-            0px 6px 10px rgba(163, 163, 163, 0.3);
+            0px 3px 10px rgba(163, 163, 163, 0.3);
 
         div {
             span {

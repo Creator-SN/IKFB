@@ -5,7 +5,7 @@
         :theme="theme"
         class="web-window-base"
     >
-        <div class="w-row">
+        <div class="w-row overflow">
             <slot name="content">
 
             </slot>
@@ -60,6 +60,10 @@ export default {
         flex: 1;
         padding: 40px 0px;
         overflow: hidden;
+
+        &.overflow {
+            overflow: auto;
+        }
 
         &.control {
             position: relative;

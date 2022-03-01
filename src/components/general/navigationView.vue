@@ -43,8 +43,8 @@
                         v-model="treeList"
                         :theme="theme"
                         expandedIconPosition="right"
-                        background="transparent"
-                        :viewStyle="{backgroundColor:'transparent'}"
+                        :background="theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)'"
+                        :view-style="{backgroundColor: theme == 'dark' ? 'rgba(7, 7, 7, 1)' : 'rgba(245, 245, 245, 1)', backgroundColorHover: theme == 'dark' ? 'rgba(200, 200, 200, 0.1)' : 'rgba(245, 245, 245, 1)'}"
                         style="width: 100%; height: 100%;"
                         @click="SwitchPartition"
                     >

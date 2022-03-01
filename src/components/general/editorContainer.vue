@@ -1,67 +1,86 @@
 <template>
-    <transition
-        :name="show_editor ? 'move-right-to-left' : 'move-left-to-right'"
-    >
+    <transition :name="show_editor ? 'move-right-to-left' : 'move-left-to-right'">
         <div
             v-show="show_editor"
             class="ikfb-editor-container"
             :class="[{ dark: theme == 'dark', fullScreen: fullScreen }]"
         >
             <div class="control-banner">
-                <fv-button
-                    :theme="theme"
-                    :borderRadius="30"
-                    class="control-btn"
-                    @click="fullScreen ^= true"
-                >
-                    <i
-                        class="ms-Icon"
-                        :class="[
+                <div class="control-left-block">
+                    <fv-button
+                        v-if="item && item.pages"
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        @click="show.quickNav ^= true"
+                    >
+                        <i
+                            class="ms-Icon"
+                            :class="[
+                            show.quickNav
+                                ? 'ms-Icon--RemoveFromShoppingList'
+                                : 'ms-Icon--PageList',
+                        ]"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        @click="fullScreen ^= true"
+                    >
+                        <i
+                            class="ms-Icon"
+                            :class="[
                             fullScreen
                                 ? 'ms-Icon--BackToWindow'
                                 : 'ms-Icon--FullScreen',
                         ]"
-                    ></i>
-                </fv-button>
-                <fv-button
-                    :theme="theme"
-                    :borderRadius="30"
-                    class="control-btn"
-                    @click="readonly = readonly == true ? false : true"
+                        ></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        @click="readonly = readonly == true ? false : true"
                     ><i
-                        class="ms-Icon"
-                        :class="[
+                            class="ms-Icon"
+                            :class="[
                             `ms-Icon--${
                                 readonly === true ? 'PageEdit' : 'ReadingMode'
                             }`,
                         ]"
-                    ></i
-                ></fv-button>
-                <fv-button
-                    :theme="theme"
-                    :borderRadius="30"
-                    class="control-btn"
-                    @click="close"
-                >
-                    <i class="ms-Icon ms-Icon--Cancel"></i>
-                </fv-button>
-                <fv-toggle-switch
-                    :title="local('Auto Save')"
-                    v-model="auto_save"
-                    class="save-btn"
-                    :on="local('Turn Off Auto Save')"
-                    :off="local('Turn On Auto Save')"
-                >
-                </fv-toggle-switch>
-                <fv-button
-                    v-show="unsave"
-                    :theme="theme"
-                    :borderRadius="30"
-                    class="control-btn"
-                    background="rgba(0, 204, 153, 1)"
-                >
-                    {{ "" }}
-                </fv-button>
+                        ></i></fv-button>
+                    <fv-button
+                        v-show="unsave"
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        background="rgba(0, 204, 153, 1)"
+                    >
+                        {{ "" }}
+                    </fv-button>
+                </div>
+                <div class="control-right-block">
+                    <fv-toggle-switch
+                        :title="local('Auto Save')"
+                        v-model="auto_save"
+                        class="save-btn"
+                        :on="local('Turn Off Auto Save')"
+                        :off="local('Turn On Auto Save')"
+                        :onForeground="theme === 'dark' ? '#fff' : '#000'"
+                        :offForeground="theme === 'dark' ? '#fff' : '#000'"
+                    >
+                    </fv-toggle-switch>
+                    <fv-button
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        @click="close"
+                    >
+                        <i class="ms-Icon ms-Icon--Cancel"></i>
+                    </fv-button>
+                </div>
             </div>
             <power-editor
                 :value="content"
@@ -73,6 +92,7 @@
                 "
                 :mobileDisplayWidth="0"
                 ref="editor"
+                :style="{'font-size': `${fontSize}px`}"
                 style="
                     position: relative;
                     width: 100%;
@@ -80,24 +100,89 @@
                     flex: 1;
                 "
                 @save-json="saveContent"
+                @click.native="show.quickNav = false"
             ></power-editor>
+            <div class="bottom-control" :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]">
+                <i class="ms-Icon trigger" :class="[`ms-Icon--${show.bottomControl ? 'ChevronRightMed' : 'ChevronLeftMed'}`]" style="flex: 1;" @click="show.bottomControl ^= true"></i>
+                <fv-slider
+                    v-show="show.bottomControl"
+                    v-model="fontSize"
+                    :mininum="12"
+                    :maxinum="72"
+                    icon="RadioBullet"
+                    color="rgba(87, 156, 193, 1)"
+                    :showLabel="true"
+                    style="width: 150px; margin-right: 15px;"
+                >
+                    <template slot-scope="prop">
+                        <p style="margin: 5px;">{{prop.value}}px</p>
+                    </template>
+                </fv-slider>
+            </div>
+            <transition :name="!show.quickNav ? 'move-right-to-left' : 'move-left-to-right'">
+                <div
+                    v-if="item && item.id"
+                    v-show="show.quickNav"
+                    class="quick-nav-block"
+                    :class="[{dark: theme == 'dark'}]"
+                >
+                    <div
+                        v-for="(page, index) in item.pages"
+                        :key="index"
+                        class="item"
+                        :class="[{choosen: page.id == target.id}]"
+                        @click="openEditor(item, page)"
+                    >
+                        <p>{{page.emoji}}</p>
+                        <div class="info-content-block">
+                            <p class="highlight">{{page.name}}</p>
+                            <p class="sec date">{{page.id}}</p>
+                        </div>
+                        <p class="sec">{{page.createDate}}</p>
+                    </div>
+                    <div
+                        class="item"
+                        @click="show.addItemPage = true"
+                    >
+                        <i class="ms-Icon ms-Icon--Add"></i>
+                        <p style="margin-left: 15px;">{{local("Add Page")}}</p>
+                    </div>
+                </div>
+            </transition>
+            <add-item-page
+                v-if="item && item.id"
+                :show.sync="show.addItemPage"
+                :item="item"
+            ></add-item-page>
         </div>
     </transition>
 </template>
 
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
+
+import addItemPage from "@/components/home/addItemPage.vue";
+
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
 
 export default {
+    components: {
+        addItemPage,
+    },
     data() {
         return {
             content: "",
             readonly: false,
+            fontSize: 16,
             fullScreen: false,
             unsave: false,
             auto_save: false,
+            show: {
+                quickNav: false,
+                addItemPage: false,
+                bottomControl: false
+            },
             timeout: {
                 autoSave: undefined,
             },
@@ -136,6 +221,7 @@ export default {
     methods: {
         ...mapMutations({
             reviseDS: "reviseDS",
+            reviseEditor: "reviseEditor",
             toggleEditor: "toggleEditor",
         }),
         TimeoutInit() {
@@ -192,7 +278,7 @@ export default {
             if (this.content === "") this.$refs.editor.focus();
         },
         editorSave() {
-            if (this.auto_save && this.show_editor && this.unsave){
+            if (this.auto_save && this.show_editor && this.unsave) {
                 this.$refs.editor.save();
             }
         },
@@ -219,6 +305,13 @@ export default {
                 });
             });
             this.unsave = false;
+        },
+        openEditor(item, page) {
+            this.reviseEditor({
+                type: "item",
+                item: item,
+                target: page,
+            });
         },
         close() {
             if (this.unsave) {
@@ -279,16 +372,165 @@ export default {
         min-height: 40px;
         height: 40px;
 
+        .control-left-block {
+            @include Vcenter;
+
+            flex: 1;
+        }
+
+        .control-right-block {
+            @include Vcenter;
+
+            .save-btn {
+                margin-right: 15px;
+            }
+
+            .control-btn:last-child {
+                margin-right: 15px;
+            }
+        }
+
         .control-btn {
             width: 30px;
             height: 30px;
             margin: 5px;
         }
-        .save-btn {
-            position: absolute;
-            margin-left: 10px;
-            right: 10px;
-            margin-right: 10px;
+    }
+
+    .bottom-control {
+        @include HendVcenter;
+
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        width: 100%;
+        height: 35px;
+        background: rgba(245, 245, 245, 0.6);
+        font-size: 12px;
+        transition: all 0.3s;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        &.dark {
+            background: rgba(36, 36, 36, 0.6);
+            color: whitesmoke;
+        }
+
+        &.close
+        {
+            width: 25px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            overflow: hidden;
+        }
+
+        * {
+            @include Vcenter;
+        }
+
+        .trigger
+        {
+            height: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+
+            &:hover {
+                background: rgba(200, 200, 200, 0.1);
+            }
+
+            &:active {
+                background: rgba(200, 200, 200, 0.3);
+            }
+        }
+    }
+
+    .quick-nav-block {
+        position: absolute;
+        left: 5px;
+        top: 80px;
+        width: 350px;
+        height: calc(100% - 85px);
+        padding: 5px;
+        background: rgba(245, 245, 245, 0.6);
+        border-right: solid rgba(75, 75, 75, 0.1) thin;
+        border-radius: 8px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: auto;
+        z-index: 9;
+
+        &.dark {
+            background: rgba(36, 36, 36, 0.6);
+
+            .item {
+                color: whitesmoke;
+            }
+        }
+
+        .item {
+            width: 100%;
+            min-height: 55px;
+            height: 55px;
+            padding: 0px 15px;
+            font-size: 13.8px;
+            font-weight: 600;
+            border: rgba(200, 200, 200, 0.1) solid thin;
+            border-radius: 8px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+
+            &.choosen {
+                background: rgba(200, 200, 200, 0.6);
+
+                &:hover {
+                    background: rgba(200, 200, 200, 0.6);
+                }
+            }
+
+            &:hover {
+                background: rgba(200, 200, 200, 0.1);
+            }
+
+            &:active {
+                background: rgba(200, 200, 200, 0.3);
+            }
+
+            .info-content-block {
+                @include VcenterC;
+
+                flex: 1;
+                margin: 0px 5px;
+
+                .date {
+                    font-size: 12px;
+                    opacity: 0.6;
+                }
+            }
+
+            p {
+                @include nowrap;
+
+                &.sec {
+                    font-size: 12px;
+                    font-weight: normal;
+                }
+
+                &.highlight {
+                    text-align: left;
+                    cursor: pointer;
+
+                    &:hover {
+                        color: rgba(0, 120, 212, 1);
+                        text-decoration: underline;
+                    }
+                }
+            }
         }
     }
 

@@ -11,14 +11,9 @@
                 style="background: transparent;"
             ></title-bar>
             <div class="global-container">
-                <transition
-                    name="scale-up-to-up"
-                    :duration="100"
-                >
-                    <keep-alive>
-                        <router-view></router-view>
-                    </keep-alive>
-                </transition>
+                <keep-alive>
+                    <router-view></router-view>
+                </keep-alive>
             </div>
         </div>
         <editor-container></editor-container>
