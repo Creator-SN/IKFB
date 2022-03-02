@@ -26,6 +26,8 @@ module.exports = {
             nodeIntegration: true,
             // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
             builderOptions: {
+                productName: "IKFB",
+                appId: "com.creatorsn.ikfb",
                 win: {
                     icon: "./logo.ico"
                 },

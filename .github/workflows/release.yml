@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     tags:
-      - 'v*'
+      - "v*"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -40,14 +40,19 @@ jobs:
         id: tag
         uses: dawidd6/action-get-tag@v1
 
-      - name: Archive Release
-        run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_IKFB_${{steps.tag.outputs.tag}}.zip
+      # - name: Archive Release
+      #   run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_IKFB_${{steps.tag.outputs.tag}}.zip
+
+      - name: Rename
+        run: |
+          $v="${{steps.tag.outputs.tag}}".Substring(1)
+          mv "./dist_electron/IKFB Setup $v.exe" "IKFB_${{steps.tag.outputs.tag}}_installer.exe"
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: 'win_x64_IKFB_${{steps.tag.outputs.tag}}.zip'
+          artifacts: "IKFB_${{steps.tag.outputs.tag}}_installer.exe"
           token: ${{ secrets.GITHUB_TOKEN }}
 
   macos:
@@ -78,5 +83,5 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: 'macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip'
+          artifacts: "macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
