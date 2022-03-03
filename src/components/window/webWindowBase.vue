@@ -62,7 +62,7 @@ export default {
         overflow: hidden;
 
         &.overflow {
-            overflow: auto;
+            overflow-y: auto;
         }
 
         &.control {

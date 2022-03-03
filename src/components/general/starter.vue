@@ -40,6 +40,22 @@
                 v-show="step === 1"
                 class="item-block"
             >
+                <p class="title">{{local(`Choose Language`)}}</p>
+                <fv-Combobox
+                    v-model="cur_language"
+                    theme="dark"
+                    :options="languages"
+                    :placeholder="local('Choose A Language')"
+                    background="rgba(36, 36, 36, 1)"
+                    @choose-item="chooseLanguage"
+                ></fv-Combobox>
+            </div>
+        </transition>
+        <transition name="scale-up-to-up">
+            <div
+                v-show="step === 2"
+                class="item-block"
+            >
                 <p class="title">{{local(`New Data Dource`)}}</p>
                 <fv-text-box
                     v-model="path"
@@ -69,13 +85,13 @@
                     theme="dark"
                     background="rgba(29, 85, 125, 1)"
                     class="starter-btn"
-                    @click="step = 2"
+                    @click="step = 3"
                 >{{local('Exists Data Source')}}</fv-button>
             </div>
         </transition>
         <transition name="scale-up-to-up">
             <div
-                v-show="step === 2"
+                v-show="step === 3"
                 class="item-block"
             >
                 <p class="title">{{local(`Choose from Exists`)}}</p>
@@ -115,6 +131,11 @@ export default {
         return {
             logo: logo,
             step: 0,
+            cur_language: {},
+            languages: [
+                { key: "en", text: "English" },
+                { key: "cn", text: "简体中文" },
+            ],
             path: "",
             name: "",
         };
@@ -124,6 +145,7 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             ds_db_list: (state) => state.ds_db_list,
+            language: (state) => state.language,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", "ds_db"]),
@@ -135,13 +157,26 @@ export default {
             };
         },
     },
-    mounted() {},
+    mounted() {
+        this.languageInit();
+    },
     methods: {
         ...mapMutations({
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
             reviseDS: "reviseDS",
         }),
+        languageInit() {
+            this.cur_language = this.languages.find(
+                (item) => item.key === this.language
+            );
+        },
+        chooseLanguage(item) {
+            this.reviseConfig({
+                v: this,
+                language: item.key,
+            });
+        },
         async choosePath() {
             let path = (
                 await dialog.showOpenDialog({

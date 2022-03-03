@@ -10,11 +10,29 @@
         <template v-slot:container>
             <div class="metadata-container">
                 <div class="metadata-item">
+                    <p class="title">Title</p>
+                    <fv-text-box
+                        v-model="metadata.title"
+                        :theme="theme"
+                        :placeholder="local(`Please Input title...`)"
+                        :underline="true"
+                        style="height: 45px; font-size: 20px;"
+                    ></fv-text-box>
+                </div>
+                <div class="metadata-item">
                     <p class="title">Publisher</p>
                     <fv-text-box
                         v-model="metadata.publisher"
                         :theme="theme"
                         :placeholder="local(`Please Input publisher...`)"
+                    ></fv-text-box>
+                </div>
+                <div class="metadata-item">
+                    <p class="title">Year</p>
+                    <fv-text-box
+                        v-model="metadata.year"
+                        :theme="theme"
+                        :placeholder="local(`Please Input year...`)"
                     ></fv-text-box>
                 </div>
                 <div class="metadata-item">
@@ -42,14 +60,6 @@
                     ></fv-text-box>
                 </div>
                 <div class="metadata-item">
-                    <p class="title">Title</p>
-                    <fv-text-box
-                        v-model="metadata.title"
-                        :theme="theme"
-                        :placeholder="local(`Please Input title...`)"
-                    ></fv-text-box>
-                </div>
-                <div class="metadata-item">
                     <p class="title">Url</p>
                     <fv-text-box
                         v-model="metadata.url"
@@ -67,11 +77,12 @@
                 </div>
                 <div class="metadata-item">
                     <p class="title">Abstract</p>
-                    <fv-text-box
+                    <textarea
                         v-model="metadata.abstract"
-                        :theme="theme"
+                        class="text-area"
+                        :class="{dark: theme == 'dark'}"
                         :placeholder="local(`Please Input abstract...`)"
-                    ></fv-text-box>
+                    ></textarea>
                 </div>
                 <div class="metadata-item">
                     <p class="title">ISSN</p>
@@ -118,16 +129,19 @@
                             v-model="author.first"
                             :placeholder="local('First Name')"
                             :theme="theme"
+                            style="margin: 0px 3px;"
                         ></fv-text-box>
                         <fv-text-box
                             v-model="author.last"
                             :placeholder="local('Last Name')"
                             :theme="theme"
+                            style="margin: 0px 3px;"
                         ></fv-text-box>
                         <fv-text-box
                             v-model="author.sequence"
                             :placeholder="local('Sequence')"
                             :theme="theme"
+                            style="margin: 0px 3px;"
                         ></fv-text-box>
                         <fv-button
                             theme="dark"
@@ -179,6 +193,7 @@ export default {
             metadata: {
                 publisher: "",
                 DOI: "",
+                year: "",
                 createDate: "",
                 source: "",
                 title: "",
@@ -221,10 +236,15 @@ export default {
         }),
         metadataInit() {
             if (!this.item.metadata) return;
-            for (let key in this.item.metadata)
-                if (this.item.metadata[key] !== null)
-                    this.metadata[key] = this.item.metadata[key];
+            for (let key in this.metadata) {
+                if (this.item.metadata[key]) {
+                    if(typeof(this.item.metadata[key]) === "object")
+                        this.metadata[key] = this.item.metadata[key];
+                    else
+                        this.metadata[key] = this.item.metadata[key].toString();
+                }
                 else this.metadata[key] = "";
+            }
             if (!this.item.metadata.authors) this.metadata.authors = [];
         },
         addAuthor(index = 0) {
@@ -292,6 +312,28 @@ export default {
             margin: 5px 0px;
             font-size: 12px;
             font-weight: bold;
+        }
+
+        .text-area
+        {
+            position: relative;
+            width: 300px;
+            height: 250px;
+            padding: 5px;
+            font-size: 13px;
+            font-family: 'Times New Roman', Times, serif;
+            box-sizing: border-box;
+            border: 1px solid rgba(36, 36, 36, 0.8);
+            border-radius: 5px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+
+            &.dark
+            {
+                background: transparent;
+                border: 1px solid rgba(75, 75, 75, 0.8);
+            }
         }
 
         .author-block

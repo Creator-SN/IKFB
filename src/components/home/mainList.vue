@@ -29,13 +29,14 @@
                     <p class="index">{{index + 1}}</p>
                     <fv-check-box
                         v-model="item.choosen"
+                        :borderColor="theme == 'dark' ? 'whitesmoke' : ''"
                         @click="itemChooseClick(item)"
                     ></fv-check-box>
                 </div>
             </template>
             <template v-slot:title="x">
                 <div class="custom-collapse-title">
-                    <p class="title-content h" @click="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)">{{ x.title }}</p>
+                    <p class="title-content h" @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)">{{ x.title }}</p>
                     <fv-tag
                         :value="item.labels"
                         :theme="theme"
@@ -87,6 +88,12 @@ export default {
         edit: {
             default: false,
         },
+        desc: {
+            default: 1
+        },
+        sortKey: { // name, title, publisher, createDate, year
+            default: "",
+        },
         theme: {
             default: "light",
         },
@@ -108,6 +115,12 @@ export default {
         },
         thisValue() {
             this.$emit("input", this.thisValue);
+        },
+        sortKey() {
+            this.sort();
+        },
+        desc() {
+            this.sort();
         },
         filter() {
             this.filterValue();
@@ -224,6 +237,42 @@ export default {
             this.$emit("change-value", this.thisValue);
             this.$emit("choose-items", this.currentChoosen);
         },
+        sort () {
+            let numKey = ['year'];
+            let strKey1 = ['name'];
+            let strKey2 = ['title', 'publisher'];
+            let timeKey = ['createDate'];
+            if(numKey.find(it => it == this.sortKey))
+                this.thisValue.sort((a, b) => {
+                    return this.desc * this.sortNum(a.metadata[this.sortKey], b.metadata[this.sortKey]);
+                });
+            else if(strKey1.find(it => it == this.sortKey))
+                this.thisValue.sort((a, b) => {
+                    return this.desc * this.sortName(a[this.sortKey], b[this.sortKey]);
+                });
+            else if(strKey2.find(it => it == this.sortKey))
+                this.thisValue.sort((a, b) => {
+                    return this.desc * this.sortName(a.metadata[this.sortKey], b.metadata[this.sortKey]);
+                });
+            else if(timeKey.find(it => it == this.sortKey))
+                this.thisValue.sort((a, b) => {
+                    return this.desc * this.sortTime(a[this.sortKey], b[this.sortKey]);
+                });
+        },
+        sortNum (item1, item2) {
+            return parseFloat(item1) < parseFloat(item2) ? 1 : -1;
+        },
+        sortName (item1, item2) {
+            if(!item1) return -1;
+            if(!item2) return 1;
+            return item1.localeCompare(item2);
+        },
+        sortTime (item1, item2) {
+            return this.$SDate.Compare(
+                this.$SDate.Parse(item1),
+                this.$SDate.Parse(item2)
+            );
+        }
     },
 };
 </script>
@@ -264,8 +313,7 @@ export default {
                 cursor: pointer;
 
                 &:hover {
-                    color: rgba(0, 120, 212, 1);
-                    text-decoration: underline;
+                    color: rgba(255, 180, 0, 1);
                 }
             }
         }

@@ -38,6 +38,7 @@
                             <fv-button
                                 :theme="theme"
                                 class="control-btn"
+                                :title="local(`Unlink this source`)"
                                 @click="removeDS(x.item)"
                             >
                                 <i class="ms-Icon ms-Icon--RemoveLink"></i>
@@ -68,7 +69,7 @@
                     v-model="cur_language"
                     :theme="theme"
                     :options="languages"
-                    placeholder="Choose A Language"
+                    :placeholder="local('Choose A Language')"
                     :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
                     @choose-item="chooseLanguage"
                 ></fv-Combobox>

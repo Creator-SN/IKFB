@@ -33,8 +33,7 @@
                     background="rgba(0, 153, 204, 1)"
                     style="margin-top: 15px"
                     @click="cancel"
-                    >{{ local("Cancel") }}</fv-button
-                >
+                >{{ local("Cancel") }}</fv-button>
             </div>
         </div>
     </transition>
@@ -42,6 +41,7 @@
 
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
+import { META_API } from "@/js/meta_api.js";
 import { metadata, author, item } from "@/js/data_sample.js";
 import Extractor from "@/js/extractTitle.js";
 
@@ -52,6 +52,7 @@ export default {
     data() {
         return {
             extractor: Extractor,
+            metaAPI: META_API,
             progress: 0,
             path_title: "",
             stop: false,
@@ -271,7 +272,7 @@ export default {
                 title = pdfMetadata.title;
             else if (pdfMetadata.Title && pdfMetadata.Title != "")
                 title = pdfMetadata.Title;
-            let crefInfo = await this.cref_getInfoByTitle(title);
+            let crefInfo = await this.getMetaInfo(title);
             let _metadata = JSON.parse(JSON.stringify(metadata));
             _metadata.title = title;
             if (pdfMetadata.Author && pdfMetadata.Author.indexOf(" ; ") > -1) {
@@ -287,71 +288,27 @@ export default {
                 });
                 _metadata.authors = authors;
             }
+            
             for (let it of crefInfo) {
-                if (it.title[0] === title) {
-                    let authors = [];
-                    _metadata.DOI = it.DOI;
-                    _metadata.abstract = it.abstract;
-                    _metadata.ISSN = it.ISSN ? it.ISSN[0] : "";
-                    _metadata.containerTitle = it["container-title"]
-                        ? it["container-title"][0]
-                        : "";
-                    _metadata.createDate = it.created
-                        ? it.created["date-time"]
-                        : "";
-                    _metadata.language = it.language;
-                    _metadata.publisher = it.publisher;
-                    _metadata.source = it.source;
-                    _metadata.url = it.URL;
-                    it.author.forEach((el) => {
-                        let _author = JSON.parse(JSON.stringify(author));
-                        _author.first = el.first;
-                        _author.last = el.last;
-                        _author.sequence = el.sequence;
-                        authors.push(_author);
-                    });
-                    _metadata.authors = authors;
+                if (it.title.toLowerCase() === title.toLowerCase()) {
+                    Object.assign(_metadata, it);
                 }
             }
             return _metadata;
         },
-        async cref_getInfoByTitle(title) {
-            let baseUrl = "https://api.crossref.org/works";
-            title = title.replace(/ +/g, "+");
-            try {
-                return await new Promise((resolve) => {
-                    this.axios
-                        .get(
-                            baseUrl,
-                            {
-                                params: {
-                                    "query.bibliographic": title,
-                                },
-                            },
-                            {
-                                timeout: 10000,
-                            }
-                        )
-                        .then((response) => {
-                            resolve(response.data.message.items);
-                        })
-                        .catch((error) => {
-                            this.$barWarning(error.message, {
-                                status: "error",
-                            });
-                            // this.lock = true;
-                            // this.stop = false;
-                            // this.revisePdfImporter({
-                            //     value: false,
-                            // });
-                            // this.progress = 0;
-                            // this.path_title = "";
-                            resolve([])
-                        });
-                });
-            } catch (e) {
-                return [];
+        async getMetaInfo(title) {
+            let p = [];
+            let fn = [this.metaAPI.cref_getInfoByTitle, this.metaAPI.semanticScholar_getInfoByTitle];
+            for(let f of fn) {
+                p.push(f(title, this.axios));
             }
+            let result = [];
+            await Promise.all(p).then((res) => {
+                res.forEach(it => {
+                    result = result.concat(it);
+                });
+            });
+            return result;
         },
         cancel() {
             this.stop = true;

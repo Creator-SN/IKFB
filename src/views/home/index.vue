@@ -18,6 +18,20 @@
                     :revealBorder="true"
                     style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"
                 ></fv-text-box>
+                <div class="sort-block">
+                    <fv-combobox
+                    v-model="sortKey"
+                    :options="sortOptions"
+                    :placeholder="local('Sort by')"
+                    :inputBackground="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
+                    :borderRadius="3"
+                    :theme="theme"
+                    style="width: 120px;"
+                ></fv-combobox>
+                <fv-button :theme="theme" :disabled="sortKey.key == undefined" style="width: 35px; height: 35px; margin-left: 5px;" @click="sortDesc = -sortDesc">
+                    <i class="ms-Icon" :class="[`ms-Icon--${sortDesc == 1 ? 'Ascending' : 'Descending'}`]" style="font-size: 18px;"></i>
+                </fv-button>
+                </div>
             </div>
             <div class="row command-bar">
                 <fv-command-bar
@@ -31,6 +45,8 @@
                 <main-list
                     :value="filterItems"
                     :edit="editable"
+                    :sortKey="sortKey.key"
+                    :desc="sortDesc"
                     :theme="theme"
                     :filter="currentSearch"
                     @open-file="openFile"
@@ -46,7 +62,10 @@
                                 @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
                             >
                                 <i class="ms-Icon ms-Icon--PDF"></i>
-                                <p>PDF</p>
+                                <p
+                                    class="highlight"
+                                    @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
+                                >PDF</p>
                                 <p
                                     class="sec highlight"
                                     @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
@@ -255,7 +274,8 @@ export default {
                 },
                 {
                     name: () => {
-                        if (this.editable) return this.local("Cancel Multi-Selection");
+                        if (this.editable)
+                            return this.local("Cancel Multi-Selection");
                         return this.local("Multi-Selection");
                     },
                     icon: "GroupedList",
@@ -296,14 +316,15 @@ export default {
                     func: this.deleteItems,
                 },
             ],
-            head: [
-                { content: "", width: 80 },
-                { content: "No.", width: 80 },
-                { content: "Icon", sortName: "emoji", width: 80 },
-                { content: "Name", sortName: "name", width: 300 },
-                { content: "Labels", width: 120 },
-                { content: "Create Date", sortName: "createDate", width: 120 },
+            sortKey: {},
+            sortOptions: [
+                { key: "name", text: () => this.local("Name") },
+                { key: "title", text: () => this.local("Title") },
+                { key: "publisher", text: () => this.local("Publisher") },
+                { key: "createDate", text: () => this.local("CreateDate") },
+                { key: "year", text: () => this.local("Year") }
             ],
+            sortDesc: 1,
             editable: false,
             filterItems: [],
             currentItem: {},
@@ -848,6 +869,11 @@ export default {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+            }
+
+            .sort-block
+            {
+                @include HcenterVcenter;
             }
 
             .fv-rightMenu {

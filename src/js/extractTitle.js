@@ -84,7 +84,7 @@ export default class {
             if (candidate.indexOf(transform[0]) > -1)
                 title.push(el.str);
         });
-        let result = title.join('');
+        let result = title.join(' ');
         result = result.replace(/ +/g, ' ');
         if(result[0] == ' ') result = result.slice(1);
         if(result.slice(-1) == ' ') result = result.slice(0, -1);

@@ -57,6 +57,7 @@ export const page = {
 export const metadata = {
     publisher: null,
     DOI: null,
+    year: null,
     createDate: null,
     source: null,
     title: null,

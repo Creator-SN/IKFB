@@ -251,6 +251,14 @@ export default {
         "en": "Choose a source to start.",
         "cn": "选择数据源以开始."
     },
+    "Choose A Language": {
+        "en": "Choose A Language",
+        "cn": "选择语言"
+    },
+    "Choose Language": {
+        "en": "Choose Language",
+        "cn": "选择语言"
+    },
     "Unselected": {
         "en": "Unselected",
         "cn": "未选择"
@@ -330,5 +338,9 @@ export default {
     "Cancel Multi-Selection": {
         "en": "Cancel Multi-Selection",
         "cn": "取消多选"
+    },
+    "Unlink this source": {
+        "en": "Unlink this source",
+        "cn": "取消连接此数据源"
     }
 }
