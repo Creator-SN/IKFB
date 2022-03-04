@@ -53,7 +53,7 @@
                     class="collapse-info"
                     style="display: flex;"
                 >
-                    <p style="width: 160px;">{{ x.content }}</p>
+                    <p style="width: 180px;">{{ x.content }}</p>
                     <fv-button
                         v-if="item.metadata && item.metadata.year"
                         theme="dark"
