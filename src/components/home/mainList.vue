@@ -269,6 +269,8 @@ export default {
             let timeKey = ["createDate"];
             if (numKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
+                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
+                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortNum(
@@ -279,6 +281,8 @@ export default {
                 });
             else if (strKey1.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
+                    if(!a[this.sortKey]) return this.desc * -1;
+                    if(!b[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortName(a[this.sortKey], b[this.sortKey])
@@ -286,6 +290,8 @@ export default {
                 });
             else if (strKey2.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
+                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
+                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortName(
@@ -296,6 +302,8 @@ export default {
                 });
             else if (timeKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
+                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
+                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortTime(a[this.sortKey], b[this.sortKey])
