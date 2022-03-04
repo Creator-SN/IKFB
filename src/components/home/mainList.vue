@@ -36,13 +36,31 @@
             </template>
             <template v-slot:title="x">
                 <div class="custom-collapse-title">
-                    <p class="title-content h" @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)">{{ x.title }}</p>
+                    <p
+                        class="title-content h"
+                        @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)"
+                    >{{ x.title }}</p>
                     <fv-tag
                         :value="item.labels"
                         :theme="theme"
                         class="tag-block"
                         @click.native="$emit('label-click', item)"
                     ></fv-tag>
+                </div>
+            </template>
+            <template v-slot:content="x">
+                <div
+                    class="collapse-info"
+                    style="display: flex;"
+                >
+                    <p style="width: 160px;">{{ x.content }}</p>
+                    <fv-button
+                        v-if="item.metadata && item.metadata.year"
+                        theme="dark"
+                        background="rgba(0, 204, 153, 1)"
+                        fontSize="12"
+                        style="width: 50px; height: 25px; margin: 0px 15px;"
+                    >{{item.metadata.year}}</fv-button>
                 </div>
             </template>
             <slot
@@ -91,9 +109,10 @@ export default {
             default: false,
         },
         desc: {
-            default: 1
+            default: 1,
         },
-        sortKey: { // name, title, publisher, createDate, year
+        sortKey: {
+            // name, title, publisher, createDate, year
             default: "",
         },
         rightMenuWidth: {
@@ -243,42 +262,60 @@ export default {
             this.$emit("change-value", this.thisValue);
             this.$emit("choose-items", this.currentChoosen);
         },
-        sort () {
-            let numKey = ['year'];
-            let strKey1 = ['name'];
-            let strKey2 = ['title', 'publisher'];
-            let timeKey = ['createDate'];
-            if(numKey.find(it => it == this.sortKey))
+        sort() {
+            let numKey = ["year"];
+            let strKey1 = ["name"];
+            let strKey2 = ["title", "publisher"];
+            let timeKey = ["createDate"];
+            if (numKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    return this.desc * this.sortNum(a.metadata[this.sortKey], b.metadata[this.sortKey]);
+                    return (
+                        this.desc *
+                        this.sortNum(
+                            a.metadata[this.sortKey],
+                            b.metadata[this.sortKey]
+                        )
+                    );
                 });
-            else if(strKey1.find(it => it == this.sortKey))
+            else if (strKey1.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    return this.desc * this.sortName(a[this.sortKey], b[this.sortKey]);
+                    return (
+                        this.desc *
+                        this.sortName(a[this.sortKey], b[this.sortKey])
+                    );
                 });
-            else if(strKey2.find(it => it == this.sortKey))
+            else if (strKey2.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    return this.desc * this.sortName(a.metadata[this.sortKey], b.metadata[this.sortKey]);
+                    return (
+                        this.desc *
+                        this.sortName(
+                            a.metadata[this.sortKey],
+                            b.metadata[this.sortKey]
+                        )
+                    );
                 });
-            else if(timeKey.find(it => it == this.sortKey))
+            else if (timeKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    return this.desc * this.sortTime(a[this.sortKey], b[this.sortKey]);
+                    return (
+                        this.desc *
+                        this.sortTime(a[this.sortKey], b[this.sortKey])
+                    );
                 });
         },
-        sortNum (item1, item2) {
+        sortNum(item1, item2) {
             return parseFloat(item1) < parseFloat(item2) ? 1 : -1;
         },
-        sortName (item1, item2) {
-            if(!item1) return -1;
-            if(!item2) return 1;
+        sortName(item1, item2) {
+            if (!item1) return -1;
+            if (!item2) return 1;
             return item1.localeCompare(item2);
         },
-        sortTime (item1, item2) {
+        sortTime(item1, item2) {
             return this.$SDate.Compare(
                 this.$SDate.Parse(item1),
                 this.$SDate.Parse(item2)
             );
-        }
+        },
     },
 };
 </script>

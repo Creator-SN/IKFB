@@ -115,6 +115,7 @@
                     <div class="row-block">
                         <fv-combobox
                             v-model="bibTexValue"
+                            :theme="theme"
                             :placeholder="local(`Select Type`)"
                             :options="bibTexOptions"
                             style="width: 200px;"
