@@ -20,17 +20,27 @@
                 ></fv-text-box>
                 <div class="sort-block">
                     <fv-combobox
-                    v-model="sortKey"
-                    :options="sortOptions"
-                    :placeholder="local('Sort by')"
-                    :inputBackground="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
-                    :borderRadius="3"
-                    :theme="theme"
-                    style="width: 120px;"
-                ></fv-combobox>
-                <fv-button :theme="theme" :disabled="sortKey.key == undefined" style="width: 35px; height: 35px; margin-left: 5px;" @click="sortDesc = -sortDesc">
-                    <i class="ms-Icon" :class="[`ms-Icon--${sortDesc == 1 ? 'Ascending' : 'Descending'}`]" style="font-size: 18px;"></i>
-                </fv-button>
+                        v-model="sortKey"
+                        :options="sortOptions"
+                        :placeholder="local('Sort by')"
+                        :inputBackground="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
+                        :borderRadius="3"
+                        :theme="theme"
+                        style="width: 120px;"
+                    ></fv-combobox>
+                    <fv-button
+                        :theme="theme"
+                        :disabled="sortKey.key == undefined"
+                        style="width: 35px; height: 35px; margin-left: 5px;"
+                        :title="sortDesc == 1 ? local('Switch to Descending') : local('Switch to Ascending')"
+                        @click="sortDesc = -sortDesc"
+                    >
+                        <i
+                            class="ms-Icon"
+                            :class="[`ms-Icon--${sortDesc == 1 ? 'Ascending' : 'Descending'}`]"
+                            style="font-size: 18px;"
+                        ></i>
+                    </fv-button>
                 </div>
             </div>
             <div class="row command-bar">
@@ -322,7 +332,7 @@ export default {
                 { key: "title", text: () => this.local("Title") },
                 { key: "publisher", text: () => this.local("Publisher") },
                 { key: "createDate", text: () => this.local("CreateDate") },
-                { key: "year", text: () => this.local("Year") }
+                { key: "year", text: () => this.local("Year") },
             ],
             sortDesc: 1,
             editable: false,
@@ -871,8 +881,7 @@ export default {
                 align-items: center;
             }
 
-            .sort-block
-            {
+            .sort-block {
                 @include HcenterVcenter;
             }
 

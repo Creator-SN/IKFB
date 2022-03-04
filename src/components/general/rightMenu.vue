@@ -34,13 +34,14 @@ export default {
             default: 200,
         },
         theme: {
-            default: "light"
-        }
+            default: "light",
+        },
     },
-    data () {
+    data() {
         return {
-            thisValue: this.value
-        }
+            thisValue: this.value,
+            rightMenuHeight: 0,
+        };
     },
     watch: {
         value(val) {
@@ -48,9 +49,13 @@ export default {
         },
         thisValue(val) {
             this.$emit("input", val);
+            if (this.rightMenuHeight == 0) {
+                this.rightMenuHeight = this.$el.clientHeight;
+                this.$emit("update-height", this.rightMenuHeight);
+            }
         },
     },
-    mounted () {
+    mounted() {
         this.rightMenuClearInit();
     },
     methods: {

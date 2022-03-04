@@ -342,5 +342,45 @@ export default {
     "Unlink this source": {
         "en": "Unlink this source",
         "cn": "取消连接此数据源"
+    },
+    "Sort by": {
+        "en": "Sort by",
+        "cn": "按类型排序"
+    },
+    'Switch to Descending': {
+        "en": "Switch to Descending",
+        "cn": "切换到降序"
+    },
+    'Switch to Ascending': {
+        "en": "Switch to Ascending",
+        "cn": "切换到升序"
+    },
+    'Retrieve Metadata': {
+        "en": "Retrieve Metadata",
+        "cn": "检索元数据"
+    },
+    'Searching Metadata': {
+        "en": "Searching Metadata",
+        "cn": "正在搜索元数据"
+    },
+    'is required': {
+        "en": "is required",
+        "cn": "需要被补充"
+    },
+    'Successfully copied to clipboard': {
+        "en": "Successfully copied to clipboard",
+        "cn": "成功复制到剪贴板"
+    },
+    'Select Type': {
+        "en": "Select Type",
+        "cn": "选择类型"
+    },
+    'Generate BibTex': {
+        "en": "Generate BibTex",
+        "cn": "生成BibTex"
+    },
+    'BibTex Content': {
+        "en": "BibTex Content",
+        "cn": "BibTex内容"
     }
 }

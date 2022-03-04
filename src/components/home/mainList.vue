@@ -56,6 +56,8 @@
             :theme="theme"
             :posX="posX"
             :posY="posY"
+            :rightMenuWidth="rightMenuWidth"
+            @update-height="rightMenuHeight = $event"
         >
             <slot name="menu">
             </slot>
@@ -94,6 +96,9 @@ export default {
         sortKey: { // name, title, publisher, createDate, year
             default: "",
         },
+        rightMenuWidth: {
+            default: 200,
+        },
         theme: {
             default: "light",
         },
@@ -103,6 +108,7 @@ export default {
             thisValue: this.value,
             posX: 0,
             posY: 0,
+            rightMenuHeight: 0,
             show: {
                 rightMenu: false,
             },

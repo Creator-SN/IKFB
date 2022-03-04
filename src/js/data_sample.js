@@ -68,7 +68,6 @@ export const metadata = {
     language: null,
     chapter: null,
     pages: null,
-    booktitle: null,
     school: null,
     note: null,
     authors: []

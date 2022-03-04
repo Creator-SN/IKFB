@@ -54,8 +54,8 @@ export class META_API {
             if (it.author) {
                 it.author.forEach((el) => {
                     let _author = JSON.parse(JSON.stringify(author));
-                    _author.first = el.first;
-                    _author.last = el.last;
+                    _author.first = el.first || el.given;
+                    _author.last = el.last || el.family;
                     _author.sequence = el.sequence;
                     authors.push(_author);
                 });
@@ -63,6 +63,7 @@ export class META_API {
             _metadata.authors = authors;
             if (_metadata.createDate != "")
                 _metadata.year = new Date(_metadata.createDate).getFullYear().toString();
+            _metadata.from = 'CrossRef';
             result.push(_metadata);
         });
 
@@ -111,22 +112,58 @@ export class META_API {
             _metadata.year = it.year.toString();
             _metadata.publisher = it.venue;
             _metadata.url = it.url;
-            it.authors.forEach((el) => {
+            it.authors.forEach((el, idx) => {
                 let _author = JSON.parse(JSON.stringify(author));
                 let name = el['name'].split(" ");
                 _author.first = name[0];
                 if (name.length > 1)
-                    _author.last = name[1];
-                if (name.length > 2) {
-                    _author.last = name[2];
-                    _author.sequence = name[1];
-                }
+                    _author.last = name.slice(1).join(" ");
+                _author.sequence = idx == 0 ? 'first' : 'additional';
                 authors.push(_author);
             });
             _metadata.authors = authors;
+            _metadata.from = 'Semantic Scholar';
             result.push(_metadata);
         });
 
         return result;
+    }
+
+    static titleSimilar(s, t, f) {
+        if (!s || !t) {
+            return 0
+        }
+        var l = s.length > t.length ? s.length : t.length
+        var n = s.length
+        var m = t.length
+        var d = []
+        f = f || 3
+        var min = function (a, b, c) {
+            return a < b ? (a < c ? a : c) : (b < c ? b : c)
+        }
+        var i, j, si, tj, cost
+        if (n === 0) return m
+        if (m === 0) return n
+        for (i = 0; i <= n; i++) {
+            d[i] = []
+            d[i][0] = i
+        }
+        for (j = 0; j <= m; j++) {
+            d[0][j] = j
+        }
+        for (i = 1; i <= n; i++) {
+            si = s.charAt(i - 1)
+            for (j = 1; j <= m; j++) {
+                tj = t.charAt(j - 1)
+                if (si === tj) {
+                    cost = 0
+                } else {
+                    cost = 1
+                }
+                d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+            }
+        }
+        let res = (1 - d[n][m] / l)
+        return res.toFixed(f)
     }
 }

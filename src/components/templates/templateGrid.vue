@@ -90,6 +90,8 @@
             :theme="theme"
             :posX="posX"
             :posY="posY"
+            :rightMenuWidth="rightMenuWidth"
+            @update-height="rightMenuHeight = $event"
         >
             <slot name="menu">
             </slot>
@@ -119,6 +121,9 @@ export default {
                 };
             },
         },
+        rightMenuWidth: {
+            default: 200,
+        }
     },
     data() {
         return {
@@ -126,6 +131,7 @@ export default {
             posX: 0,
             posY: 0,
             rightMenuItem: {},
+            rightMenuHeight: 0,
             show: {
                 rightMenu: false,
             },
