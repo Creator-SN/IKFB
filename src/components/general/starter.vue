@@ -1,7 +1,7 @@
 <template>
     <div class="ikfb-starter-container">
         <fv-button
-            v-show="step > 1"
+            v-show="step > 2"
             theme="dark"
             background="rgba(29, 85, 125, 1)"
             :border-radius="50"
@@ -49,6 +49,13 @@
                     background="rgba(36, 36, 36, 1)"
                     @choose-item="chooseLanguage"
                 ></fv-Combobox>
+                <fv-button
+                    theme="dark"
+                    background="rgba(0, 130, 180, 1)"
+                    class="starter-btn"
+                    style="margin-top: 15px;"
+                    @click="step++"
+                >{{local('Confirm')}}</fv-button>
             </div>
         </transition>
         <transition name="scale-up-to-up">
