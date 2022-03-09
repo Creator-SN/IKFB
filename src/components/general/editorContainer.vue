@@ -52,6 +52,19 @@
                         ]"
                         ></i></fv-button>
                     <fv-button
+                        :theme="theme"
+                        :borderRadius="30"
+                        class="control-btn"
+                        @click="expandContent = expandContent == true ? false : true"
+                    ><i
+                            class="ms-Icon"
+                            :class="[
+                            `ms-Icon--${
+                                expandContent === true ? 'StaplingPortraitBookBinding' : 'StaplingLandscapeTwoTop'
+                            }`,
+                        ]"
+                        ></i></fv-button>
+                    <fv-button
                         v-show="unsave"
                         :theme="theme"
                         :borderRadius="30"
@@ -90,6 +103,7 @@
                 :editorOutSideBackground="
                     theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
                 "
+                :contentMaxWidth="expandContent ? '99999px' : '900px'"
                 :mobileDisplayWidth="0"
                 ref="editor"
                 :style="{'font-size': `${fontSize}px`}"
@@ -176,6 +190,7 @@ export default {
             readonly: false,
             fontSize: 16,
             fullScreen: false,
+            expandContent: false,
             unsave: false,
             auto_save: false,
             show: {
