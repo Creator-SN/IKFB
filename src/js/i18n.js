@@ -9,7 +9,7 @@ export default {
     },
     "IKFB": {
         "en": "IKFB",
-        "cn": "IKFB 笔记本"
+        "cn": "快卷"
     },
     "Setting": {
         "en": "Setting",
@@ -382,5 +382,25 @@ export default {
     'BibTex Content': {
         "en": "BibTex Content",
         "cn": "BibTex内容"
+    },
+    "All Items": {
+        "en": "All Items",
+        "cn": "全部项"
+    },
+    "No any Content": {
+        "en": "No any Content",
+        "cn": "没有任何内容"
+    },
+    "Click + to Add New Group & Partition": {
+        "en": "Click + to Add New Group & Partition",
+        "cn": "点击 + 添加新的分组和分区"
+    },
+    "Click + to Add New Item or Drag a PDF File to the Window": {
+        "en": "Click + to Add New Item or Drag PDF Files to the Window",
+        "cn": "点击 + 添加新一个新项或者拖拽一些PDF文件到窗口"
+    },
+    "Add Labels": {
+        "en": "Add Labels",
+        "cn": "添加标签"
     }
 }

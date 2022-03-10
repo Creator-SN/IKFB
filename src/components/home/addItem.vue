@@ -1,5 +1,5 @@
 <template>
-    <web-window-base v-model="thisShow" :title="local('Add Item')" :theme="theme">
+    <float-window-base v-model="thisShow" :title="local('Add Item')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block">
                 <p class="w-title">{{local('Item Name')}}</p>
@@ -40,11 +40,11 @@
             <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !ds_db" @click="add">{{local('Confirm')}}</fv-button>
             <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import {item} from "@/js/data_sample.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
@@ -52,7 +52,7 @@ const path = require("path");
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
     },
     props: {
         show: {

@@ -128,8 +128,8 @@ export default {
 
     &.dark {
         background: rgba(36, 36, 36, 1);
-        box-shadow: 0px 0px 0px rgba(173, 173, 173, 0.1),
-            0px 3px 10px rgba(163, 163, 163, 0.3);
+        box-shadow: 0px 0px 0px rgba(36, 36, 36, 0.1),
+            0px 3px 10px rgba(36, 36, 36, 0.3);
 
         div {
             span {

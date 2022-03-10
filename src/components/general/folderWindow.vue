@@ -1,5 +1,5 @@
 <template>
-    <web-window-base
+    <float-window-base
         v-if="ds_db"
         v-model="thisValue"
         :title="title"
@@ -37,16 +37,16 @@
                 @click="thisValue = false"
             >{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
     },
     props: {
         value: {

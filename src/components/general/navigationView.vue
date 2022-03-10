@@ -40,6 +40,7 @@
                     class="navigation-view-tree-view-block"
                 >
                     <fv-TreeView
+                        v-show="treeList.length > 0"
                         v-model="treeList"
                         :theme="theme"
                         expandedIconPosition="right"
@@ -78,7 +79,11 @@
                             </div>
                         </template>
                     </fv-TreeView>
-                    <loading v-show="SourceDisabled" :title="local('Choose a source to start.')"></loading>
+                    <nav-empty v-show="treeList.length === 0"></nav-empty>
+                    <loading
+                        v-show="SourceDisabled"
+                        :title="local('Choose a source to start.')"
+                    ></loading>
                 </div>
                 <div
                     v-show="expand"
@@ -105,7 +110,7 @@
                         @click="Go(`/`)"
                     >
                         <i
-                            class="ms-Icon ms-Icon--HardDriveGroup"
+                            class="ms-Icon ms-Icon--PrintAllPages"
                             style="color: rgba(0, 90, 158, 1);"
                         ></i>
                     </fv-button>
@@ -135,7 +140,7 @@
                         @click="collapseFunc(addPartition)"
                     >
                         <i
-                            class="ms-Icon ms-Icon--ReopenPages"
+                            class="ms-Icon ms-Icon--Dictionary"
                             style="color: rgba(213, 99, 70, 1);"
                         ></i>
                     </fv-button>
@@ -161,9 +166,11 @@
                 :theme="theme"
                 :posX="posX"
                 :posY="posY"
+                :rightMenuWidth="rightMenuWidth"
+            @update-height="rightMenuHeight = $event"
             >
                 <div>
-                    <span v-show="rightMenuItem.type === 'partition'">
+                    <span v-if="false" v-show="rightMenuItem.type === 'partition'">
                         <i
                             class="ms-Icon ms-Icon--Add"
                             style="color: rgba(0, 153, 204, 1);"
@@ -175,8 +182,8 @@
                         @click="addPartitionAt(rightMenuItem)"
                     >
                         <i
-                            class="ms-Icon ms-Icon--ReopenPages"
-                            style="color: rgba(0, 153, 204, 1);"
+                            class="ms-Icon ms-Icon--Dictionary"
+                            style="color: rgba(213, 99, 70, 1);"
                         ></i>
                         <p>{{local("New Partition")}}</p>
                     </span>
@@ -186,7 +193,7 @@
                     >
                         <i
                             class="ms-Icon ms-Icon--ViewListGroup"
-                            style="color: rgba(0, 153, 204, 1);"
+                            style="color: rgba(172, 84, 206, 1);"
                         ></i>
                         <p>{{local("New Group")}}</p>
                     </span>
@@ -213,6 +220,7 @@
 
 <script>
 import loading from "@/components/general/loading.vue";
+import navEmpty from "@/components/general/empty/navEmpty.vue";
 import rightMenu from "@/components/general/rightMenu.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 import { data_structure, group, partition } from "@/js/data_sample";
@@ -220,7 +228,13 @@ import { data_structure, group, partition } from "@/js/data_sample";
 export default {
     components: {
         loading,
-        rightMenu
+        navEmpty,
+        rightMenu,
+    },
+    props: {
+        rightMenuWidth: {
+            default: 200,
+        }
     },
     data() {
         return {
@@ -235,7 +249,7 @@ export default {
                         {
                             name: () => this.local("New Partition"),
                             func: this.addPartition,
-                            icon: "ReopenPages",
+                            icon: "Dictionary",
                             disabled: () => this.SourceDisabled,
                             iconColor: "rgba(213, 99, 70, 1)",
                         },
@@ -257,8 +271,8 @@ export default {
                     disabled: () => this.SourceDisabled,
                 },
                 {
-                    name: () => this.local("All"),
-                    icon: "HardDriveGroup",
+                    name: () => this.local("All Items"),
+                    icon: "PrintAllPages",
                     iconColor: "rgba(0, 90, 158, 1)",
                     func: () => this.Go("/"),
                     disabled: () => this.SourceDisabled,
@@ -269,6 +283,7 @@ export default {
             posX: 0,
             posY: 0,
             rightMenuItem: {},
+            rightMenuHeight: 0,
             show: {
                 rightMenu: false,
             },

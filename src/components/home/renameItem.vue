@@ -1,5 +1,5 @@
 <template>
-    <web-window-base
+    <float-window-base
         v-model="thisShow"
         :title="local('Rename Item')"
         :theme="theme"
@@ -57,16 +57,16 @@
                 @click="thisShow = false"
             >{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
     },
     props: {
         value: {

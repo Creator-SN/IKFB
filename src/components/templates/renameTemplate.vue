@@ -1,5 +1,5 @@
 <template>
-    <web-window-base v-model="thisShow" :title="local('Rename Template')" :theme="theme">
+    <float-window-base v-model="thisShow" :title="local('Rename Template')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block">
                 <p class="w-title">{{local('Template Name')}}</p>
@@ -10,16 +10,16 @@
             <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="!value || name === '' || !ds_db" @click="rename">{{local('Confirm')}}</fv-button>
             <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
     },
     props: {
         value: {

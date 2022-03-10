@@ -1,5 +1,5 @@
 <template>
-    <web-window-base
+    <float-window-base
         v-model="thisShow"
         :title="local('Init New Data Source')"
         :theme="theme"
@@ -27,17 +27,17 @@
                 @click="thisShow = false"
             >{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 import { data_structure } from "@/js/data_sample.js";
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
     },
     props: {
         show: {

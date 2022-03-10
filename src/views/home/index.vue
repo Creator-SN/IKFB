@@ -67,6 +67,26 @@
                     <template v-slot:row_expand="x">
                         <div class="main-row-item-info">
                             <div
+                                class="item"
+                                style="display: flex;"
+                                @click="($event) => {currentItem = x.item; show.rename = true}"
+                            >
+                                <fv-tag
+                                    v-if="x.item.labels.length > 0"
+                                    :value="x.item.labels"
+                                    :theme="theme"
+                                    style="width: 100%;"
+                                ></fv-tag>
+                                <i
+                                    v-if="x.item.labels.length <= 0"
+                                    class="ms-Icon ms-Icon--Tag"
+                                ></i>
+                                <p
+                                    v-if="x.item.labels.length <= 0"
+                                    style="margin-left: 15px;"
+                                >{{local("Add Labels")}}</p>
+                            </div>
+                            <div
                                 v-show="x.item.pdf"
                                 class="item"
                                 @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
@@ -144,6 +164,18 @@
                                     <i class="ms-Icon ms-Icon--Delete"></i>
                                 </fv-button>
                             </div>
+                            <div
+                                class="item"
+                                style="display: flex;"
+                                @click="($event) => {currentItem = x.item; show.addItemPage = true}"
+                            >
+                                <i
+                                    class="ms-Icon ms-Icon--Add"
+                                ></i>
+                                <p
+                                    style="margin-left: 15px;"
+                                >{{local("Add Page")}}</p>
+                            </div>
                         </div>
                     </template>
                     <template v-slot:menu>
@@ -214,6 +246,7 @@
                         </div>
                     </template>
                 </main-list>
+                <item-list-empty v-if="filterItems.length === 0"></item-list-empty>
             </div>
         </div>
         <add-item :show.sync="show.add"></add-item>
@@ -245,6 +278,7 @@
 import addItem from "@/components/home/addItem.vue";
 import renameItem from "@/components/home/renameItem.vue";
 import mainList from "@/components/home/mainList.vue";
+import itemListEmpty from "@/components/general/empty/itemListEmpty.vue";
 import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
 import metadataPanel from "@/components/home/metadataPanel.vue";
@@ -258,6 +292,7 @@ export default {
         addItem,
         renameItem,
         mainList,
+        itemListEmpty,
         addItemPage,
         renameItemPage,
         metadataPanel,

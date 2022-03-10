@@ -1,5 +1,5 @@
 <template>
-    <web-window-base
+    <float-window-base
         v-model="thisShow"
         :title="local('Add Page')"
         :theme="theme"
@@ -38,11 +38,11 @@
                 @click="thisShow = false"
             >{{local('Cancel')}}</fv-button>
         </template>
-    </web-window-base>
+    </float-window-base>
 </template>
 
 <script>
-import webWindowBase from "../window/webWindowBase.vue";
+import floatWindowBase from "../window/floatWindowBase.vue";
 import templateGrid from "@/components/templates/templateGrid.vue";
 import { page } from "@/js/data_sample.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
@@ -51,7 +51,7 @@ const path = require("path");
 
 export default {
     components: {
-        webWindowBase,
+        floatWindowBase,
         templateGrid,
     },
     props: {
