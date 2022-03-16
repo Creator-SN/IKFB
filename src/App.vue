@@ -239,8 +239,8 @@ export default {
     }
 
     ::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
+        width: 8px;
+        height: 8px;
         &:hover {
             width: 10px;
         }

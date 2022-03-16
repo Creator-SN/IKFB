@@ -54,6 +54,7 @@
                                 class="tree-view-custom-item"
                                 @contextmenu="rightClick($event, x.item)"
                             >
+                                <emoji-callout v-if="false" :value="x.item.emoji"></emoji-callout>
                                 <p>{{x.item.emoji}}</p>
                                 <p
                                     v-show="!x.item.editable"
@@ -222,6 +223,7 @@
 import loading from "@/components/general/loading.vue";
 import navEmpty from "@/components/general/empty/navEmpty.vue";
 import rightMenu from "@/components/general/rightMenu.vue";
+import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 import { data_structure, group, partition } from "@/js/data_sample";
 
@@ -230,6 +232,7 @@ export default {
         loading,
         navEmpty,
         rightMenu,
+        emojiCallout
     },
     props: {
         rightMenuWidth: {

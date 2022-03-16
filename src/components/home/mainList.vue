@@ -1,86 +1,125 @@
 <template>
-    <div class="collapse-list-block">
-        <fv-collapse
-            v-for="(item, index) in thisValue"
-            v-show="item.show"
-            :theme="theme"
-            :key="index"
-            :title="item.name"
-            :content="`${local('Create Time')}: ${item.createDate}`"
-            :maxHeight="350"
-            style="margin: 5px"
-            @contextmenu.native="rightClick($event, item)"
-        >
-            <template v-slot:icon>
-                <div
-                    v-show="!edit"
-                    class="icon-block"
-                >
-                    <p class="index">{{index + 1}}</p>
-                    <p
-                        :title="item.emoji"
-                        style="user-select: none;"
-                    >{{ item.emoji }}</p>
-                </div>
-                <div
-                    v-show="edit"
-                    class="icon-block"
-                >
-                    <p class="index">{{index + 1}}</p>
-                    <fv-check-box
-                        v-model="item.choosen"
-                        :borderColor="theme == 'dark' ? 'whitesmoke' : ''"
-                        @click="itemChooseClick(item)"
-                    ></fv-check-box>
-                </div>
-            </template>
-            <template v-slot:title="x">
-                <div class="custom-collapse-title">
-                    <p
-                        class="title-content h"
-                        @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)"
-                    >{{ x.title }}</p>
-                    <fv-tag
-                        :value="item.labels"
-                        :theme="theme"
-                        class="tag-block"
-                        @click.native="$emit('label-click', item)"
-                    ></fv-tag>
-                </div>
-            </template>
-            <template v-slot:content="x">
-                <div
-                    class="collapse-info"
-                    style="display: flex;"
-                >
-                    <p style="width: 180px;">{{ x.content }}</p>
-                    <fv-button
-                        v-if="item.metadata && item.metadata.year"
-                        theme="dark"
-                        background="rgba(0, 204, 153, 1)"
-                        fontSize="12"
-                        style="width: 50px; height: 25px; margin: 0px 15px;"
-                    >{{item.metadata.year}}</fv-button>
-                </div>
-            </template>
-            <slot
-                name="row_expand"
-                :item="item"
+    <fv-infinite-scroll-view
+        :value="visibleValue"
+        class="collapse-list-block"
+        @init-start="loading = true"
+        @init-end="loading = false"
+    >
+        <template v-slot:default="x">
+            <fv-collapse
+                v-for="(item, index) in x.dynamicValue"
+                v-show="item.show"
+                :theme="theme"
+                :key="index"
+                :title="item.name"
+                :content="`${local('Create Time')}: ${item.createDate}`"
+                :maxHeight="350"
+                style="margin: 5px"
+                @contextmenu.native="rightClick($event, item)"
             >
-            </slot>
-        </fv-collapse>
-        <right-menu
-            v-model="show.rightMenu"
-            :theme="theme"
-            :posX="posX"
-            :posY="posY"
-            :rightMenuWidth="rightMenuWidth"
-            @update-height="rightMenuHeight = $event"
-        >
-            <slot name="menu">
-            </slot>
-        </right-menu>
-    </div>
+                <template v-slot:icon>
+                    <div
+                        v-show="!edit"
+                        class="icon-block"
+                    >
+                        <p class="index">{{index + 1}}</p>
+                        <p
+                            :title="item.emoji"
+                            style="user-select: none;"
+                        >{{ item.emoji }}</p>
+                    </div>
+                    <div
+                        v-show="edit"
+                        class="icon-block"
+                    >
+                        <p class="index">{{index + 1}}</p>
+                        <fv-check-box
+                            v-model="item.choosen"
+                            :borderColor="theme == 'dark' ? 'whitesmoke' : ''"
+                            @click="itemChooseClick(item)"
+                        ></fv-check-box>
+                    </div>
+                </template>
+                <template v-slot:title="x">
+                    <div class="custom-collapse-title">
+                        <p
+                            class="title-content h"
+                            @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)"
+                        >{{ x.title }}</p>
+                        <fv-tag
+                            :value="item.labels"
+                            :theme="theme"
+                            class="tag-block"
+                            @click.native="$emit('label-click', item)"
+                        ></fv-tag>
+                    </div>
+                </template>
+                <template v-slot:content="x">
+                    <div
+                        class="collapse-info"
+                        style="display: flex;"
+                    >
+                        <p style="width: 180px;">{{ x.content }}</p>
+                        <fv-button
+                            v-if="item.metadata && item.metadata.year"
+                            theme="dark"
+                            background="rgba(0, 204, 153, 1)"
+                            fontSize="12"
+                            style="width: 50px; height: 25px; margin: 0px 15px;"
+                        >{{item.metadata.year}}</fv-button>
+                    </div>
+                </template>
+                <slot
+                    name="row_expand"
+                    :item="item"
+                >
+                </slot>
+            </fv-collapse>
+            <fv-shimmer
+                v-if="loading"
+                style="position: relative; width: 100%; height: auto;"
+            >
+                <div
+                    v-for="(item, index) in 2"
+                    :key="index"
+                    style="margin-top: 5px; display: flex; align-items: center;"
+                >
+                    <div
+                        class="sample"
+                        style="width: 30px; height: 30px; margin: 5px; border-radius: 50%;"
+                    ></div>
+                    <div
+                        class="sample"
+                        style="width: 80%; flex: 1; margin: 5px;"
+                    ></div>
+                </div>
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+                    <div
+                        v-for="(item, index) in 1"
+                        :key="index"
+                        style="margin-top: 5px; display: flex; align-items: center;"
+                    >
+                        <div
+                            class="sample"
+                            style="width: 80%; height: 15px; margin: 5px;"
+                            :style="{width: `${100 - index * 10}%`}"
+                        ></div>
+                    </div>
+                </div>
+            </fv-shimmer>
+            <right-menu
+                v-model="show.rightMenu"
+                :theme="theme"
+                :posX="posX"
+                :posY="posY"
+                :rightMenuWidth="rightMenuWidth"
+                @update-height="rightMenuHeight = $event"
+            >
+                <slot name="menu">
+                </slot>
+            </right-menu>
+        </template>
+    </fv-infinite-scroll-view>
 </template>
 
 <script>
@@ -128,6 +167,7 @@ export default {
             posX: 0,
             posY: 0,
             rightMenuHeight: 0,
+            loading: false,
             show: {
                 rightMenu: false,
             },
@@ -178,6 +218,13 @@ export default {
                     count++;
             }
             return count;
+        },
+        visibleValue() {
+            let result = [];
+            for (let i = 0; i < this.thisValue.length; i++) {
+                if (this.thisValue[i].show) result.push(this.thisValue[i]);
+            }
+            return result;
         },
     },
     mounted() {
@@ -269,8 +316,10 @@ export default {
             let timeKey = ["createDate"];
             if (numKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
-                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
+                    if (!a.metadata || !a.metadata[this.sortKey])
+                        return this.desc * -1;
+                    if (!b.metadata || !b.metadata[this.sortKey])
+                        return this.desc * 1;
                     return (
                         this.desc *
                         this.sortNum(
@@ -281,8 +330,8 @@ export default {
                 });
             else if (strKey1.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if(!a[this.sortKey]) return this.desc * -1;
-                    if(!b[this.sortKey]) return this.desc * 1;
+                    if (!a[this.sortKey]) return this.desc * -1;
+                    if (!b[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortName(a[this.sortKey], b[this.sortKey])
@@ -290,8 +339,10 @@ export default {
                 });
             else if (strKey2.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
-                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
+                    if (!a.metadata || !a.metadata[this.sortKey])
+                        return this.desc * -1;
+                    if (!b.metadata || !b.metadata[this.sortKey])
+                        return this.desc * 1;
                     return (
                         this.desc *
                         this.sortName(
@@ -302,8 +353,10 @@ export default {
                 });
             else if (timeKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if(!a.metadata || !a.metadata[this.sortKey]) return this.desc * -1;
-                    if(!b.metadata || !b.metadata[this.sortKey]) return this.desc * 1;
+                    if (!a.metadata || !a.metadata[this.sortKey])
+                        return this.desc * -1;
+                    if (!b.metadata || !b.metadata[this.sortKey])
+                        return this.desc * 1;
                     return (
                         this.desc *
                         this.sortTime(a[this.sortKey], b[this.sortKey])
