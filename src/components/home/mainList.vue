@@ -23,10 +23,7 @@
                         class="icon-block"
                     >
                         <p class="index">{{index + 1}}</p>
-                        <p
-                            :title="item.emoji"
-                            style="user-select: none;"
-                        >{{ item.emoji }}</p>
+                        <emoji-callout :value="item.emoji" :theme="theme" @insert-emoji="$emit('insert-emoji', {item: item, emoji: $event})"></emoji-callout>
                     </div>
                     <div
                         v-show="edit"
@@ -124,11 +121,13 @@
 
 <script>
 import { mapGetters } from "vuex";
+import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import rightMenu from "@/components/general/rightMenu.vue";
 
 export default {
     name: "mainList",
     components: {
+        emojiCallout,
         rightMenu,
     },
     props: {

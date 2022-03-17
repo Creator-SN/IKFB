@@ -63,6 +63,7 @@
                     @label-click="($event) => {currentItem = $event; show.rename = true}"
                     @rightclick="currentItem = $event"
                     @choose-items="currentChoosen = $event"
+                    @insert-emoji="reviseItemEmoji($event.item, $event.emoji)"
                 >
                     <template v-slot:row_expand="x">
                         <div class="main-row-item-info">
@@ -138,7 +139,7 @@
                                 :key="index"
                                 class="item"
                             >
-                                <p>{{page.emoji}}</p>
+                                <emoji-callout :value="page.emoji" :theme="theme" style="width: 25px;" @insert-emoji="revisePageEmoji(x.item, page, $event)"></emoji-callout>
                                 <p
                                     class="highlight"
                                     @click="openEditor(x.item, page)"
@@ -169,12 +170,8 @@
                                 style="display: flex;"
                                 @click="($event) => {currentItem = x.item; show.addItemPage = true}"
                             >
-                                <i
-                                    class="ms-Icon ms-Icon--Add"
-                                ></i>
-                                <p
-                                    style="margin-left: 15px;"
-                                >{{local("Add Page")}}</p>
+                                <i class="ms-Icon ms-Icon--Add"></i>
+                                <p style="margin-left: 15px;">{{local("Add Page")}}</p>
                             </div>
                         </div>
                     </template>
@@ -183,28 +180,28 @@
                             <span @click="show.addItemPage = true">
                                 <i
                                     class="ms-Icon ms-Icon--PageAdd"
-                                    style="color: rgba(226, 159, 0, 1);"
+                                    style="color: rgba(38, 188, 140, 1);"
                                 ></i>
                                 <p>{{local("Add Page")}}</p>
                             </span>
                             <span @click="reviseItemPdf">
                                 <i
                                     class="ms-Icon ms-Icon--PDF"
-                                    style="color: rgba(173, 38, 45, 1);"
+                                    style="color: rgba(220, 62, 72, 1);"
                                 ></i>
                                 <p>{{local("Revise PDF")}}</p>
                             </span>
                             <span @click="show.metadata = true">
                                 <i
                                     class="ms-Icon ms-Icon--LinkedDatabase"
-                                    style="color: rgba(255, 180, 0, 1);"
+                                    style="color: rgba(229, 173, 70, 1);"
                                 ></i>
                                 <p>{{local("Revise Metadata")}}</p>
                             </span>
                             <span @click="openFile(`${currentItem.id}`)">
                                 <i
                                     class="ms-Icon ms-Icon--FabricFolder"
-                                    style="color: rgba(255, 180, 0, 1);"
+                                    style="color: rgba(229, 173, 70, 1);"
                                 ></i>
                                 <p>{{local("Open Folder")}}</p>
                             </span>
@@ -212,14 +209,14 @@
                             <span @click="show.folder = true">
                                 <i
                                     class="ms-Icon ms-Icon--FabricMovetoFolder"
-                                    style="color: rgba(0, 153, 204, 1);"
+                                    style="color: rgba(0, 90, 158, 1);"
                                 ></i>
                                 <p>{{local("Copy to Partitions")}}</p>
                             </span>
                             <span @click="show.rename = true">
                                 <i
                                     class="ms-Icon ms-Icon--Rename"
-                                    style="color: rgba(0, 153, 204, 1);"
+                                    style="color: rgba(0, 90, 158, 1);"
                                 ></i>
                                 <p>{{local("Rename Item")}}</p>
                             </span>
@@ -228,8 +225,8 @@
                                 @click="deleteItemsFromPartition"
                             >
                                 <i
-                                    class="ms-Icon ms-Icon--Delete"
-                                    style="color: rgba(173, 38, 45, 1);"
+                                    class="ms-Icon ms-Icon--RemoveFrom"
+                                    style="color: rgba(220, 62, 72, 1);"
                                 ></i>
                                 <p>{{local("Remove From Partition")}}</p>
                             </span>
@@ -239,7 +236,7 @@
                             >
                                 <i
                                     class="ms-Icon ms-Icon--Delete"
-                                    style="color: rgba(173, 38, 45, 1);"
+                                    style="color: rgba(220, 62, 72, 1);"
                                 ></i>
                                 <p>{{local("Delete Item")}}</p>
                             </span>
@@ -283,6 +280,7 @@ import addItemPage from "@/components/home/addItemPage.vue";
 import renameItemPage from "@/components/home/renameItemPage.vue";
 import metadataPanel from "@/components/home/metadataPanel.vue";
 import folderWindow from "@/components/general/folderWindow.vue";
+import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
@@ -297,6 +295,7 @@ export default {
         renameItemPage,
         metadataPanel,
         folderWindow,
+        emojiCallout,
     },
     data() {
         return {
@@ -323,7 +322,7 @@ export default {
                             return this.local("Cancel Multi-Selection");
                         return this.local("Multi-Selection");
                     },
-                    icon: "GroupedList",
+                    icon: "MultiSelect",
                     iconColor: "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
                     func: () => {
@@ -342,8 +341,8 @@ export default {
                 },
                 {
                     name: () => this.local("Remove From Partition"),
-                    icon: "Delete",
-                    iconColor: "rgba(173, 38, 45, 1)",
+                    icon: "RemoveFrom",
+                    iconColor: "rgba(220, 62, 72, 1)",
                     disabled: () =>
                         this.currentChoosen.length === 0 ||
                         !this.lock ||
@@ -353,7 +352,7 @@ export default {
                 {
                     name: () => this.local("Delete"),
                     icon: "Delete",
-                    iconColor: "rgba(173, 38, 45, 1)",
+                    iconColor: "rgba(220, 62, 72, 1)",
                     disabled: () =>
                         this.currentChoosen.length === 0 ||
                         !this.lock ||
@@ -699,6 +698,28 @@ export default {
         showMetadata(item) {
             this.currentItem = item;
             this.show.metadata = true;
+        },
+        reviseItemEmoji(item, emoji) {
+            if (!this.ds_db || !this.items) return;
+            let _item = this.items.find((it) => it.id === item.id);
+            _item.emoji = emoji;
+            item.emoji = emoji;
+            this.reviseDS({
+                $index: this.data_index,
+                items: this.items,
+            });
+        },
+        revisePageEmoji(item, page, emoji) {
+            if (!this.ds_db || !this.items) return;
+            let _item = this.items.find(it => it.id === item.id);
+            let _page = _item.pages.find(it => it.id === page.id);
+            _page.emoji = emoji;
+            page.emoji = emoji;
+            this.reviseDS({
+                $index: this.data_index,
+                items: this.items
+            });
+            this.thisShow = false;
         },
         async deleteItemPage(itemId, pageId) {
             this.$infoBox(this.local(`Are you sure to delete this page?`), {

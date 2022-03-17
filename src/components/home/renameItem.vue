@@ -85,10 +85,10 @@ export default {
             colorList: [
                 { name: "purple", color: "#958DF1", check: false },
                 { name: "red", color: "#F98181", check: false },
-                { name: "orange", color: "#FBBC88", check: false },
-                { name: "yellow", color: "#FAF594", check: false },
+                { name: "orange", color: "rgba(234, 152, 101, 1)", check: false },
+                { name: "yellow", color: "rgba(243, 228, 102, 1)", check: false },
                 { name: "blue", color: "#70CFF8", check: false },
-                { name: "teal", color: "#94FADB", check: false },
+                { name: "teal", color: "rgba(103, 224, 192, 1)", check: false },
                 { name: "green", color: "#B9F18D", check: false },
                 { name: "red", color: "#ffa8a8", check: false },
                 { name: "orange", color: "#ffc078", check: false },

@@ -21,8 +21,8 @@
         </template>
         <template v-slot:content>
             <fv-infinite-scroll-view
-                v-model="emoji_list"
-                :batchSize="1"
+                :value="show ? emoji_list : []"
+                :batchSize="2"
                 style="width: 100%; height: 100%;"
             >
                 <template v-slot:default="x">
@@ -154,10 +154,11 @@ export default {
 
                 .emoji-item {
                     position: relative;
-                    width: 25px;
-                    height: 25px;
+                    width: 35px;
+                    height: 35px;
                     padding: 1px;
                     border-radius: 3px;
+                    font-size: 20px;
                     font-style: normal;
                     box-sizing: border-box;
                     display: flex;

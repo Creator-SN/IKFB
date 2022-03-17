@@ -171,7 +171,7 @@ export default {
     position: relative;
     flex: 1;
     width: 100%;
-    height: 300px;
+    height: 100%;
     max-height: 100%;
     overflow: auto;
 

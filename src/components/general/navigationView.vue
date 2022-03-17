@@ -54,8 +54,8 @@
                                 class="tree-view-custom-item"
                                 @contextmenu="rightClick($event, x.item)"
                             >
-                                <emoji-callout v-if="false" :value="x.item.emoji"></emoji-callout>
-                                <p>{{x.item.emoji}}</p>
+                                <emoji-callout :value="x.item.emoji" :theme="theme" @insert-emoji="reviseEmoji(x.item, $event)"></emoji-callout>
+                                <!-- <p>{{x.item.emoji}}</p> -->
                                 <p
                                     v-show="!x.item.editable"
                                     class="tree-view-custom-label"
@@ -524,6 +524,30 @@ export default {
                 if (this.partitions[i].id === id) {
                     this.partitions[i].name = name;
                     this.partitions[i].editable = false;
+                    break;
+                }
+            }
+            this.reviseDS({
+                $index: this.data_index,
+                groups: this.groups,
+                partitions: this.partitions,
+            });
+            this.refreshTreeList();
+        },
+        reviseEmoji(item, emoji) {
+            let id = item.id;
+            let t = [].concat(this.groups);
+            for (let i = 0; i < t.length; i++) {
+                if (t[i].groups) t = t.concat(t[i].groups);
+                if (t[i].partitions) t = t.concat(t[i].partitions);
+                if (t[i].id === id) {
+                    t[i].emoji = emoji;
+                    break;
+                }
+            }
+            for (let i = 0; i < this.partitions.length; i++) {
+                if (this.partitions[i].id === id) {
+                    this.partitions[i].emoji = emoji;
                     break;
                 }
             }
