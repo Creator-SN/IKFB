@@ -953,10 +953,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@creatorsn/powereditor@^0.3.5":
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.3.5.tgz#e9df6ff517801509700a63061ffa4b53a0e48a62"
-  integrity sha512-7LV2wiKh4GcOfuBSgG5kn48iCDBUYw8fsh1Lh8HzabeA6tvIF9oVnemuguzNrhJ9Uh2FIPtZcNBeYYiEXuHfCA==
+"@creatorsn/powereditor@^0.3.8":
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.3.8.tgz#b66dcc4abc75d2d558eb367fc1885c19efe08d37"
+  integrity sha512-Fcfhieq+yxqPE/W3CfJ32t9EqaD0T3hO4G7nBZ/hFZ4qhEzaEkzZSX025Fm91uN7ICG8tnGaMyeCzKSajM5ueA==
   dependencies:
     "@tiptap/extension-bubble-menu" "^2.0.0-beta.55"
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
@@ -980,7 +980,7 @@
     i18next "^21.1.1"
     katex "^0.13.18"
     simplify-js "^1.2.4"
-    vfluentdesign "^0.1.85"
+    vfluentdesign "^0.1.86"
     vue "^2.6.11"
 
 "@develar/schema-utils@~2.6.5":
@@ -11685,10 +11685,10 @@ verror@^1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vfluentdesign@0.1.85, vfluentdesign@^0.1.85:
-  version "0.1.85"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.85.tgz#f1989b031daf8df9f490cfab67f2857b2a0c54bc"
-  integrity sha512-R7nQPGM6ZYxHc7czT7X8Aq3u03FL2/KtboNZxUlEX4QssIg5WYIMW4ARu+Q2QwpOtdn1RWGfrpGbOMl4x5FQYw==
+vfluentdesign@0.1.86, vfluentdesign@^0.1.86:
+  version "0.1.86"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.86.tgz#6a1ee2b32030d8b4c0ba7435eed077bd3b78174c"
+  integrity sha512-K4OGByzu7MGYn3R1lf7iA2caQvDf/Cvw6nDZ0Nv4Rh1B3HCOkIWeEC4736Hdhny4Xj8sDrNYgDGnHtyYiM5BuQ==
   dependencies:
     core-js "^3.4.3"
     fluent-reveal-effect "^1.1.1"

@@ -365,7 +365,7 @@ export default {
                 { key: "name", text: () => this.local("Name") },
                 { key: "title", text: () => this.local("Title") },
                 { key: "publisher", text: () => this.local("Publisher") },
-                { key: "createDate", text: () => this.local("CreateDate") },
+                { key: "createDate", text: () => this.local("Create Date") },
                 { key: "year", text: () => this.local("Year") },
             ],
             sortDesc: 1,
@@ -598,6 +598,7 @@ export default {
                 type: "item",
                 item: item,
                 target: page,
+                scrollTop: 0,
                 history: []
             });
             this.toggleEditor(true);

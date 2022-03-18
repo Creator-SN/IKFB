@@ -312,7 +312,7 @@ export default {
             let numKey = ["year"];
             let strKey1 = ["name"];
             let strKey2 = ["title", "publisher"];
-            let timeKey = ["createDate"];
+            let timeKey1 = ["createDate"];
             if (numKey.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
                     if (!a.metadata || !a.metadata[this.sortKey])
@@ -350,11 +350,11 @@ export default {
                         )
                     );
                 });
-            else if (timeKey.find((it) => it == this.sortKey))
+            else if (timeKey1.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if (!a.metadata || !a.metadata[this.sortKey])
+                    if (!a[this.sortKey])
                         return this.desc * -1;
-                    if (!b.metadata || !b.metadata[this.sortKey])
+                    if (!b[this.sortKey])
                         return this.desc * 1;
                     return (
                         this.desc *

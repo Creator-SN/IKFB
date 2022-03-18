@@ -406,5 +406,25 @@ export default {
     "Item": {
         "en": "Item",
         "cn": "项"
+    },
+    "Name": {
+        "en": "Name",
+        "cn": "名称"
+    },
+    "Title": {
+        "en": "Title",
+        "cn": "标题"
+    },
+    "Publisher": {
+        "en": "Publisher",
+        "cn": "出版社"
+    },
+    "Create Date": {
+        "en": "Create Date",
+        "cn": "创建日期"
+    },
+    "Year": {
+        "en": "Year",
+        "cn": "年份"
     }
 }

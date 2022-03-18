@@ -28,6 +28,7 @@ export default new Vuex.Store({
             type: null,
             item: null,
             target: null,
+            scrollTop: 0,
             history: []
         },
         pdfImporter: {

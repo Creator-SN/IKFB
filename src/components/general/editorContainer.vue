@@ -96,7 +96,7 @@
                 </div>
             </div>
             <div
-                v-if="type === 'item' && item.name && target.name"
+                v-if="showNav"
                 class="nav-banner"
             >
                 <fv-Breadcrumb
@@ -120,7 +120,7 @@
                 :mobileDisplayWidth="0"
                 :mentionItemAttr="editorMentionItemAttr"
                 ref="editor"
-                :style="{'font-size': `${fontSize}px`}"
+                :style="{height: `calc(100% - ${showNav ? 80 : 40}px)`, 'font-size': `${fontSize}px`}"
                 style="
                     position: relative;
                     width: 100%;
@@ -255,6 +255,9 @@ export default {
         target() {
             this.unsave = false;
             this.refreshContent();
+            this.$nextTick(() => {
+                this.scrollToTop(this.scrollTop);
+            });
         },
     },
     computed: {
@@ -265,6 +268,7 @@ export default {
             theme: (state) => state.theme,
             show_editor: (state) => state.editor.show,
             type: (state) => state.editor.type,
+            scrollTop: (state) => state.editor.scrollTop,
             history: (state) => state.editor.history,
             item: (state) => state.editor.item,
             items: (state) => state.data_structure.items,
@@ -339,6 +343,9 @@ export default {
                 return result;
             };
         },
+        showNav () {
+            return this.type === 'item' && this.item.name && this.target.name;
+        }
     },
     mounted() {
         this.ShortCutInit();
@@ -438,12 +445,14 @@ export default {
                     type: this.type,
                     item: this.item,
                     page: this.target,
+                    scrollTop: this.getScrollTop(),
                 });
             }
             this.reviseEditor({
                 type: "item",
                 item: item,
                 target: page,
+                scrollTop: 0,
                 history: this.history,
             });
         },
@@ -465,8 +474,19 @@ export default {
                 type: last.type,
                 item: last.item,
                 target: last.page,
+                scrollTop: last.scrollTop,
                 history: this.history,
             });
+        },
+        scrollToTop (top) {
+            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+            console.log(editorContent);
+            if(!editorContent) return;
+            editorContent.scrollTop = top;
+        },
+        getScrollTop () {
+            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+            return editorContent.scrollTop ? editorContent.scrollTop : 0;
         },
         close() {
             if (this.unsave) {
@@ -555,6 +575,7 @@ export default {
     .nav-banner {
         position: relative;
         width: 100%;
+        height: 40px;
 
         display: flex;
         align-items: center;
