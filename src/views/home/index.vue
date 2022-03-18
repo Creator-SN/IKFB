@@ -598,6 +598,7 @@ export default {
                 type: "item",
                 item: item,
                 target: page,
+                history: []
             });
             this.toggleEditor(true);
         },

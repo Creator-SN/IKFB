@@ -402,5 +402,9 @@ export default {
     "Add Labels": {
         "en": "Add Labels",
         "cn": "添加标签"
+    },
+    "Item": {
+        "en": "Item",
+        "cn": "项"
     }
 }

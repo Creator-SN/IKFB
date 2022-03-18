@@ -95,6 +95,19 @@
                     </fv-button>
                 </div>
             </div>
+            <div
+                v-if="type === 'item' && item.name && target.name"
+                class="nav-banner"
+            >
+                <fv-Breadcrumb
+                    :value="`${item.name}/${target.name}`"
+                    :disabled="history.length === 0"
+                    :theme="theme"
+                    :rootIcon="history.length > 0 ? 'PageLeft' : 'FolderHorizontal'"
+                    style="font-size: 12px; white-space: nowrap;"
+                    @root-click="back"
+                ></fv-Breadcrumb>
+            </div>
             <power-editor
                 :value="content"
                 :placeholder="local('Write something ...')"
@@ -105,6 +118,7 @@
                 "
                 :contentMaxWidth="expandContent ? '99999px' : '900px'"
                 :mobileDisplayWidth="0"
+                :mentionItemAttr="editorMentionItemAttr"
                 ref="editor"
                 :style="{'font-size': `${fontSize}px`}"
                 style="
@@ -116,8 +130,16 @@
                 @save-json="saveContent"
                 @click.native="show.quickNav = false"
             ></power-editor>
-            <div class="bottom-control" :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]">
-                <i class="ms-Icon trigger" :class="[`ms-Icon--${show.bottomControl ? 'ChevronRightMed' : 'ChevronLeftMed'}`]" style="flex: 1;" @click="show.bottomControl ^= true"></i>
+            <div
+                class="bottom-control"
+                :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]"
+            >
+                <i
+                    class="ms-Icon trigger"
+                    :class="[`ms-Icon--${show.bottomControl ? 'ChevronRightMed' : 'ChevronLeftMed'}`]"
+                    style="flex: 1;"
+                    @click="show.bottomControl ^= true"
+                ></i>
                 <fv-slider
                     v-show="show.bottomControl"
                     v-model="fontSize"
@@ -193,10 +215,29 @@ export default {
             expandContent: false,
             unsave: false,
             auto_save: false,
+            editorMentionItemAttr: {
+                mentionList: (val) => this.mentionList(val),
+                filterFunc: () => {
+                    return true;
+                },
+                chooseItemCallback: () => {
+                    console.log("chooseItemCallback");
+                },
+                mentionClickCallback: (item) => {
+                    if (item.type === "item") {
+                        this.openFile(
+                            item.pdf ? `${item.id}/${item.pdf}.pdf` : item.id
+                        );
+                    } else if (item.type === "page") {
+                        this.openEditor(item.parent, item._page);
+                    }
+                },
+                headerForeground: "rgba(0, 120, 212, 1)",
+            },
             show: {
                 quickNav: false,
                 addItemPage: false,
-                bottomControl: false
+                bottomControl: false,
             },
             timeout: {
                 autoSave: undefined,
@@ -224,10 +265,80 @@ export default {
             theme: (state) => state.theme,
             show_editor: (state) => state.editor.show,
             type: (state) => state.editor.type,
+            history: (state) => state.editor.history,
             item: (state) => state.editor.item,
+            items: (state) => state.data_structure.items,
             target: (state) => state.editor.target,
         }),
         ...mapGetters(["local", "ds_db"]),
+        mentionList() {
+            return (value) => {
+                let result = [];
+                let rList = [];
+                // let rPage = [];
+                result.push({
+                    key: -1,
+                    name: this.local("Item"),
+                    type: "header",
+                });
+
+                let queryPage =
+                    value.split("/").length > 1 ? value.split("/")[1] : "";
+
+                this.items.forEach((el, idx) => {
+                    if (
+                        el.name.toLowerCase().indexOf(value.toLowerCase()) >
+                            -1 ||
+                        el.name
+                            .toLowerCase()
+                            .indexOf(value.split("/")[0].toLowerCase()) > -1
+                    ) {
+                        rList.push({
+                            key: idx,
+                            id: el.id,
+                            name: `${el.emoji} ${el.name}`,
+                            emoji: el.emoji,
+                            pdf: el.pdf,
+                            type: "item",
+                        });
+
+                        if (value.indexOf("/") > -1) {
+                            el.pages.forEach((page, pidx) => {
+                                if (
+                                    page.name
+                                        .toLowerCase()
+                                        .indexOf(queryPage.toLowerCase()) > -1
+                                ) {
+                                    rList.push({
+                                        key: idx + "-" + pidx,
+                                        id: page.id,
+                                        name: `${page.emoji}  ${page.name}`,
+                                        emoji: page.emoji,
+                                        icon: "Go",
+                                        iconColor:
+                                            this.theme === "light"
+                                                ? "rgba(36, 36, 36, 1)"
+                                                : "rgba(220, 220, 220, 1)",
+                                        parent: el,
+                                        _page: page,
+                                        type: "page",
+                                    });
+                                }
+                            });
+                            rList.push({
+                                key: idx + "-divider",
+                                name: `-`,
+                                type: "divider",
+                            });
+                        }
+                    }
+                });
+                rList = rList.slice(0, 20);
+                result = result.concat(rList);
+
+                return result;
+            };
+        },
     },
     mounted() {
         this.ShortCutInit();
@@ -322,10 +433,39 @@ export default {
             this.unsave = false;
         },
         openEditor(item, page) {
+            if (this.type === "item" && this.item && this.target) {
+                this.history.push({
+                    type: this.type,
+                    item: this.item,
+                    page: this.target,
+                });
+            }
             this.reviseEditor({
                 type: "item",
                 item: item,
                 target: page,
+                history: this.history,
+            });
+        },
+        openFile(fileName) {
+            let url = path.join(
+                this.data_path[this.data_index],
+                "root/items",
+                fileName
+            );
+            ipc.send("open-file", url);
+            ipc.on("open-file-callback", (event, data) => {
+                console.log(data);
+            });
+        },
+        back() {
+            let last = this.history[this.history.length - 1];
+            this.history.splice(this.history.length - 1, 1);
+            this.reviseEditor({
+                type: last.type,
+                item: last.item,
+                target: last.page,
+                history: this.history,
             });
         },
         close() {
@@ -412,6 +552,14 @@ export default {
         }
     }
 
+    .nav-banner {
+        position: relative;
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+    }
+
     .bottom-control {
         @include HendVcenter;
 
@@ -431,8 +579,7 @@ export default {
             color: whitesmoke;
         }
 
-        &.close
-        {
+        &.close {
             width: 25px;
             border-top-left-radius: 3px;
             border-top-right-radius: 3px;
@@ -443,8 +590,7 @@ export default {
             @include Vcenter;
         }
 
-        .trigger
-        {
+        .trigger {
             height: 100%;
             padding: 5px;
             box-sizing: border-box;
