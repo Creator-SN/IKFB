@@ -23,7 +23,11 @@
                         class="icon-block"
                     >
                         <p class="index">{{index + 1}}</p>
-                        <emoji-callout :value="item.emoji" :theme="theme" @insert-emoji="$emit('insert-emoji', {item: item, emoji: $event})"></emoji-callout>
+                        <emoji-callout
+                            :value="item.emoji"
+                            :theme="theme"
+                            @insert-emoji="$emit('insert-emoji', {item: item, emoji: $event})"
+                        ></emoji-callout>
                     </div>
                     <div
                         v-show="edit"
@@ -43,12 +47,6 @@
                             class="title-content h"
                             @dblclick="item.pdf ? $emit('open-file', `${item.id}/${item.pdf}.pdf`) : $emit('open-file', `${item.id}`)"
                         >{{ x.title }}</p>
-                        <fv-tag
-                            :value="item.labels"
-                            :theme="theme"
-                            class="tag-block"
-                            @click.native="$emit('label-click', item)"
-                        ></fv-tag>
                     </div>
                 </template>
                 <template v-slot:content="x">
@@ -65,6 +63,15 @@
                             style="width: 50px; height: 25px; margin: 0px 15px;"
                         >{{item.metadata.year}}</fv-button>
                     </div>
+                </template>
+                <template v-slot:extension>
+                    <fv-tag
+                        :value="item.labels"
+                        :theme="theme"
+                        class="tag-block"
+                        style="max-width: 120px; overflow: auto;"
+                        @click.native="$emit('label-click', item)"
+                    ></fv-tag>
                 </template>
                 <slot
                     name="row_expand"
@@ -352,10 +359,8 @@ export default {
                 });
             else if (timeKey1.find((it) => it == this.sortKey))
                 this.thisValue.sort((a, b) => {
-                    if (!a[this.sortKey])
-                        return this.desc * -1;
-                    if (!b[this.sortKey])
-                        return this.desc * 1;
+                    if (!a[this.sortKey]) return this.desc * -1;
+                    if (!b[this.sortKey]) return this.desc * 1;
                     return (
                         this.desc *
                         this.sortTime(a[this.sortKey], b[this.sortKey])
@@ -390,7 +395,7 @@ export default {
     .icon-block {
         @include HcenterVcenter;
 
-        width: 200px;
+        width: 90px;
         font-size: 18px;
 
         .index {
