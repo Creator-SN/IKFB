@@ -113,6 +113,7 @@
                 :placeholder="local('Write something ...')"
                 :editable="!readonly"
                 :theme="theme"
+                :language="language"
                 :editorOutSideBackground="
                     theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
                 "
@@ -265,6 +266,7 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             templates: (state) => state.data_structure.templates,
+            language: (state) => state.language,
             theme: (state) => state.theme,
             show_editor: (state) => state.editor.show,
             type: (state) => state.editor.type,

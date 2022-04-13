@@ -11,7 +11,7 @@
         <slot name="right">
             <div class="control-block">
                 <i class="btn ms-Icon ms-Icon--ChromeMinimize" @click="minimize"></i>
-                <i class="btn ms-Icon ms-Icon--ChromeRestore" :class="[isMaximized ? 'ms-Icon--ChromeRestore' : 'ms-Icon--SingleColumn']" @click="maximize"></i>
+                <i class="btn ms-Icon" :class="[isMaximized ? 'ms-Icon--ChromeRestore' : 'ms-Icon--ChromeMaximize']" @click="maximize"></i>
                 <i class="btn close ms-Icon ms-Icon--ChromeClose" @click="close"></i>
             </div>
         </slot>
