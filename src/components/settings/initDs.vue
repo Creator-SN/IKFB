@@ -66,7 +66,7 @@ export default {
         ...mapState({
             data_path: (state) => state.data_path,
             language: (state) => state.language,
-            ds_db_list: (state) => state.ds_db_list,
+            dbList: (state) => state.dbList,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local"]),

@@ -39,7 +39,7 @@ export default new Vuex.Store({
             df: [],
             c: 0
         },
-        ds_db_list: [],
+        dbList: [],
         i18n: {}
     },
     mutations: {
@@ -56,7 +56,7 @@ export default new Vuex.Store({
                 if (key === '$index' || state.data_structure[key] === undefined)
                     continue;
                 state.data_structure[key] = obj[key];
-                state.ds_db_list[obj.$index].set(key, state.data_structure[key]).write();
+                state.dbList[obj.$index].set(key, state.data_structure[key]).write();
             }
         },
         reviseData(state, obj) {
@@ -106,9 +106,9 @@ export default new Vuex.Store({
         ds_db: state => {
             if (state.data_index < 0)
                 return null;
-            if (!state.ds_db_list[state.data_index])
+            if (!state.dbList[state.data_index])
                 return null;
-            return state.ds_db_list[state.data_index];
+            return state.dbList[state.data_index];
         }
     },
     modules: {

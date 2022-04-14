@@ -151,15 +151,15 @@ export default {
         ...mapState({
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
-            ds_db_list: (state) => state.ds_db_list,
+            dbList: (state) => state.dbList,
             language: (state) => state.language,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local", "ds_db"]),
         SourceIndexDisabled() {
             return (index) => {
-                if (!this.ds_db_list[index]) return true;
-                let id = this.ds_db_list[index].get("id").write();
+                if (!this.dbList[index]) return true;
+                let id = this.dbList[index].get("id").write();
                 return id === null;
             };
         },
@@ -195,8 +195,8 @@ export default {
         },
         async dataSourceSync() {
             let pathList = this.data_path;
-            let db_array_result = this.$load_ds_file(pathList);
-            if (db_array_result.status == 404) {
+            let dbXListResponse = this.$load_ds_file(pathList);
+            if (dbXListResponse.status == 404) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -208,13 +208,13 @@ export default {
                 );
                 return;
             }
-            let db_array = db_array_result.db_array;
-            let ds_db_list = [];
-            db_array.forEach((el) => {
-                ds_db_list.push(el.db);
+            let dbXList = dbXListResponse.dbXList;
+            let dbList = [];
+            dbXList.forEach((el) => {
+                dbList.push(el.db);
             });
             await this.reviseData({
-                ds_db_list: ds_db_list,
+                dbList: dbList,
             });
         },
         async addSource() {

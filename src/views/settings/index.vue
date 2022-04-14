@@ -16,7 +16,7 @@
                     @click="addSource"
                 >{{local('Add New Source')}}</fv-button>
                 <fv-list-view
-                    :value="dbList"
+                    :value="thisDBList"
                     :theme="theme"
                     style="width: 100%; height: auto; margin-top: 15px;"
                     @chooseItem="switchDSDB($event.item)"
@@ -99,7 +99,7 @@ export default {
                 { key: "en", text: "English" },
                 { key: "cn", text: "简体中文" },
             ],
-            dbList: [],
+            thisDBList: [],
             db_index: -1,
             show: {
                 initDS: false,
@@ -126,7 +126,7 @@ export default {
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
-            ds_db_list: (state) => state.ds_db_list,
+            dbList: (state) => state.dbList,
             language: (state) => state.language,
             theme: (state) => state.theme,
         }),
@@ -136,8 +136,8 @@ export default {
         },
         SourceIndexDisabled() {
             return (index) => {
-                if (!this.ds_db_list[index]) return true;
-                let id = this.ds_db_list[index].get("id").write();
+                if (!this.dbList[index]) return true;
+                let id = this.dbList[index].get("id").write();
                 return id === null;
             };
         },
@@ -169,8 +169,8 @@ export default {
             // 此函数初始化数据源的DB //
             // 同时也会初始化ListView列表项目 //
             let pathList = this.data_path;
-            let db_array_result = this.$load_ds_file(pathList);
-            if (db_array_result.status == 404 && !this.init_status) {
+            let dbXListResponse = this.$load_ds_file(pathList);
+            if (dbXListResponse.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -182,11 +182,11 @@ export default {
                 );
                 return;
             }
-            let db_array = db_array_result.db_array;
+            let dbXList = dbXListResponse.dbXList;
+            let thisDBList = [];
             let dbList = [];
-            let ds_db_list = [];
-            db_array.forEach((el, idx) => {
-                dbList.push({
+            dbXList.forEach((el, idx) => {
+                thisDBList.push({
                     key: idx,
                     name: pathList[idx],
                     path: pathList[idx],
@@ -196,11 +196,11 @@ export default {
                     disabled: () => el.status === 500 || !this.lock.switchDSDB,
                     db: el.db,
                 });
-                ds_db_list.push(el.db);
+                dbList.push(el.db);
             });
-            this.dbList = dbList;
+            this.thisDBList = thisDBList;
             this.reviseData({
-                ds_db_list: ds_db_list,
+                dbList: dbList,
             });
         },
         async addSource() {

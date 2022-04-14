@@ -53,18 +53,18 @@ function init_config() {
  *
  */
 function load_ds_file(data_path = []) {
-    let db_array = [];
+    let dbXList = [];
     if (data_path.length == 0)
         return {
             status: 404,
             msg: 'data_path is empty.',
-            db_array: db_array
+            dbXList: dbXList
         };
     for (let url of data_path) {
         let ds_adapter = new FileSync(path.join(url, '/data_structure.json')) // 初始化lowdb读写的json文件名以及存储路径
         let ds_db = null;
         if (!fs.pathExistsSync(url)) { // 如果不存在路径
-            db_array.push({
+            dbXList.push({
                 status: 500,
                 msg: 'source url not found.',
                 db: null
@@ -73,14 +73,14 @@ function load_ds_file(data_path = []) {
         else {
             ds_db = Datastore(ds_adapter);
             if (!ds_db.has('id').value()) { // 先判断该值存不存在
-                db_array.push({
+                dbXList.push({
                     status: 502,
                     msg: 'data_structure.json not found.',
                     db: ds_db
                 });
             }
             else {
-                db_array.push({
+                dbXList.push({
                     status: 200,
                     msg: 'success.',
                     db: ds_db
@@ -92,6 +92,6 @@ function load_ds_file(data_path = []) {
     return {
         status: 200,
         msg: 'success.',
-        db_array: db_array
+        dbXList: dbXList
     };
 }

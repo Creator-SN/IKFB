@@ -113,8 +113,8 @@ export default {
         },
         syncDSDB() {
             let pathList = this.data_path;
-            let db_array_result = this.$load_ds_file(pathList);
-            if (db_array_result.status == 404 && !this.init_status) {
+            let dbXListResponse = this.$load_ds_file(pathList);
+            if (dbXListResponse.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -126,13 +126,13 @@ export default {
                 );
                 return;
             }
-            let db_array = db_array_result.db_array;
-            let ds_db_list = [];
-            db_array.forEach((el) => {
-                ds_db_list.push(el.db);
+            let dbXList = dbXListResponse.dbXList;
+            let dbList = [];
+            dbXList.forEach((el) => {
+                dbList.push(el.db);
             });
             this.reviseData({
-                ds_db_list: ds_db_list,
+                dbList: dbList,
             });
         },
         pdfImporterInit() {

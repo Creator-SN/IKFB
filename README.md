@@ -203,7 +203,7 @@ yarn lint
     load_ds_file(data_path=[])
     => {
         status,
-        db_array: [{
+        dbXList: [{
             status,
             db
         }]
@@ -214,7 +214,7 @@ yarn lint
         - `404`: data_path is empty.
         - `500`: source url not found.
         - `502`: data_structure.json not found.
-    - db_array: A array of each source object, each object contains the current ds' db and status.
+    - dbXList: A array of each source object, each object contains the current ds' db and status.
     - db: A data_structure's lowdb DataStore.
 
 2. init_ds
