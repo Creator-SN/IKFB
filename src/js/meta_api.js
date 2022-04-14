@@ -73,7 +73,7 @@ export class META_API {
     static async semanticScholar_getInfoByTitle(title, axios) {
         let baseUrl =
             "https://api.semanticscholar.org/graph/v1/paper/search";
-        title = title.replace(/ +/g, "+");
+        title = title.replace(/ +/g, " ");
         try {
             return await new Promise((resolve) => {
                 axios
