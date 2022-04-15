@@ -7,29 +7,43 @@
             <p class="s-title">{{local('Setting')}}</p>
         </div>
         <div class="scroll-view">
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'StorageTape'"
+                :title="local('Source')"
+                :content="local('Add New Source')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 35px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
+                        :theme="theme"
+                        icon="OneDriveAdd"
+                        :is-box-shadow="true"
+                        style="width: 150px;"
+                        @click="addSource"
+                    >{{local('Add New Source')}}</fv-button>
+                </template>
+            </fv-Collapse>
             <div class="s-item-block">
-                <p class="s-item-title">{{local('Source')}}</p>
-                <fv-button
-                    :theme="theme"
-                    icon="OneDriveAdd"
-                    style="width: 150px;"
-                    @click="addSource"
-                >{{local('Add New Source')}}</fv-button>
                 <fv-list-view
                     :value="thisDBList"
                     :theme="theme"
+                    :choosen-background="'rgba(0, 98, 158, 0.1)'"
                     style="width: 100%; height: auto; margin-top: 15px;"
                     @chooseItem="switchDSDB($event.item)"
                 >
                     <template v-slot:listItem="x">
-                        <div class="list-view-item">
-                            <i class="ms-Icon ms-Icon--Link"></i>
+                        <div class="list-view-item" :class="[{choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index)}]">
+                            <img v-if="x.item.path.indexOf('OneDrive') > -1" draggable="false" class="icon-img" :src="img.OneDrive" alt="">
+                            <i v-else class="ms-Icon ms-Icon--Link"></i>
                             <p class="item-name">{{x.item.name}}</p>
                             <fv-button
                                 v-show="x.item.status == 502 || SourceIndexDisabled(x.index)"
                                 :theme="theme"
                                 class="control-btn"
                                 background="rgba(255, 200, 0, 1)"
+                                :is-box-shadow="true"
                                 :title="local(`Can't find data_structure.json on this source, shall we init new one ?`)"
                                 @click="showInitDS(x.index)"
                             >
@@ -38,6 +52,7 @@
                             <fv-button
                                 :theme="theme"
                                 class="control-btn"
+                                :is-box-shadow="true"
                                 :title="local(`Unlink this source`)"
                                 @click="removeDS(x.item)"
                             >
@@ -47,33 +62,51 @@
                     </template>
                 </fv-list-view>
             </div>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Theme')}}</p>
-                <fv-button
-                    :theme="theme"
-                    fontSize="16"
-                    borderRadius="50"
-                    style="width: 40px; height: 40px;"
-                    :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
-                    @click="toggleTheme(v)"
-                >
-                    <i
-                        class="ms-Icon"
-                        :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
-                    ></i>
-                </fv-button>
-            </div>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Language')}}</p>
-                <fv-Combobox
-                    v-model="cur_language"
-                    :theme="theme"
-                    :options="languages"
-                    :placeholder="local('Choose A Language')"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
-                    @choose-item="chooseLanguage"
-                ></fv-Combobox>
-            </div>
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'Color'"
+                :title="local('Theme')"
+                :content="theme === 'light' ? `${local('Light')}` : `${local('Dark')}`"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 15px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
+                        :theme="theme"
+                        fontSize="16"
+                        borderRadius="50"
+                        :is-box-shadow="true"
+                        style="width: 40px; height: 40px;"
+                        :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
+                        @click="toggleTheme(v)"
+                    >
+                        <i
+                            class="ms-Icon"
+                            :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
+                        ></i>
+                    </fv-button>
+                </template>
+            </fv-Collapse>
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'LocaleLanguage'"
+                :title="local('Language')"
+                :content="local('Choose A Language')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
+            >
+                <template v-slot:extension>
+                    <fv-Combobox
+                        v-model="cur_language"
+                        :theme="theme"
+                        :options="languages"
+                        :placeholder="local('Choose A Language')"
+                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
+                        style="width: 120px;"
+                        @choose-item="chooseLanguage"
+                    ></fv-Combobox>
+                </template>
+            </fv-Collapse>
         </div>
         <init-ds
             :show.sync="show.initDS"
@@ -86,6 +119,9 @@
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
 import initDs from "@/components/settings/initDs.vue";
+
+import OneDrive from "@/assets/settings/OneDrive.svg";
+
 const { dialog } = require("electron").remote;
 
 export default {
@@ -101,6 +137,9 @@ export default {
             ],
             thisDBList: [],
             db_index: -1,
+            img: {
+                OneDrive
+            },
             show: {
                 initDS: false,
             },
@@ -152,7 +191,7 @@ export default {
             reviseDS: "reviseDS",
             reviseData: "reviseData",
             toggleTheme: "toggleTheme",
-            syncDS: "syncDS"
+            syncDS: "syncDS",
         }),
         languageInit() {
             this.cur_language = this.languages.find(
@@ -333,8 +372,27 @@ export default {
             .list-view-item {
                 position: relative;
                 width: 100%;
+                padding-left: 5px;
+                border-left: rgba(0, 98, 158, 0) solid 5px;
+                border-radius: 3px;
                 display: flex;
                 align-items: center;
+
+                &.disabled
+                {
+                    filter: grayscale(100%);
+                }
+
+                &.choosen
+                {
+                    border-color: rgba(0, 98, 158, 0.6);
+                }
+
+                .icon-img
+                {
+                    width: 16px;
+                    height: auto;
+                }
 
                 .item-name {
                     margin-left: 15px;
@@ -343,8 +401,8 @@ export default {
                 }
 
                 .control-btn {
-                    width: 40px;
-                    height: 40px;
+                    width: 35px;
+                    height: 35px;
                     margin-right: 5px;
                 }
             }

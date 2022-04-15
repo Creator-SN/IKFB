@@ -1,14 +1,37 @@
 <template>
-    <float-window-base v-model="thisShow" :title="local('Rename Template')" :theme="theme">
+    <float-window-base
+        v-model="thisShow"
+        :title="local('Rename Template')"
+        :theme="theme"
+    >
         <template v-slot:content>
             <div class="w-p-block">
                 <p class="w-title">{{local('Template Name')}}</p>
-                <fv-text-box v-model="name" :placeholder="local('Input template name...')" :theme="theme" @keyup.enter="rename"></fv-text-box>
+                <fv-text-box
+                    v-model="name"
+                    :placeholder="local('Input template name...')"
+                    :theme="theme"
+                    :font-size="18"
+                    :font-weight="'bold'"
+                    underline
+                    :focus-border-color="'rgba(123, 139, 209, 1)'"
+                    :is-box-shadow="true"
+                    style="width: 100%; height: 60px; margin-top: 15px;"
+                    @keyup.enter="rename"
+                ></fv-text-box>
             </div>
         </template>
         <template v-slot:control>
-            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="!value || name === '' || !ds_db" @click="rename">{{local('Confirm')}}</fv-button>
-            <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
+            <fv-button
+                theme="dark"
+                background="rgba(0, 153, 204, 1)"
+                :disabled="!value || name === '' || !ds_db"
+                @click="rename"
+            >{{local('Confirm')}}</fv-button>
+            <fv-button
+                :theme="theme"
+                @click="thisShow = false"
+            >{{local('Cancel')}}</fv-button>
         </template>
     </float-window-base>
 </template>
@@ -23,38 +46,36 @@ export default {
     },
     props: {
         value: {
-            default: null
+            default: null,
         },
         show: {
-            default: false
-        }
+            default: false,
+        },
     },
     data() {
         return {
             thisShow: this.show,
-            name: ""
+            name: "",
         };
     },
     watch: {
-        show (val) {
+        show(val) {
             this.thisShow = val;
         },
-        thisShow (val) {
+        thisShow(val) {
             this.$emit("update:show", val);
-            if(this.value.name)
-                this.name = this.value.name;
-            else
-                this.name = "";
-        }
+            if (this.value.name) this.name = this.value.name;
+            else this.name = "";
+        },
     },
     computed: {
         ...mapState({
-            data_index: (state) => state.data_index,            
+            data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
-            templates: state => state.data_structure.templates,
+            templates: (state) => state.data_structure.templates,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", 'ds_db']),
+        ...mapGetters(["local", "ds_db"]),
         v() {
             return this;
         },
@@ -63,18 +84,17 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
         }),
-        async rename () {
-            if(!this.ds_db || !this.value || this.name === '')
-                return;
-            let _page = this.templates.find(it => it.id === this.value.id);
+        async rename() {
+            if (!this.ds_db || !this.value || this.name === "") return;
+            let _page = this.templates.find((it) => it.id === this.value.id);
             _page.name = this.name;
             this.value.name = this.name;
             this.reviseDS({
                 $index: this.data_index,
-                templates: this.templates
+                templates: this.templates,
             });
             this.thisShow = false;
-        }
+        },
     },
 };
 </script>

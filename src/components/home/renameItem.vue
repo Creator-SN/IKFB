@@ -11,6 +11,12 @@
                     v-model="name"
                     :placeholder="local('Input item name...')"
                     :theme="theme"
+                    :font-size="18"
+                    :font-weight="'bold'"
+                    underline
+                    :focus-border-color="'rgba(123, 139, 209, 1)'"
+                    :is-box-shadow="true"
+                    style="width: 100%; height: 60px; margin-top: 15px;"
                     @keyup.enter="confirm"
                 ></fv-text-box>
             </div>

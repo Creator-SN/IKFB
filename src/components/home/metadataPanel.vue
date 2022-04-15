@@ -4,6 +4,7 @@
         :theme="theme"
         width="500"
         :title="local(`Metadata`)"
+        :is-light-dismiss="true"
         :isAcrylic="true"
         :isFooter="true"
     >

@@ -11,6 +11,12 @@
                     v-model="name"
                     :placeholder="local('Input page name...')"
                     :theme="theme"
+                    :font-size="18"
+                    :font-weight="'bold'"
+                    underline
+                    :focus-border-color="'rgba(123, 139, 209, 1)'"
+                    :is-box-shadow="true"
+                    style="width: 100%; height: 60px; margin-top: 15px;"
                     @keyup.enter="add"
                 ></fv-text-box>
             </div>
@@ -98,7 +104,13 @@ export default {
             toggleEditor: "toggleEditor",
         }),
         async add() {
-            if (!this.ds_db || !this.item || this.name === "" || this.currentChoosen.length > 1) return;
+            if (
+                !this.ds_db ||
+                !this.item ||
+                this.name === "" ||
+                this.currentChoosen.length > 1
+            )
+                return;
             let _page = JSON.parse(JSON.stringify(page));
             _page.id = this.$Guid();
             _page.name = this.name;
@@ -117,7 +129,10 @@ export default {
                 `${item.id}`,
                 `${_page.id}.json`
             );
-            let templateContent = this.currentChoosen.length == 1 ? JSON.stringify(this.currentChoosen[0].content) : '';
+            let templateContent =
+                this.currentChoosen.length == 1
+                    ? JSON.stringify(this.currentChoosen[0].content)
+                    : "";
             ipc.send("output-file", {
                 path: url,
                 data: templateContent,

@@ -112,7 +112,7 @@ export default {
     .web-window-base {
         position: relative;
         min-width: 350px;
-        width: 80%;
+        width: 50%;
         height: 100%;
         max-height: 100%;
         background: white;
@@ -237,7 +237,9 @@ export default {
             }
 
             .w-title {
-                font-size: 13.8px;
+                font-size: 15px;
+                font-weight: bold;
+                color: rgba(123, 139, 209, 1);
                 user-select: none;
             }
         }

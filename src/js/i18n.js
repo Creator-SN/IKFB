@@ -426,5 +426,17 @@ export default {
     "Year": {
         "en": "Year",
         "cn": "年份"
+    },
+    "Light": {
+        "en": "Light",
+        "cn": "明亮主题"
+    },
+    "Dark": {
+        "en": "Dark",
+        "cn": "暗黑主题"
+    },
+    "Input page name...": {
+        "en": "Input page name...",
+        "cn": "请输入新建笔记的名称..."
     }
 }
