@@ -109,6 +109,7 @@
                 ></fv-Breadcrumb>
             </div>
             <power-editor
+                v-show="lock.loading"
                 :value="content"
                 :placeholder="local('Write something ...')"
                 :editable="!readonly"
@@ -130,7 +131,18 @@
                 "
                 @save-json="saveContent"
                 @click.native="show.quickNav = false"
-            ></power-editor>
+            >
+            </power-editor>
+            <div
+                v-show="!lock.loading"
+                class="loading-block"
+            >
+                <fv-progress-ring
+                    loading="true"
+                    r="20"
+                    borderWidth="5"
+                ></fv-progress-ring>
+            </div>
             <div
                 class="bottom-control"
                 :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]"
@@ -234,6 +246,9 @@ export default {
                     }
                 },
                 headerForeground: "rgba(0, 120, 212, 1)",
+            },
+            lock: {
+                loading: true,
             },
             show: {
                 quickNav: false,
@@ -345,9 +360,9 @@ export default {
                 return result;
             };
         },
-        showNav () {
-            return this.type === 'item' && this.item.name && this.target.name;
-        }
+        showNav() {
+            return this.type === "item" && this.item.name && this.target.name;
+        },
     },
     mounted() {
         this.ShortCutInit();
@@ -384,6 +399,8 @@ export default {
             });
         },
         async refreshContent() {
+            if (!this.lock.loading) return;
+            this.lock.loading = false;
             if (!this.type || !this.target.id) return;
             let folder =
                 this.type === "template" ? "root/templates" : "root/items";
@@ -407,8 +424,10 @@ export default {
             });
             try {
                 this.content = JSON.parse(content);
+                this.lock.loading = true;
             } catch (e) {
                 this.content = content;
+                this.lock.loading = true;
             }
             if (this.content === "") this.$refs.editor.focus();
         },
@@ -442,6 +461,7 @@ export default {
             this.unsave = false;
         },
         openEditor(item, page) {
+            if (!this.lock.loading) return;
             if (this.type === "item" && this.item && this.target) {
                 this.history.push({
                     type: this.type,
@@ -480,14 +500,18 @@ export default {
                 history: this.history,
             });
         },
-        scrollToTop (top) {
-            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+        scrollToTop(top) {
+            let editorContent = this.$el.querySelectorAll(
+                ".tip-tap-editor-container"
+            )[0];
             console.log(editorContent);
-            if(!editorContent) return;
+            if (!editorContent) return;
             editorContent.scrollTop = top;
         },
-        getScrollTop () {
-            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+        getScrollTop() {
+            let editorContent = this.$el.querySelectorAll(
+                ".tip-tap-editor-container"
+            )[0];
             return editorContent.scrollTop ? editorContent.scrollTop : 0;
         },
         close() {
@@ -581,6 +605,15 @@ export default {
 
         display: flex;
         align-items: center;
+    }
+
+    .loading-block {
+        @include HcenterVcenter;
+
+        position: relative;
+        width: 100%;
+        height: calc(100% - 40px);
+        flex: 1;
     }
 
     .bottom-control {
