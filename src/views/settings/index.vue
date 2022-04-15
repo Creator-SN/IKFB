@@ -351,14 +351,17 @@ export default {
         position: relative;
         width: 100%;
         flex: 1;
+        padding-left: 15px;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         overflow: auto;
 
         .s-item-block {
             position: relative;
             width: calc(100% - 30px);
+            max-width: 1280px;
             height: auto;
             line-height: 2.5;
             display: flex;
