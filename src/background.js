@@ -3,6 +3,8 @@
 import { app, protocol, ipcMain, BrowserWindow, shell, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import { autoUpdater } from 'electron-updater'
+import logger from "electron-log"
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 var fs = require('fs-extra');
@@ -11,6 +13,40 @@ var fs = require('fs-extra');
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
+logger.transports.file.level = "debug"
+autoUpdater.logger = logger
+
+autoUpdater.setFeedURL({
+    repo: "IKFB",
+    provider: "github",
+    owner: "Creator-SN",
+})
+
+autoUpdater.on("update-available", function (args) {
+    autoUpdater.logger.log(args)
+});
+autoUpdater.on("update-not-available", function (args) {
+    autoUpdater.logger.log(args)
+});
+
+autoUpdater.on("error", (err) => {
+    autoUpdater.logger.log(err)
+})
+
+
+
+autoUpdater.on("checking-for-update", function (args) {
+    autoUpdater.logger.log(args)
+});
+
+autoUpdater.on("download-progress", function (progressObj) {
+    autoUpdater.logger.log(progressObj)
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    autoUpdater.logger.log(info)
+    autoUpdater.quitAndInstall();
+});
 
 let win = null;
 async function createWindow() {
@@ -110,7 +146,11 @@ async function createWindow() {
         // Load the index.html when not in development
         win.loadURL('app://./index.html')
     }
+
+    autoUpdater.checkForUpdatesAndNotify();
 }
+
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

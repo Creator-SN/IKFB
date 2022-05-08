@@ -29,7 +29,7 @@ module.exports = {
                 productName: "IKFB",
                 appId: "com.creatorsn.ikfb",
                 win: {
-                    icon: "./logo.ico"
+                    icon: "./logo.ico",
                 },
                 nsis: {
                     oneClick: false,

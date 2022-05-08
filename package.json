@@ -1,7 +1,12 @@
 {
   "name": "ikfb",
-  "version": "2.1.5",
+  "version": "2.1.7",
   "private": true,
+  "description": "Involution King Fun Book (IKFB, Chinese: 快卷, 卷王快乐本) is an integrated management system for papers and literature. The UI design is based on the VFluent, which is inspired by the Microsft Fluent Design System.",
+  "author": {
+    "name": "Creator-SN",
+    "ulr": "https://github.com/Creator-SN"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -12,11 +17,17 @@
     "postuninstall": "electron-builder install-app-deps",
     "commit": "cz"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Creator-SN/IKFB"
+  },
   "main": "background.js",
   "dependencies": {
     "@creatorsn/powereditor": "^0.5.7",
     "axios": "^0.21.4",
     "core-js": "^3.6.5",
+    "electron-log": "^4.4.7",
+    "electron-updater": "^5.0.1",
     "fs-extra": "^10.0.0",
     "lowdb": "^1.0.0",
     "npm-check": "^5.9.2",
