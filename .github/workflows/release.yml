@@ -46,13 +46,15 @@ jobs:
       - name: Rename
         run: |
           $v="${{steps.tag.outputs.tag}}".Substring(1)
-          mv "./dist_electron/IKFB Setup $v.exe" "IKFB_${{steps.tag.outputs.tag}}_installer.exe"
+          mv "./dist_electron/IKFB Setup $v.exe" "IKFB Setup $v.exe"
+          mv "./dist_electron/IKFB Setup $v.exe.blockmap" "IKFB Setup $v.exe.blockmap"
+          mv "./dist_electron/latest.yml" "latest.yml"
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "IKFB_${{steps.tag.outputs.tag}}_installer.exe"
+          artifacts: "*.exe,*.blockmap,*.yml"
           token: ${{ secrets.GITHUB_TOKEN }}
 
   macos:
@@ -80,12 +82,13 @@ jobs:
         run: |
           v=${{steps.tag.outputs.tag}}
           v=${v:1}
-          mv ./dist_electron/IKFB-$v.dmg ./macos_x64_IKFB_${{steps.tag.outputs.tag}}.dmg
-
+          mv ./dist_electron/IKFB-$v.dmg ./IKFB-$v.dmg
+          mv ./dist_electron/IKFB-$v.dmg.blockmap ./IKFB-$v.dmg.blockmap
+          mv ./dist_electron/latest-mac.yml ./latest-mac.yml
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "macos_x64_IKFB_${{steps.tag.outputs.tag}}.dmg"
+          artifacts: "*.dmg,*.blockmap,*.yml"
           token: ${{ secrets.GITHUB_TOKEN }}
