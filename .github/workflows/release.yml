@@ -46,8 +46,8 @@ jobs:
       - name: Rename
         run: |
           $v="${{steps.tag.outputs.tag}}".Substring(1)
-          mv "./dist_electron/IKFB Setup $v.exe" "IKFB Setup $v.exe"
-          mv "./dist_electron/IKFB Setup $v.exe.blockmap" "IKFB Setup $v.exe.blockmap"
+          mv "./dist_electron/IKFB Setup $v.exe" "IKFB-Setup-$v.exe"
+          mv "./dist_electron/IKFB Setup $v.exe.blockmap" "IKFB-Setup-$v.exe.blockmap"
           mv "./dist_electron/latest.yml" "latest.yml"
 
       - name: Upload Release
