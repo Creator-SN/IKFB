@@ -76,12 +76,16 @@ jobs:
         id: tag
         uses: dawidd6/action-get-tag@v1
 
-      - name: Archive Release
-        run: zip -r  -o 'macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip' './dist_electron/'
+      - name: Rename
+        run: |
+          v=${{steps.tag.outputs.tag}}
+          v=${v:1}
+          mv ./dist_electron/IKFB-$v.dmg ./macos_x64_IKFB_${{steps.tag.outputs.tag}}.dmg
+
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "macos_x64_IKFB_${{steps.tag.outputs.tag}}.zip"
+          artifacts: "macos_x64_IKFB_${{steps.tag.outputs.tag}}.dmg"
           token: ${{ secrets.GITHUB_TOKEN }}
