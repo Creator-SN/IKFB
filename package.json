@@ -1,6 +1,6 @@
 {
   "name": "ikfb",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "description": "Involution King Fun Book (IKFB, Chinese: 快卷, 卷王快乐本) is an integrated management system for papers and literature. The UI design is based on the VFluent, which is inspired by the Microsft Fluent Design System.",
   "author": {
