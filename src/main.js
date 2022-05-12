@@ -11,7 +11,7 @@ import "@creatorsn/powereditor/lib/powereditor.css";
 import 'katex/dist/katex.min.css';
 import "@/style/global.scss";
 
-import D from '@/js/datastore.js'
+import D from '@/js/dbManager.js'
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
