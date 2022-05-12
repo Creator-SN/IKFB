@@ -139,7 +139,12 @@
                                 :key="index"
                                 class="item"
                             >
-                                <emoji-callout :value="page.emoji" :theme="theme" style="width: 25px;" @insert-emoji="revisePageEmoji(x.item, page, $event)"></emoji-callout>
+                                <emoji-callout
+                                    :value="page.emoji"
+                                    :theme="theme"
+                                    style="width: 25px;"
+                                    @insert-emoji="revisePageEmoji(x.item, page, $event)"
+                                ></emoji-callout>
                                 <p
                                     class="highlight"
                                     @click="openEditor(x.item, page)"
@@ -148,12 +153,21 @@
                                 <p class="sec">{{page.createDate}}</p>
                                 <fv-button
                                     theme="dark"
-                                    background="rgba(0, 120, 212, 1)"
+                                    background="rgba(0, 98, 158, 1)"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Rename')"
                                     @click="showRenameItemPage(x.item, page)"
                                 >
                                     <i class="ms-Icon ms-Icon--Rename"></i>
+                                </fv-button>
+                                <fv-button
+                                    theme="dark"
+                                    background="rgba(0, 98, 158, 1)"
+                                    style="width: 35px; height: 35px;"
+                                    :title="local('Duplicate')"
+                                    @click="duplicateItemPage(x.item, page)"
+                                >
+                                    <i class="ms-Icon ms-Icon--Copy"></i>
                                 </fv-button>
                                 <fv-button
                                     theme="dark"
@@ -212,6 +226,13 @@
                                     style="color: rgba(0, 90, 158, 1);"
                                 ></i>
                                 <p>{{local("Copy to Partitions")}}</p>
+                            </span>
+                            <span @click="addToTransferCarrier">
+                                <i
+                                    class="ms-Icon ms-Icon--Send"
+                                    style="color: rgba(229, 173, 70, 1);"
+                                ></i>
+                                <p>{{local("Add to Transfer Carrier")}}</p>
                             </span>
                             <span @click="show.rename = true">
                                 <i
@@ -340,6 +361,16 @@ export default {
                     },
                 },
                 {
+                    name: () => this.local("Add to Transfer Carrier"),
+                    icon: "Send",
+                    iconColor: "rgba(229, 173, 70, 1)",
+                    disabled: () =>
+                        this.currentChoosen.length === 0 || !this.lock,
+                    func: () => {
+                        this.addToTransferCarrier();
+                    }
+                },
+                {
                     name: () => this.local("Remove From Partition"),
                     icon: "RemoveFrom",
                     iconColor: "rgba(220, 62, 72, 1)",
@@ -389,6 +420,7 @@ export default {
     },
     watch: {
         $route() {
+            this.editable = false;
             this.itemsEnsureFolder();
             this.refreshFilterItems();
         },
@@ -406,6 +438,7 @@ export default {
             value: (state) => state.pdfImporter.value,
             item: (state) => state.pdfImporter.item,
             pdf_importer: (state) => state.pdfImporter.pdf_importer,
+            itemCarrier: (state) => state.itemCarrier,
             mode: (state) => state.pdfImporter.mode,
             c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
@@ -464,6 +497,7 @@ export default {
             reviseDS: "reviseDS",
             reviseEditor: "reviseEditor",
             revisePdfImporter: "revisePdfImporter",
+            reviseItemCarrier: "reviseItemCarrier",
             toggleEditor: "toggleEditor",
         }),
         refreshFilterItems() {
@@ -599,7 +633,7 @@ export default {
                 item: item,
                 target: page,
                 scrollTop: 0,
-                history: []
+                history: [],
             });
             this.toggleEditor(true);
         },
@@ -652,6 +686,23 @@ export default {
                 groups: this.groups,
                 partitions: this.partitions,
             });
+        },
+        addToTransferCarrier() {
+            let items = this.currentChoosen;
+            if (items.length === 0) {
+                items = [this.currentItem];
+            }
+            items.forEach((el) => {
+                if (!this.itemCarrier.itemsX.find((it) => it.id === el.id)) {
+                    this.itemCarrier.itemsX.push({
+                        id: el.id,
+                        path: this.data_path[this.data_index],
+                        data_index: this.data_index,
+                        item: el,
+                    });
+                }
+            });
+            this.reviseItemCarrier({ itemsX: this.itemCarrier.itemsX });
         },
         deleteItemsFromPartition() {
             if (this.pid === false) return;
@@ -713,15 +764,57 @@ export default {
         },
         revisePageEmoji(item, page, emoji) {
             if (!this.ds_db || !this.items) return;
-            let _item = this.items.find(it => it.id === item.id);
-            let _page = _item.pages.find(it => it.id === page.id);
+            let _item = this.items.find((it) => it.id === item.id);
+            let _page = _item.pages.find((it) => it.id === page.id);
             _page.emoji = emoji;
             page.emoji = emoji;
             this.reviseDS({
                 $index: this.data_index,
-                items: this.items
+                items: this.items,
             });
             this.thisShow = false;
+        },
+        async duplicateItemPage(item, page) {
+            if (!this.ds_db || !this.items) return;
+            let _page = JSON.parse(JSON.stringify(page));
+            _page.id = this.$Guid();
+            _page.createDate = this.$SDate.DateToString(new Date());
+            item = this.items.find((it) => it.id === item.id);
+            item.pages.push(_page);
+            let url = path.join(
+                this.data_path[this.data_index],
+                "root/items",
+                `${item.id}`,
+                `${_page.id}.json`
+            );
+            let oriUrl = path.join(
+                this.data_path[this.data_index],
+                "root/items",
+                `${item.id}`,
+                `${page.id}.json`
+            );
+            ipc.send("read-file", {
+                id: "editor",
+                path: oriUrl,
+            });
+            let templateContent = await new Promise((resolve) => {
+                ipc.on(`read-file-editor`, (event, data) => {
+                    resolve(data);
+                });
+            });
+            ipc.send("output-file", {
+                path: url,
+                data: templateContent,
+            });
+            await new Promise((resolve) => {
+                ipc.on("output-file-callback", () => {
+                    resolve(1);
+                });
+            });
+            this.reviseDS({
+                $index: this.data_index,
+                items: this.items,
+            });
         },
         async deleteItemPage(itemId, pageId) {
             this.$infoBox(this.local(`Are you sure to delete this page?`), {
@@ -883,7 +976,7 @@ export default {
                         border: rgba(200, 200, 200, 0.1) solid thin;
                         border-radius: 8px;
                         box-sizing: border-box;
-                        grid-template-columns: 50px 160px 90px 150px 50px 1fr;
+                        grid-template-columns: 50px 160px 90px 150px 50px 50px 1fr;
                         display: grid;
                         align-items: center;
                         cursor: pointer;

@@ -18,6 +18,7 @@
         </div>
         <editor-container></editor-container>
         <pdf-importer ref="pdf_importer"></pdf-importer>
+        <item-carrier @update-progess="updateProgress"></item-carrier>
         <div
             v-show="show.drop"
             class="file-drop-mask"
@@ -26,6 +27,7 @@
         <transition name="scale-up-to-up">
             <starter v-if="init_status"></starter>
         </transition>
+        <progress-bar></progress-bar>
     </div>
 </template>
 
@@ -33,9 +35,11 @@
 import i18n from "@/js/i18n.js";
 import starter from "@/components/general/starter.vue";
 import titleBar from "@/components/general/titleBar.vue";
+import progressBar from "@/components/general/progressbar.vue";
 import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
 import pdfImporter from "@/components/general/pdfImporter.vue";
+import itemCarrier from "@/components/general/itemCarrier.vue";
 import { config } from "@/js/data_sample";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
@@ -44,9 +48,11 @@ export default {
     components: {
         starter,
         titleBar,
+        progressBar,
         navigationView,
         editorContainer,
         pdfImporter,
+        itemCarrier
     },
     data() {
         return {
@@ -87,6 +93,7 @@ export default {
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
             revisePdfImporter: "revisePdfImporter",
+            reviseProgress: "reviseProgress",
             reviseI18N: "reviseI18N",
         }),
         i18nInit() {
@@ -212,6 +219,9 @@ export default {
                     df: files,
                 });
             });
+        },
+        updateProgress(value) {
+            this.reviseProgress(value);
         },
         Go(path) {
             if (this.$route.path === path) return 0;

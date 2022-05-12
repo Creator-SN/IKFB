@@ -31,6 +31,7 @@ export default new Vuex.Store({
             scrollTop: 0,
             history: []
         },
+        //
         pdfImporter: {
             value: false,
             item: null,
@@ -39,6 +40,12 @@ export default new Vuex.Store({
             df: [],
             c: 0
         },
+        //
+        itemCarrier: {
+            itemsX: []
+        },
+        //
+        progress: 0,
         dbList: [],
         i18n: {}
     },
@@ -79,6 +86,16 @@ export default new Vuex.Store({
                     continue;
                 state.pdfImporter[key] = obj[key];
             }
+        },
+        reviseItemCarrier(state, obj) {
+            for (let key in obj) {
+                if (state.itemCarrier[key] === undefined)
+                    continue;
+                state.itemCarrier[key] = obj[key];
+            }
+        },
+        reviseProgress (state, obj) {
+            state.progress = obj;
         },
         reviseI18N(state, i18n) {
             state.i18n = i18n

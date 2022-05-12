@@ -26,7 +26,6 @@
                     <template-grid
                         :value="templates"
                         @choose-items="currentChoosen = $event"
-                        @item-click="openEditor($event)"
                     >
                     </template-grid>
                 </div>

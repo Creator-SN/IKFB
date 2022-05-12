@@ -23,7 +23,7 @@
   },
   "main": "background.js",
   "dependencies": {
-    "@creatorsn/powereditor": "^0.5.7",
+    "@creatorsn/powereditor": "^0.6.0",
     "axios": "^0.21.4",
     "core-js": "^3.6.5",
     "electron-log": "^4.4.7",

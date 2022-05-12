@@ -14,6 +14,7 @@
                 :title="item.name"
                 :content="`${local('Create Time')}: ${item.createDate}`"
                 :maxHeight="350"
+                :disabled-collapse="edit"
                 style="margin: 5px"
                 @contextmenu.native="rightClick($event, item)"
             >
@@ -180,9 +181,12 @@ export default {
         };
     },
     watch: {
-        value() {
-            this.thisValue = this.value;
-            this.valueInit();
+        value: {
+            deep: true,
+            handler () {
+                this.thisValue = this.value;
+                this.valueInit();
+            }
         },
         thisValue() {
             this.$emit("input", this.thisValue);
@@ -192,6 +196,15 @@ export default {
         },
         desc() {
             this.sort();
+        },
+        edit () {
+            if(!this.edit) {
+                for(let i = 0; i < this.thisValue.length; i++) {
+                    let t = this.thisValue[i];
+                    t.choosen = false;
+                    this.$set(this.thisValue, i, t);
+                }
+            }
         },
         filter() {
             this.filterValue();

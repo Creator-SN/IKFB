@@ -242,7 +242,27 @@ export default {
                             item.pdf ? `${item.id}/${item.pdf}.pdf` : item.id
                         );
                     } else if (item.type === "page") {
-                        this.openEditor(item.parent, item._page);
+                        if (this.unsave) {
+                            this.$infoBox(
+                                this.local(
+                                    `Are you sure to redirect without saved?`
+                                ),
+                                {
+                                    status: "warning",
+                                    title: this.local("Confirm"),
+                                    confirmTitle: this.local("Confirm"),
+                                    cancelTitle: this.local("Cancel"),
+                                    theme: this.theme,
+                                    confirm: () => {
+                                        this.openEditor(
+                                            item.parent,
+                                            item._page
+                                        );
+                                    },
+                                    cancel: () => {},
+                                }
+                            );
+                        } else this.openEditor(item.parent, item._page);
                     }
                 },
                 headerForeground: "rgba(0, 120, 212, 1)",
@@ -517,7 +537,7 @@ export default {
         close() {
             if (this.unsave) {
                 this.$infoBox(
-                    this.local(`Are you sure to quit with out saved?`),
+                    this.local(`Are you sure to quit without saved?`),
                     {
                         status: "default",
                         title: this.local("Confirm"),

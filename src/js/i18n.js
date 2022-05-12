@@ -227,8 +227,8 @@ export default {
         "en": "Filtering from current content",
         "cn": "从当前内容筛选"
     },
-    "Are you sure to quit with out saved?": {
-        "en": "Are you sure to quit with out saved?",
+    "Are you sure to quit without saved?": {
+        "en": "Are you sure to quit without saved?",
         "cn": "确定不保存退出吗?"
     },
     "There is no source, please add a data source to getting started.": {
@@ -266,6 +266,14 @@ export default {
     "Start": {
         "en": "Start",
         "cn": "开始"
+    },
+    "Remove": {
+        "en": "Remove",
+        "cn": "移除"
+    },
+    "Close": {
+        "en": "Close",
+        "cn": "关闭"
     },
     "Skip": {
         "en": "Skip",
@@ -438,5 +446,21 @@ export default {
     "Input page name...": {
         "en": "Input page name...",
         "cn": "请输入新建笔记的名称..."
+    },
+    "Duplicate": {
+        "en": "Duplicate",
+        "cn": "快速副本"
+    },
+    "Are you sure to redirect without saved?": {
+        "en": "Are you sure to redirect without saved?",
+        "cn": "确定要在未保存当前内容情况下跳转吗？"
+    },
+    "Item Transfer Carrier": {
+        "en": "Item Transfer Carrier",
+        "cn": "项迁移工具"
+    },
+    "Add to Transfer Carrier": {
+        "en": "Add to Transfer Carrier",
+        "cn": "添加到迁移中转"
     }
 }
