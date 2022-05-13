@@ -40,6 +40,7 @@
                     icon="Tag"
                     :theme="theme"
                     :border-color="currentColor"
+                    :focus-border-color="currentColor"
                     underline
                     :is-box-shadow="true"
                     @keyup.enter="addLabel"

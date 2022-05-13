@@ -93,7 +93,12 @@
                                 class="item"
                                 @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
                             >
-                                <i class="ms-Icon ms-Icon--PDF"></i>
+                                <img
+                                    draggable="false"
+                                    :src="img.pdf"
+                                    alt=""
+                                    style="width: 18px; height: 18px; object-fit: contain;"
+                                >
                                 <p
                                     class="highlight"
                                     @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
@@ -104,19 +109,30 @@
                                 >{{x.item.pdf}}.pdf</p>
                                 <p></p>
                                 <fv-button
-                                    background="rgba(255, 180, 0, 1)"
+                                    :theme="theme"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Open Folder')"
+                                    :is-box-shadow="true"
                                     @click="openFile(`${x.item.id}`)"
                                 >
-                                    <i class="ms-Icon ms-Icon--FabricFolder"></i>
+                                    <img
+                                        draggable="false"
+                                        :src="img.folder"
+                                        alt=""
+                                        style="width: 18px; height: 18px; object-fit: contain;"
+                                    >
                                 </fv-button>
                             </div>
                             <div
                                 v-show="x.item.metadata"
                                 class="item"
                             >
-                                <i class="ms-Icon ms-Icon--LinkedDatabase"></i>
+                                <img
+                                    draggable="false"
+                                    :src="img.metadata"
+                                    alt=""
+                                    style="width: 18px; height: 18px; object-fit: contain;"
+                                >
                                 <p
                                     class="highlight"
                                     @click="showMetadata(x.item)"
@@ -127,12 +143,18 @@
                                 >{{x.item.id}}.metadata</p>
                                 <p></p>
                                 <fv-button
-                                    background="rgba(255, 180, 0, 1)"
+                                    :theme="theme"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Open Folder')"
+                                    :is-box-shadow="true"
                                     @click="openFile(`${x.item.id}`)"
                                 >
-                                    <i class="ms-Icon ms-Icon--FabricFolder"></i>
+                                    <img
+                                        draggable="false"
+                                        :src="img.folder"
+                                        alt=""
+                                        style="width: 18px; height: 18px; object-fit: contain;"
+                                    >
                                 </fv-button>
                             </div>
                             <div
@@ -154,18 +176,20 @@
                                 <p class="sec">{{page.createDate}}</p>
                                 <fv-button
                                     theme="dark"
-                                    background="rgba(0, 98, 158, 1)"
+                                    :background="theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 98, 158, 1)'"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Rename')"
+                                    :is-box-shadow="true"
                                     @click="showRenameItemPage(x.item, page)"
                                 >
                                     <i class="ms-Icon ms-Icon--Rename"></i>
                                 </fv-button>
                                 <fv-button
                                     theme="dark"
-                                    background="rgba(0, 98, 158, 1)"
+                                    :background="theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 98, 158, 1)'"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Duplicate')"
+                                    :is-box-shadow="true"
                                     @click="duplicateItemPage(x.item, page)"
                                 >
                                     <i class="ms-Icon ms-Icon--Copy"></i>
@@ -175,6 +199,7 @@
                                     background="rgba(220, 62, 72, 1)"
                                     style="width: 35px; height: 35px;"
                                     :title="local('Delete')"
+                                    :is-box-shadow="true"
                                     @click="deleteItemPage(x.item.id, page.id)"
                                 >
                                     <i class="ms-Icon ms-Icon--Delete"></i>
@@ -200,31 +225,37 @@
                                 <p>{{local("Add Page")}}</p>
                             </span>
                             <span @click="reviseItemPdf">
-                                <i
-                                    class="ms-Icon ms-Icon--PDF"
-                                    style="color: rgba(220, 62, 72, 1);"
-                                ></i>
+                                <img
+                                    draggable="false"
+                                    :src="img.pdf"
+                                    alt=""
+                                    style="width: 13px; height: 13px; object-fit: contain;"
+                                >
                                 <p>{{local("Revise PDF")}}</p>
                             </span>
                             <span @click="show.metadata = true">
-                                <i
-                                    class="ms-Icon ms-Icon--LinkedDatabase"
-                                    style="color: rgba(229, 173, 70, 1);"
-                                ></i>
+                                <img
+                                    draggable="false"
+                                    :src="img.metadata"
+                                    alt=""
+                                    style="width: 13px; height: 13px; object-fit: contain;"
+                                >
                                 <p>{{local("Revise Metadata")}}</p>
                             </span>
                             <span @click="openFile(`${currentItem.id}`)">
-                                <i
-                                    class="ms-Icon ms-Icon--FabricFolder"
-                                    style="color: rgba(229, 173, 70, 1);"
-                                ></i>
+                                <img
+                                    draggable="false"
+                                    :src="img.folder"
+                                    alt=""
+                                    style="width: 13px; height: 13px; object-fit: contain;"
+                                >
                                 <p>{{local("Open Folder")}}</p>
                             </span>
                             <hr>
                             <span @click="show.folder = true">
                                 <i
                                     class="ms-Icon ms-Icon--FabricMovetoFolder"
-                                    style="color: rgba(0, 90, 158, 1);"
+                                    :style="{color: theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)'}"
                                 ></i>
                                 <p>{{local("Copy to Partitions")}}</p>
                             </span>
@@ -238,7 +269,7 @@
                             <span @click="show.rename = true">
                                 <i
                                     class="ms-Icon ms-Icon--Rename"
-                                    style="color: rgba(0, 90, 158, 1);"
+                                    :style="{color: theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)'}"
                                 ></i>
                                 <p>{{local("Rename Item")}}</p>
                             </span>
@@ -304,6 +335,11 @@ import metadataPanel from "@/components/home/metadataPanel.vue";
 import folderWindow from "@/components/general/folderWindow.vue";
 import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
+
+import pdf from "@/assets/home/pdf.svg";
+import metadata from "@/assets/home/metadata.svg";
+import folder from "@/assets/home/folder.svg";
+
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
 
@@ -325,7 +361,7 @@ export default {
                 {
                     name: () => this.local("Add"),
                     icon: "Add",
-                    iconColor: "rgba(0, 90, 158, 1)",
+                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
                     disabled: () => this.ds_db === null || !this.lock,
                     func: () => {
                         this.show.add = true;
@@ -334,7 +370,7 @@ export default {
                 {
                     name: () => this.local("Import"),
                     icon: "Upload",
-                    iconColor: "rgba(0, 90, 158, 1)",
+                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
                     disabled: () => this.ds_db === null || !this.lock,
                     func: this.importPdf,
                 },
@@ -345,7 +381,7 @@ export default {
                         return this.local("Multi-Selection");
                     },
                     icon: "MultiSelect",
-                    iconColor: "rgba(0, 90, 158, 1)",
+                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
                     disabled: () => this.ds_db === null || !this.lock,
                     func: () => {
                         this.editable ^= true;
@@ -354,7 +390,7 @@ export default {
                 {
                     name: () => this.local("Copy to Partitions"),
                     icon: "FabricMovetoFolder",
-                    iconColor: "rgba(0, 90, 158, 1)",
+                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
                     disabled: () =>
                         this.currentChoosen.length === 0 || !this.lock,
                     func: () => {
@@ -369,7 +405,7 @@ export default {
                         this.currentChoosen.length === 0 || !this.lock,
                     func: () => {
                         this.addToTransferCarrier();
-                    }
+                    },
                 },
                 {
                     name: () => this.local("Remove From Partition"),
@@ -408,7 +444,12 @@ export default {
             currentItemPage: {},
             currentSearch: {
                 debounce: "",
-                value: ""
+                value: "",
+            },
+            img: {
+                pdf: pdf,
+                metadata: metadata,
+                folder: folder,
             },
             show: {
                 add: false,
@@ -430,7 +471,7 @@ export default {
         },
         c() {
             this.refreshFilterItems();
-        }
+        },
     },
     computed: {
         ...mapState({

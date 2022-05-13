@@ -40,6 +40,7 @@
                     icon="Tag"
                     :theme="theme"
                     :border-color="currentColor"
+                    :focus-border-color="currentColor"
                     @keyup.enter="addLabel"
                 ></fv-text-box>
             </div>
