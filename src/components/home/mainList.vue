@@ -183,10 +183,11 @@ export default {
     watch: {
         value: {
             deep: true,
-            handler () {
+            handler() {
                 this.thisValue = this.value;
                 this.valueInit();
-            }
+                this.sort();
+            },
         },
         thisValue() {
             this.$emit("input", this.thisValue);
@@ -197,13 +198,11 @@ export default {
         desc() {
             this.sort();
         },
-        edit () {
-            if(!this.edit) {
-                for(let i = 0; i < this.thisValue.length; i++) {
-                    let t = this.thisValue[i];
-                    t.choosen = false;
-                    this.$set(this.thisValue, i, t);
-                }
+        edit() {
+            for (let i = 0; i < this.thisValue.length; i++) {
+                let t = this.thisValue[i];
+                t.choosen = false;
+                this.$set(this.thisValue, i, t);
             }
         },
         filter() {

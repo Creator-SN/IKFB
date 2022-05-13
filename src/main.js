@@ -11,8 +11,6 @@ import "@creatorsn/powereditor/lib/powereditor.css";
 import 'katex/dist/katex.min.css';
 import "@/style/global.scss";
 
-import D from '@/js/dbManager.js'
-
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
@@ -28,9 +26,6 @@ Vue.use(VueFluent);
 Vue.use(PowerEditor);
 
 Vue.config.productionTip = false
-
-Vue.prototype.$config_db = D.config_db;
-Vue.prototype.$load_ds_file = D.load_ds_file;
 
 new Vue({
     router,

@@ -31,12 +31,24 @@
                     :theme="theme"
                     :choosen-background="'rgba(0, 98, 158, 0.1)'"
                     style="width: 100%; height: auto; margin-top: 15px;"
-                    @chooseItem="switchDSDB($event.item)"
+                    @chooseItem="switchDataIndex($event.item)"
                 >
                     <template v-slot:listItem="x">
-                        <div class="list-view-item" :class="[{choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index)}]">
-                            <img v-if="x.item.path.indexOf('OneDrive') > -1" draggable="false" class="icon-img" :src="img.OneDrive" alt="">
-                            <i v-else class="ms-Icon ms-Icon--Link"></i>
+                        <div
+                            class="list-view-item"
+                            :class="[{choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index)}]"
+                        >
+                            <img
+                                v-if="x.item.path.indexOf('OneDrive') > -1"
+                                draggable="false"
+                                class="icon-img"
+                                :src="img.OneDrive"
+                                alt=""
+                            >
+                            <i
+                                v-else
+                                class="ms-Icon ms-Icon--Link"
+                            ></i>
                             <p class="item-name">{{x.item.name}}</p>
                             <fv-button
                                 v-show="x.item.status == 502 || SourceIndexDisabled(x.index)"
@@ -138,26 +150,32 @@ export default {
             thisDBList: [],
             db_index: -1,
             img: {
-                OneDrive
+                OneDrive,
             },
             show: {
                 initDS: false,
             },
             lock: {
-                switchDSDB: true,
+                switchDataIndex: true,
             },
         };
     },
     watch: {
         $route() {
             this.languageInit();
-            this.dataSourceSync();
+            this.refreshDBList();
+        },
+        data_path() {
+            this.refreshDBList();
+        },
+        data_index() {
+            this.refreshDBList();
         },
         language() {
             this.languageInit();
         },
         "show.initDS"() {
-            this.dataSourceSync();
+            this.refreshDBList();
         },
     },
     computed: {
@@ -165,6 +183,7 @@ export default {
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
+            DataDB: (state) => state.DataDB,
             dbList: (state) => state.dbList,
             language: (state) => state.language,
             theme: (state) => state.theme,
@@ -183,7 +202,7 @@ export default {
     },
     mounted() {
         this.languageInit();
-        this.dataSourceSync();
+        this.refreshDBList();
     },
     methods: {
         ...mapMutations({
@@ -200,16 +219,14 @@ export default {
         },
         chooseLanguage(item) {
             this.reviseConfig({
-                v: this,
                 language: item.key,
             });
         },
-        dataSourceSync() {
+        refreshDBList() {
             // 此函数初始化数据源的DB //
             // 同时也会初始化ListView列表项目 //
             let pathList = this.data_path;
-            let dbXListResponse = this.$load_ds_file(pathList);
-            if (dbXListResponse.status == 404 && !this.init_status) {
+            if (this.DataDB.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -221,9 +238,8 @@ export default {
                 );
                 return;
             }
-            let dbXList = dbXListResponse.dbXList;
+            let dbXList = this.DataDB.dbXList;
             let thisDBList = [];
-            let dbList = [];
             dbXList.forEach((el, idx) => {
                 thisDBList.push({
                     key: idx,
@@ -232,15 +248,12 @@ export default {
                     choosen: idx === this.data_index,
                     status: el.status,
                     msg: el.msg,
-                    disabled: () => el.status === 500 || !this.lock.switchDSDB,
+                    disabled: () => el.status === 500 || !this.lock.switchDataIndex,
                     db: el.db,
                 });
-                dbList.push(el.db);
             });
+            this.thisDBList.splice(0, this.thisDBList.length);
             this.thisDBList = thisDBList;
-            this.reviseData({
-                dbList: dbList,
-            });
         },
         async addSource() {
             let path = (
@@ -252,31 +265,26 @@ export default {
             let pathList = this.data_path;
             if (!pathList.find((url) => url === path)) pathList.push(path);
             await this.reviseConfig({
-                v: this,
                 data_path: pathList,
             });
-            this.dataSourceSync();
             let index = pathList.indexOf(path);
             if (!this.SourceIndexDisabled(index)) {
                 if (this.data_index === index)
                     await this.reviseConfig({
-                        v: this,
                         data_index: -1,
                     });
                 this.reviseConfig({
-                    v: this,
                     data_index: index,
                 });
             }
         },
-        switchDSDB(item) {
-            this.lock.switchDSDB = false;
+        switchDataIndex(item) {
+            this.lock.switchDataIndex = false;
             let index = this.data_path.indexOf(item.path);
             this.reviseConfig({
-                v: this,
                 data_index: index,
             });
-            this.lock.switchDSDB = true;
+            this.lock.switchDataIndex = true;
         },
         showInitDS(db_index) {
             this.db_index = db_index;
@@ -295,7 +303,18 @@ export default {
                         let url = db_item.path;
                         let index = this.data_path.indexOf(url);
                         this.data_path.splice(index, 1);
-                        this.dataSourceSync();
+                        if (index - 1 > 0 && this.data_path.length > 0)
+                            this.reviseConfig({
+                                data_index: index - 1,
+                            });
+                        else if(this.data_path.length > 0)
+                            this.reviseConfig({
+                                data_index: 0,
+                            });
+                        else
+                            this.reviseConfig({
+                                data_index: -1,
+                            });
                     },
                     cancel: () => {},
                 }
@@ -381,18 +400,15 @@ export default {
                 display: flex;
                 align-items: center;
 
-                &.disabled
-                {
+                &.disabled {
                     filter: grayscale(100%);
                 }
 
-                &.choosen
-                {
+                &.choosen {
                     border-color: rgba(0, 98, 158, 0.6);
                 }
 
-                .icon-img
-                {
+                .icon-img {
                     width: 16px;
                     height: auto;
                 }

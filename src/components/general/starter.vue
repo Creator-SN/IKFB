@@ -151,6 +151,7 @@ export default {
         ...mapState({
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
+            DataDB: (state) => state.DataDB,
             dbList: (state) => state.dbList,
             language: (state) => state.language,
             theme: (state) => state.theme,
@@ -180,7 +181,6 @@ export default {
         },
         chooseLanguage(item) {
             this.reviseConfig({
-                v: this,
                 language: item.key,
             });
         },
@@ -192,30 +192,6 @@ export default {
             ).filePaths[0];
             if (!path) return;
             this.path = path;
-        },
-        async dataSourceSync() {
-            let pathList = this.data_path;
-            let dbXListResponse = this.$load_ds_file(pathList);
-            if (dbXListResponse.status == 404) {
-                this.$barWarning(
-                    this.local(
-                        "There is no source, please add a data source to getting started."
-                    ),
-                    {
-                        status: "warning",
-                        autoClose: -1,
-                    }
-                );
-                return;
-            }
-            let dbXList = dbXListResponse.dbXList;
-            let dbList = [];
-            dbXList.forEach((el) => {
-                dbList.push(el.db);
-            });
-            await this.reviseData({
-                dbList: dbList,
-            });
         },
         async addSource() {
             if (this.path === "") return;
@@ -230,19 +206,15 @@ export default {
             let pathList = this.data_path;
             if (!pathList.find((url) => url === _path)) pathList.push(_path);
             await this.reviseConfig({
-                v: this,
                 data_path: pathList,
             });
-            this.dataSourceSync();
             let index = pathList.indexOf(_path);
             if (!this.SourceIndexDisabled(index)) {
                 if (this.data_index === index)
                     await this.reviseConfig({
-                        v: this,
                         data_index: -1,
                     });
                 this.reviseConfig({
-                    v: this,
                     data_index: index,
                 });
             }
@@ -255,6 +227,7 @@ export default {
                 $index: index,
                 ...ds,
             });
+            this.$emit('refresh-data-db');
             this.close();
         },
         async chooseSource() {
@@ -263,19 +236,15 @@ export default {
             let pathList = this.data_path;
             if (!pathList.find((url) => url === _path)) pathList.push(_path);
             await this.reviseConfig({
-                v: this,
                 data_path: pathList,
             });
-            this.dataSourceSync();
             let index = pathList.indexOf(_path);
             if (!this.SourceIndexDisabled(index)) {
                 if (this.data_index === index)
                     await this.reviseConfig({
-                        v: this,
                         data_index: -1,
                     });
                 this.reviseConfig({
-                    v: this,
                     data_index: index,
                 });
             }
@@ -283,7 +252,6 @@ export default {
         },
         close() {
             this.reviseConfig({
-                v: this,
                 init_status: false,
             });
         },

@@ -11,6 +11,9 @@ export default new Vuex.Store({
         data_index: -1,
         language: 'en',
         theme: 'light',
+        // DBClass //
+        ConfigDB: null,
+        DataDB: null,
         // ds //
         data_structure: {
             id: null,
@@ -50,12 +53,20 @@ export default new Vuex.Store({
         i18n: {}
     },
     mutations: {
-        reviseConfig(state, obj) {
+        initDB (state, obj) {
             for (let key in obj) {
-                if (key === 'v' || state[key] === undefined)
+                if(key === 'ConfigDB' || key === 'DataDB') {
+                    state[key] = obj[key];
+                }
+            }
+        },
+        async reviseConfig(state, obj) {
+            if(!state.ConfigDB) return;
+            for (let key in obj) {
+                if (state[key] === undefined) // 要用undefined比较好, 因为其他情况也有可能false.
                     continue;
                 state[key] = obj[key];
-                obj.v.$config_db.set(key, state[key]).write();
+                await state.ConfigDB.config_db.set(key, state[key]).write();
             }
         },
         reviseDS(state, obj) {

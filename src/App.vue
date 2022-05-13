@@ -25,7 +25,7 @@
             ref="drop"
         ></div>
         <transition name="scale-up-to-up">
-            <starter v-if="init_status"></starter>
+            <starter v-if="init_status" @refresh-data-db="dataDBInit"></starter>
         </transition>
         <progress-bar></progress-bar>
     </div>
@@ -41,6 +41,7 @@ import editorContainer from "@/components/general/editorContainer.vue";
 import pdfImporter from "@/components/general/pdfImporter.vue";
 import itemCarrier from "@/components/general/itemCarrier.vue";
 import { config } from "@/js/data_sample";
+import { ConfigDB, DataDB } from "@/js/dbManager.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
@@ -52,7 +53,7 @@ export default {
         navigationView,
         editorContainer,
         pdfImporter,
-        itemCarrier
+        itemCarrier,
     },
     data() {
         return {
@@ -66,8 +67,7 @@ export default {
             this.pdfImporterInit();
         },
         data_path() {
-            this.syncConfig();
-            this.syncDSDB();
+            this.dataDBInit();
         },
     },
     computed: {
@@ -81,8 +81,7 @@ export default {
         ...mapGetters(["local"]),
     },
     mounted() {
-        this.syncConfig();
-        this.syncDSDB();
+        this.configDBInit();
         this.pdfImporterInit();
         this.dropFilesInit();
         this.i18nInit();
@@ -90,6 +89,7 @@ export default {
     },
     methods: {
         ...mapMutations({
+            initDB: "initDB",
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
             revisePdfImporter: "revisePdfImporter",
@@ -99,29 +99,23 @@ export default {
         i18nInit() {
             this.reviseI18N(i18n);
         },
-        syncConfig() {
+        configDBInit() {
+            let configDB = new ConfigDB();
+            this.initDB({ ConfigDB: configDB });
+            this.$config_db = configDB.config_db;
             let _config = JSON.parse(JSON.stringify(config));
             for (let key in _config) {
                 _config[key] = this.$config_db.get(key).write();
-                if (_config[key] == undefined) {
-                    let object = {
-                        v: this,
-                    };
-                    object[key] = config[key];
-                    this.reviseConfig(object);
-                } else {
-                    let object = {
-                        v: this,
-                    };
-                    object[key] = _config[key];
-                    this.reviseConfig(object);
-                }
             }
+            this.reviseConfig(_config);
         },
-        syncDSDB() {
+        dataDBInit() {
             let pathList = this.data_path;
-            let dbXListResponse = this.$load_ds_file(pathList);
-            if (dbXListResponse.status == 404 && !this.init_status) {
+            let dataDB = new DataDB(pathList);
+            this.initDB({
+                DataDB: dataDB
+            });
+            if (dataDB.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -133,13 +127,8 @@ export default {
                 );
                 return;
             }
-            let dbXList = dbXListResponse.dbXList;
-            let dbList = [];
-            dbXList.forEach((el) => {
-                dbList.push(el.db);
-            });
             this.reviseData({
-                dbList: dbList,
+                dbList: dataDB.dbList,
             });
         },
         pdfImporterInit() {
@@ -251,7 +240,7 @@ export default {
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
-        
+
         &:hover {
             width: 10px;
         }
