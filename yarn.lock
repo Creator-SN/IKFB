@@ -953,10 +953,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@creatorsn/powereditor@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.6.1.tgz#500bc398ee184578f4da53ac398cdd5567bd0edc"
-  integrity sha512-aNZ82R+IYNNhKnJilcKcYfrlUkvMJ3qKCuCrGxCPzUiww0wt2J1WTUg6gMc2KlgzctvrjV7UgtFoCjvmRrdgPQ==
+"@creatorsn/powereditor@^0.6.2":
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.6.2.tgz#cf50668371169e33d8b7c1b50d16a03860b7774c"
+  integrity sha512-hCnrdMmaKv4LdGy34dYgoNW5bWFv/F63LHhlbna22LUKoARcgRnvMTSQem840y0T+pBpFBpipnqfj2SdeXWsow==
   dependencies:
     "@tiptap/extension-bubble-menu" "^2.0.0-beta.55"
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"

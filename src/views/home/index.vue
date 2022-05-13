@@ -870,7 +870,7 @@ export default {
                 theme: this.theme,
                 confirm: async () => {
                     let item = this.items.find((it) => it.id === itemId);
-                    let index = item.pages.indexOf(pageId);
+                    let index = item.pages.indexOf(item.pages.find(page => page.id === pageId));
                     item.pages.splice(index, 1);
                     await this.reviseDS({
                         $index: this.data_index,
