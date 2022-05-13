@@ -84,6 +84,8 @@ jobs:
           v=${v:1}
           mv ./dist_electron/IKFB-$v.dmg ./IKFB-$v.dmg
           mv ./dist_electron/IKFB-$v.dmg.blockmap ./IKFB-$v.dmg.blockmap
+          mv ./dist_electron/IKFB-$v-mac.zip ./IKFB-$v-mac.zip
+          mv ./dist_electron/IKFB-$v-mac.zip.blockmap ./IKFB-$v-mac.zip.blockmap
           mv ./dist_electron/latest-mac.yml ./latest-mac.yml
 
       - name: Upload Release
