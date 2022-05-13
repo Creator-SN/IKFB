@@ -90,7 +90,7 @@
                         :is-box-shadow="true"
                         style="width: 40px; height: 40px;"
                         :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
-                        @click="toggleTheme(v)"
+                        @click="toggleTheme"
                     >
                         <i
                             class="ms-Icon"

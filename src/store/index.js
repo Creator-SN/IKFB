@@ -111,13 +111,14 @@ export default new Vuex.Store({
         reviseI18N(state, i18n) {
             state.i18n = i18n
         },
-        toggleTheme(state, v) {
+        async toggleTheme(state) {
+            if(!state.ConfigDB) return;
             if (state.theme == 'light') {
                 state.theme = 'dark'
             } else {
                 state.theme = 'light'
             }
-            v.$config_db.set('theme', state.theme).write();
+            await state.ConfigDB.config_db.set('theme', state.theme).write();
         },
         toggleEditor(state, status) {
             state.editor.show = status;
