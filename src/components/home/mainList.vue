@@ -275,6 +275,19 @@ export default {
                     let status = false;
                     let item = this.thisValue[i];
                     for (let it in this.thisValue[i]) {
+                        if (it === "labels") {
+                            for (let l = 0; l < item[it].length; l++) {
+                                if (
+                                    item[it][l].text
+                                        .toLowerCase()
+                                        .includes(filter.value.toLowerCase())
+                                ) {
+                                    status = true;
+                                    break;
+                                }
+                            }
+                            if (status) break;
+                        }
                         if (typeof item[it] != "string") continue;
                         if (
                             item[it]

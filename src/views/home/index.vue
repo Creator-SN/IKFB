@@ -9,13 +9,14 @@
         <div class="m-home-block">
             <div class="row between">
                 <fv-text-box
-                    v-model="currentSearch"
+                    v-model="currentSearch.value"
                     :placeholder="local('Filtering from current content')"
                     :theme="theme"
-                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
+                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(255, 255, 255, 1)'"
                     icon="Filter"
                     borderWidth="2"
                     :revealBorder="true"
+                    @debounce-input="currentSearch.debounce = $event"
                     style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"
                 ></fv-text-box>
                 <div class="sort-block">
@@ -58,7 +59,7 @@
                     :sortKey="sortKey.key"
                     :desc="sortDesc"
                     :theme="theme"
-                    :filter="currentSearch"
+                    :filter="currentSearch.debounce"
                     @open-file="openFile"
                     @label-click="($event) => {currentItem = $event; show.rename = true}"
                     @rightclick="currentItem = $event"
@@ -405,7 +406,10 @@ export default {
             currentItem: {},
             currentChoosen: [],
             currentItemPage: {},
-            currentSearch: "",
+            currentSearch: {
+                debounce: "",
+                value: ""
+            },
             show: {
                 add: false,
                 rename: false,
@@ -426,7 +430,7 @@ export default {
         },
         c() {
             this.refreshFilterItems();
-        },
+        }
     },
     computed: {
         ...mapState({
