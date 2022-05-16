@@ -104,6 +104,13 @@ async function createWindow() {
         });
     });
 
+    ipcMain.on("read-binary", (event, obj) => {
+        fs.readFile(obj.path, (err, data) => {
+            if (err) return console.error(err)
+            event.reply(`read-binary-${obj.id}`, data);
+        });
+    });
+
     ipcMain.on("output-file", (event, obj) => {
         fs.outputFile(obj.path, obj.data).then(() => {
             event.reply('output-file-callback', 200);

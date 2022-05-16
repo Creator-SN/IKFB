@@ -291,10 +291,22 @@ export default {
                 this.translateObj.pronunciation = res.pronunciation;
             });
         },
-        initPDF() {
+        async initPDF() {
             if (!this.lock.init) return;
             this.lock.init = false;
-            this.$PDFJS.getDocument(this.url).promise.then((pdf) => {
+            let guid = this.$Guid();
+            ipc.send("read-binary", {
+                id: guid,
+                path: this.url,
+            });
+            let url = await new Promise((resolve) => {
+                ipc.on(`read-binary-${guid}`, (event, arg) => {
+                    let blob = new Blob([arg], { type: "application/pdf" });
+                    let url = URL.createObjectURL(blob);
+                    resolve(url);
+                });
+            });
+            this.$PDFJS.getDocument(url).promise.then((pdf) => {
                 // 文档对象
                 this.pdfDoc = pdf;
                 // 总页数
