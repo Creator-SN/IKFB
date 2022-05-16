@@ -39,6 +39,7 @@
                         ></i>
                     </fv-button>
                     <fv-button
+                        v-show="show.display !== 1"
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
@@ -52,6 +53,7 @@
                         ]"
                         ></i></fv-button>
                     <fv-button
+                        v-show="show.display !== 1"
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
@@ -86,9 +88,50 @@
                     >
                     </fv-toggle-switch>
                     <fv-button
+                        v-show="pdfUrl"
+                        :theme="theme"
+                        :borderRadius="8"
+                        class="control-btn"
+                        :is-box-shadow="true"
+                        @click="show.display = 0"
+                    >
+                        <img
+                            draggable="false"
+                            :src="img.note"
+                            alt=""
+                            style="width: 16px; height: 16px; object-fit: contain;"
+                        >
+                    </fv-button>
+                    <fv-button
+                        v-show="pdfUrl"
+                        :theme="theme"
+                        :borderRadius="8"
+                        class="control-btn"
+                        :is-box-shadow="true"
+                        @click="show.display = 1"
+                    >
+                        <img
+                            draggable="false"
+                            :src="img.pdf"
+                            alt=""
+                            style="width: 16px; height: 16px; object-fit: contain;"
+                        >
+                    </fv-button>
+                    <fv-button
+                        v-show="pdfUrl"
+                        :theme="theme"
+                        :borderRadius="8"
+                        class="control-btn"
+                        :is-box-shadow="true"
+                        @click="show.display = 2"
+                    >
+                        <i class="ms-Icon ms-Icon--ResizeMouseTall"></i>
+                    </fv-button>
+                    <fv-button
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
+                        :is-box-shadow="true"
                         @click="close"
                     >
                         <i class="ms-Icon ms-Icon--Cancel"></i>
@@ -108,31 +151,39 @@
                     @root-click="back"
                 ></fv-Breadcrumb>
             </div>
-            <power-editor
-                v-show="lock.loading"
-                :value="content"
-                :placeholder="local('Write something ...')"
-                :editable="!readonly"
-                :theme="theme"
-                :language="language"
-                :editorOutSideBackground="
+            <div class="main-display-block">
+                <power-editor
+                    v-show="lock.loading && show.display !== 1"
+                    :value="content"
+                    :placeholder="local('Write something ...')"
+                    :editable="!readonly"
+                    :theme="theme"
+                    :language="language"
+                    :editorOutSideBackground="
                     theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
                 "
-                :contentMaxWidth="expandContent ? '99999px' : '900px'"
-                :mobileDisplayWidth="0"
-                :mentionItemAttr="editorMentionItemAttr"
-                ref="editor"
-                :style="{height: `calc(100% - ${showNav ? 80 : 40}px)`, 'font-size': `${fontSize}px`}"
-                style="
+                    :contentMaxWidth="expandContent ? '99999px' : '900px'"
+                    :mobileDisplayWidth="0"
+                    :mentionItemAttr="editorMentionItemAttr"
+                    ref="editor"
+                    :style="{height: `calc(100% - ${showNav ? 40 : 0}px)`, 'font-size': `${fontSize}px`}"
+                    style="
                     position: relative;
                     width: 100%;
-                    height: calc(100% - 40px);
+                    height: 100%;
                     flex: 1;
                 "
-                @save-json="saveContent"
-                @click.native="show.quickNav = false"
-            >
-            </power-editor>
+                    @save-json="saveContent"
+                    @click.native="show.quickNav = false"
+                >
+                </power-editor>
+                <pdf-viewer
+                    v-if="show.display !== 0 && pdfUrl"
+                    :url="pdfUrl"
+                    :theme="theme"
+                    class="pdf-viewer"
+                ></pdf-viewer>
+            </div>
             <div
                 v-show="!lock.loading"
                 class="loading-block"
@@ -211,6 +262,10 @@
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 import addItemPage from "@/components/home/addItemPage.vue";
+import pdfViewer from "@/components/general/pdfViewer";
+
+import pdf from "@/assets/home/pdf.svg";
+import note from "@/assets/home/note.svg";
 
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
@@ -218,6 +273,7 @@ const path = require("path");
 export default {
     components: {
         addItemPage,
+        pdfViewer,
     },
     data() {
         return {
@@ -267,6 +323,10 @@ export default {
                 },
                 headerForeground: "rgba(0, 120, 212, 1)",
             },
+            img: {
+                pdf: pdf,
+                note: note,
+            },
             lock: {
                 loading: true,
             },
@@ -274,6 +334,7 @@ export default {
                 quickNav: false,
                 addItemPage: false,
                 bottomControl: false,
+                display: 0,
             },
             timeout: {
                 autoSave: undefined,
@@ -382,6 +443,16 @@ export default {
         },
         showNav() {
             return this.type === "item" && this.item.name && this.target.name;
+        },
+        pdfUrl() {
+            if (this.type !== "item") return false;
+            if (!this.item) return false;
+            if (!this.item.pdf) return false;
+            return path.join(
+                `${this.data_path[this.data_index]}`,
+                "root/items",
+                `${this.item.id}/${this.item.pdf}.pdf`
+            );
         },
     },
     mounted() {
@@ -506,7 +577,7 @@ export default {
             );
             ipc.send("open-file", url);
             ipc.on("open-file-callback", (event, data) => {
-                console.log(data);
+                console.log(data.length);
             });
         },
         back() {
@@ -625,6 +696,24 @@ export default {
 
         display: flex;
         align-items: center;
+    }
+
+    .main-display-block {
+        @include Vcenter;
+
+        position: relative;
+        width: 100%;
+        height: calc(100% - 40px);
+        flex: 1;
+        overflow: hidden;
+
+        .pdf-viewer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            border-left: rgba(120, 120, 120, 0.1) solid thin;
+        }
     }
 
     .loading-block {

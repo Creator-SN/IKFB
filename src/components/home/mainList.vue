@@ -82,6 +82,7 @@
             </fv-collapse>
             <fv-shimmer
                 v-if="loading"
+                :theme="theme"
                 style="position: relative; width: 100%; height: auto;"
             >
                 <div

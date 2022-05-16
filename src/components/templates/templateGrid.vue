@@ -16,6 +16,7 @@
             >
                 <fv-shimmer
                     v-if="item.minContent == undefined"
+                    :theme="theme"
                     style="position: relative; width: 100%; height: 100%;"
                 >
                     <div

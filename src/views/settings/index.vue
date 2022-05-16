@@ -119,6 +119,25 @@
                     ></fv-Combobox>
                 </template>
             </fv-Collapse>
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'DeveloperTools'"
+                :title="local('Dev Tools')"
+                :content="local('Dev Tools for Developer')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
+                        :theme="theme"
+                        :is-box-shadow="true"
+                        style="width: 120px;"
+                        @click="$Go('/dev')"
+                    >
+                        {{local('Dev Page')}}
+                    </fv-button>
+                </template>
+            </fv-Collapse>
         </div>
         <init-ds
             :show.sync="show.initDS"
@@ -371,6 +390,7 @@ export default {
         width: 100%;
         flex: 1;
         padding-left: 15px;
+        padding-bottom: 5px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;

@@ -27,6 +27,11 @@ const routes = [
         path: "/settings",
         name: "Settings",
         component: () => AsyncLoad(import("@/views/settings"))
+    },
+    {
+        path: "/dev",
+        name: "Dev",
+        component: () => AsyncLoad(import("@/views/dev"))
     }
 ];
 

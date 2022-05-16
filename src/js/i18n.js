@@ -462,5 +462,21 @@ export default {
     "Add to Transfer Carrier": {
         "en": "Add to Transfer Carrier",
         "cn": "添加到迁移中转"
-    }
+    },
+    "Dev Tools": {
+        "en": "Dev Tools",
+        "cn": "开发工具"
+    },
+    "Dev Tools for Developer": {
+        "en": "Dev Tools for Developer",
+        "cn": "开发者开发工具"
+    },
+    "Dev Page": {
+        "en": "Dev Page",
+        "cn": "开发页面"
+    },
+    "Edit Text Here and Re-Translate by Press (Ctrl + Enter)": {
+        "en": "Edit Text Here and Re-Translate by Press (Ctrl + Enter)",
+        "cn": "在这里编辑文本并且按下(Ctrl + 回车)重新翻译"
+    },
 }

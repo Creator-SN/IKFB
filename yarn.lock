@@ -953,10 +953,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@creatorsn/powereditor@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.6.2.tgz#cf50668371169e33d8b7c1b50d16a03860b7774c"
-  integrity sha512-hCnrdMmaKv4LdGy34dYgoNW5bWFv/F63LHhlbna22LUKoARcgRnvMTSQem840y0T+pBpFBpipnqfj2SdeXWsow==
+"@creatorsn/powereditor@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/@creatorsn/powereditor/-/powereditor-0.6.3.tgz#1cff87339dde03db6949ae3aef15a612dcf6b8f5"
+  integrity sha512-VSZY0s6C7YZE4LdxleZhCus57B1g+Mdsxf/doZo1VR+UQFzMpVwPK3z5OiJSlfdKiBGD7IdzljG7UqHP2ypgCQ==
   dependencies:
     "@tiptap/extension-bubble-menu" "^2.0.0-beta.55"
     "@tiptap/extension-code-block-lowlight" "^2.0.0-beta.39"
@@ -980,7 +980,7 @@
     i18next "^21.1.1"
     katex "^0.13.18"
     simplify-js "^1.2.4"
-    vfluentdesign "^0.2.9"
+    vfluentdesign "^0.2.10"
     vue "^2.6.11"
 
 "@develar/schema-utils@~2.6.5":
@@ -1724,6 +1724,14 @@
   integrity sha512-4HNq144yhaVjJs+ON6A07NEoi9Hh0Rhl/jI9Nt/l/YRjt+T6St/QK3meFARWZ8IgkzoD1LC0PdTdJenlQQi2WQ==
   dependencies:
     "@types/yargs-parser" "*"
+
+"@vitalets/google-translate-api@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@vitalets/google-translate-api/-/google-translate-api-8.0.0.tgz#3dfbab1e051e4fcfe5ee97e1c5923a0ec0d106ae"
+  integrity sha512-CHOi8DRgDAoLlFQy9pm1KHUauIk5ZXys3+Eh0aSYxzJSuxAE7Z2UL8+5MgNdl1oX7t/O7u+SwGhkhu6+U1bNcg==
+  dependencies:
+    configstore "^5.0.1"
+    got "^9.6.0"
 
 "@vue/babel-helper-vue-jsx-merge-props@^1.2.1":
   version "1.2.1"
@@ -6138,6 +6146,13 @@ globby@^9.2.0:
     pify "^4.0.1"
     slash "^2.0.0"
 
+google-translate-cn-api@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/google-translate-cn-api/-/google-translate-cn-api-1.0.8.tgz#e00f32466f6f844240635699ff39e2b892abb745"
+  integrity sha512-jtNyskDZNRSZKyRWq+50u5HB/d2X0rLFa8ygUS3YIvGRCjvFBx8gdfDjl919aXLgBEppF/SfbkY50Gd/Vhczhw==
+  dependencies:
+    "@vitalets/google-translate-api" "^8.0.0"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -6186,6 +6201,11 @@ gsap@^3.1.1:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.8.0.tgz#a404dd6ebbaabc92605539aea9d98e3098688064"
   integrity sha512-cvpzKkWFePDZCycwXwJnDSpTR3j+a4QLQF/t0c+pXqzRESgAYx5hieaoshzZFjbwsARqr0+5c3GKE7wI273w/g==
+
+gsap@^3.10.4:
+  version "3.10.4"
+  resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.10.4.tgz#db89a6b8f6d5cb76e274eae822cbc1aa4d31e88f"
+  integrity sha512-6QatdkKxXCMfvCW4rM++0RqyLQAzFX5nwl3yHS0XPgkZBkiSEY3VZVbMltrdtsbER/xZonLtyHt684wRp4erlQ==
 
 gzip-size@^5.0.0:
   version "5.1.1"
@@ -11727,10 +11747,10 @@ verror@^1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vfluentdesign@^0.2.9:
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.2.9.tgz#a13f8818e2a1689bcc171da019f82bd8a705af48"
-  integrity sha512-nnD6gYQEuBQcpyCb/7DVTlncR+T0UYj3/3FhLBtWOxLFYSoyCOazXG7PFuEVqp9+BNNLnNHBdrkCtc9kJqwH5Q==
+vfluentdesign@^0.2.10:
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.2.10.tgz#f04efcfd72018b5dcf89ff6b874cd4f7b64c8e41"
+  integrity sha512-HuZflfudIDP6nLqbQkRW22ojy4SYQMx7neOV3koBwqMCedChRfOPuTlyxHvvTfOTFFPg3b6e7xGLkYiISbMO4A==
   dependencies:
     core-js "^3.4.3"
     fluent-reveal-effect "^1.1.1"

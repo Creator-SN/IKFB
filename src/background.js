@@ -7,6 +7,8 @@ import { autoUpdater } from 'electron-updater'
 import logger from "electron-log"
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+const translate = require('google-translate-cn-api');
+
 var fs = require('fs-extra');
 
 // Scheme must be registered before the app is ready
@@ -135,6 +137,16 @@ async function createWindow() {
             shell.openPath(path)
             event.reply('open-file-callback', err);
         });
+    });
+
+    ipcMain.on("translate", (event, obj) => {
+        translate(obj.text, { from: obj.from, to: obj.to }).then(res => {
+            if (obj.id) {
+                event.reply(`translate-callback:${obj.id}`, res);
+            }
+            else
+                event.reply('translate-callback', res);
+        })
     });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {

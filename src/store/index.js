@@ -27,11 +27,11 @@ export default new Vuex.Store({
         },
         //
         editor: {
-            show: false,
-            type: null,
-            item: null,
-            target: null,
-            scrollTop: 0,
+            show: false, // 显示编辑器
+            type: null, // 编辑器操作类型 item 或 template
+            item: null, // 当前绑定的item
+            target: null, // 当前绑定的page
+            scrollTop: 0, // 当前编辑器滚动条位置
             history: []
         },
         //
