@@ -663,6 +663,7 @@ export default {
             };
             inteliInsert(this.$refs.editor);
             this.reviseEditor({
+                displayMode: this.displayMode === 1 ? 2 : this.displayMode,
                 targetContent: this.$refs.editor.editor.getJSON(),
             });
             this.unsave = true;

@@ -11,14 +11,12 @@
             <div
                 v-for="pageIdx in totalPages"
                 class="pdf-item"
+                :class="[{hide: !show.toolbar.quickNote}]"
                 :ref="`pdf_item:${pageIdx}`"
                 :key="pageIdx"
             >
                 <canvas :ref="`pdfCanvas:${pageIdx}`"></canvas>
-                <div
-                    :ref="`textLayer:${pageIdx}`"
-                    :style="{opacity: show.toolbar.quickNote ? '' : 0}"
-                ></div>
+                <div :ref="`textLayer:${pageIdx}`"></div>
                 <note-layer
                     v-if="show.toolbar.quickNote"
                     v-show="displayMode === 1"
@@ -323,8 +321,7 @@ export default {
             if (this.displayMode !== 0) {
                 let width = this.$el.clientWidth;
                 let scrollerWidth = this.$refs.scroller_view.clientWidth;
-                this.$el.scrollLeft =
-                    (scrollerWidth - width) / 2;
+                this.$el.scrollLeft = (scrollerWidth - width) / 2;
             }
         },
     },
@@ -882,6 +879,24 @@ export default {
 
             canvas {
                 transition: all 0.3s ease-out;
+            }
+
+            &.hide {
+                .textLayer {
+                    span.highlight {
+                        background: none;
+
+                        &:hover {
+                            background: none;
+                            border: none;
+                        }
+
+                        &:active {
+                            background: none;
+                            border: none;
+                        }
+                    }
+                }
             }
 
             .textLayer {
