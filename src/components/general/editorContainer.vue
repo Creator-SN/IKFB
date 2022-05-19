@@ -39,7 +39,7 @@
                         ></i>
                     </fv-button>
                     <fv-button
-                        v-show="show.display !== 1"
+                        v-show="displayMode !== 1"
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
@@ -53,7 +53,7 @@
                         ]"
                         ></i></fv-button>
                     <fv-button
-                        v-show="show.display !== 1"
+                        v-show="displayMode !== 1"
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
@@ -92,8 +92,9 @@
                         :theme="theme"
                         :borderRadius="8"
                         class="control-btn"
+                        :disabled="!target"
                         :is-box-shadow="true"
-                        @click="show.display = 0"
+                        @click="reviseEditor({displayMode: 0})"
                     >
                         <img
                             draggable="false"
@@ -108,7 +109,7 @@
                         :borderRadius="8"
                         class="control-btn"
                         :is-box-shadow="true"
-                        @click="show.display = 1"
+                        @click="reviseEditor({displayMode: 1})"
                     >
                         <img
                             draggable="false"
@@ -122,8 +123,9 @@
                         :theme="theme"
                         :borderRadius="8"
                         class="control-btn"
+                        :disabled="!target"
                         :is-box-shadow="true"
-                        @click="show.display = 2"
+                        @click="reviseEditor({displayMode: 2})"
                     >
                         <i class="ms-Icon ms-Icon--ResizeMouseTall"></i>
                     </fv-button>
@@ -153,7 +155,7 @@
             </div>
             <div class="main-display-block">
                 <power-editor
-                    v-show="lock.loading && show.display !== 1"
+                    v-show="lock.loading && displayMode !== 1"
                     :value="content"
                     :placeholder="local('Write something ...')"
                     :editable="!readonly"
@@ -165,6 +167,7 @@
                     :contentMaxWidth="expandContent ? '99999px' : '900px'"
                     :mobileDisplayWidth="0"
                     :mentionItemAttr="editorMentionItemAttr"
+                    :extensions="customExtensions"
                     ref="editor"
                     :style="{height: `calc(100% - ${showNav ? 40 : 0}px)`, 'font-size': `${fontSize}px`}"
                     style="
@@ -178,10 +181,13 @@
                 >
                 </power-editor>
                 <pdf-viewer
-                    v-if="show.display !== 0 && pdfUrl"
+                    v-if="displayMode !== 0 && pdfUrl"
                     :url="pdfUrl"
                     :theme="theme"
                     class="pdf-viewer"
+                    @open-with-browser="openFile(`${item.id}/${item.pdf + '.pdf'}`)"
+                    @choose-selection="addPDFNote"
+                    @click.native="show.quickNav = false"
                 ></pdf-viewer>
             </div>
             <div
@@ -230,7 +236,7 @@
                         v-for="(page, index) in item.pages"
                         :key="index"
                         class="item"
-                        :class="[{choosen: page.id == target.id}]"
+                        :class="[{choosen: target && page.id == target.id}]"
                         @click="openEditor(item, page)"
                     >
                         <p>{{page.emoji}}</p>
@@ -263,6 +269,8 @@ import { mapMutations, mapState, mapGetters } from "vuex";
 
 import addItemPage from "@/components/home/addItemPage.vue";
 import pdfViewer from "@/components/general/pdfViewer";
+
+import pdfNote from "@/components/general/editorCustom/extension/pdfNote.js";
 
 import pdf from "@/assets/home/pdf.svg";
 import note from "@/assets/home/note.svg";
@@ -323,6 +331,7 @@ export default {
                 },
                 headerForeground: "rgba(0, 120, 212, 1)",
             },
+            customExtensions: [pdfNote],
             img: {
                 pdf: pdf,
                 note: note,
@@ -334,7 +343,6 @@ export default {
                 quickNav: false,
                 addItemPage: false,
                 bottomControl: false,
-                display: 0,
             },
             timeout: {
                 autoSave: undefined,
@@ -356,6 +364,9 @@ export default {
                 this.scrollToTop(this.scrollTop);
             });
         },
+        "pdfNoteInfo.version"() {
+            this.scrollToPDFNote();
+        },
     },
     computed: {
         ...mapState({
@@ -370,6 +381,8 @@ export default {
             history: (state) => state.editor.history,
             item: (state) => state.editor.item,
             items: (state) => state.data_structure.items,
+            displayMode: (state) => state.editor.displayMode,
+            pdfNoteInfo: (state) => state.editor.pdfNoteInfo,
             target: (state) => state.editor.target,
         }),
         ...mapGetters(["local", "ds_db"]),
@@ -442,7 +455,7 @@ export default {
             };
         },
         showNav() {
-            return this.type === "item" && this.item.name && this.target.name;
+            return this.type === "item" && this.item.name && this.target && this.target.name;
         },
         pdfUrl() {
             if (this.type !== "item") return false;
@@ -490,9 +503,9 @@ export default {
             });
         },
         async refreshContent() {
+            if (!this.type || !this.target || !this.target.id) return;
             if (!this.lock.loading) return;
             this.lock.loading = false;
-            if (!this.type || !this.target.id) return;
             let folder =
                 this.type === "template" ? "root/templates" : "root/items";
             if (this.type === "item") {
@@ -515,9 +528,18 @@ export default {
             });
             try {
                 this.content = JSON.parse(content);
+                this.reviseEditor({
+                    targetContent: this.content,
+                });
                 this.lock.loading = true;
             } catch (e) {
                 this.content = content;
+                this.reviseEditor({
+                    targetContent: {
+                        type: "doc",
+                        content: [],
+                    },
+                });
                 this.lock.loading = true;
             }
             if (this.content === "") this.$refs.editor.focus();
@@ -540,6 +562,9 @@ export default {
                 folder,
                 `${this.target.id}.json`
             );
+            this.reviseEditor({
+                targetContent: json,
+            });
             ipc.send("output-file", {
                 path: url,
                 data: JSON.stringify(json),
@@ -566,6 +591,7 @@ export default {
                 item: item,
                 target: page,
                 scrollTop: 0,
+                displayMode: this.displayMode === 1 ? 2 : this.displayMode,
                 history: this.history,
             });
         },
@@ -577,8 +603,69 @@ export default {
             );
             ipc.send("open-file", url);
             ipc.on("open-file-callback", (event, data) => {
-                console.log(data.length);
+                if(data.length)
+                    console.log(data.length);
             });
+        },
+        addPDFNote(event) {
+            let { pos, rangeNodes, content } = event;
+            let r = [];
+            for (let node of rangeNodes) {
+                if (node.offset === Infinity) node.offset = 9999999999;
+                if (node.endOffset === Infinity) node.endOffset = 9999999999;
+                r.push(node);
+            }
+            let inteliInsert = (x) => {
+                // 防止光标在pdfNote内部时嵌套添加
+                x.editor.commands.focus();
+                let selection = x.editor.view.state.selection;
+                let parentNodeName = selection.$anchor.parent.type.name;
+                let path = selection.$anchor.path;
+                let jump = false;
+                for (let p of path) {
+                    if (!p.type) continue;
+                    let name = p.type.name;
+                    if (name.indexOf("pdfNote") > -1) {
+                        jump = true;
+                        break;
+                    }
+                }
+                if (jump) {
+                    while (parentNodeName !== "doc") {
+                        if (selection.$anchorCell != undefined) {
+                            x.editor.commands.deleteTable();
+                        } else x.editor.commands.selectParentNode();
+                        selection = x.editor.view.state.selection;
+                        parentNodeName = selection.$anchor.parent.type.name;
+                    }
+
+                    // let pos = selection.$anchor.pos + selection.node.nodeSize;
+                    // x.editor.commands.setTextSelection(pos + 1);
+                    x.editor.commands.createParagraphNear();
+                }
+                x.editor
+                    .chain()
+                    .insertContent({
+                        type: "pdfNote",
+                        attrs: {
+                            guid: this.$Guid(),
+                            pos: pos,
+                            rangeNodes: r,
+                            content: content,
+                        },
+                        content: [
+                            {
+                                type: "paragraph",
+                            },
+                        ],
+                    })
+                    .run();
+            };
+            inteliInsert(this.$refs.editor);
+            this.reviseEditor({
+                targetContent: this.$refs.editor.editor.getJSON(),
+            });
+            this.unsave = true;
         },
         back() {
             let last = this.history[this.history.length - 1];
@@ -604,6 +691,25 @@ export default {
                 ".tip-tap-editor-container"
             )[0];
             return editorContent.scrollTop ? editorContent.scrollTop : 0;
+        },
+        scrollToPDFNote() {
+            let editorContent = this.$el.querySelectorAll(
+                ".tip-tap-editor-container"
+            )[0];
+            let children = this.$refs.editor.editor.contentComponent.$children;
+            for (let component of children) {
+                if (
+                    component.node.type.name === "pdfNote" &&
+                    component.node.attrs.guid === this.pdfNoteInfo.guid
+                ) {
+                    const { top } = component.$el.getBoundingClientRect();
+                    const { top: editorTop } =
+                        editorContent.getBoundingClientRect();
+                    editorContent.scrollTop =
+                        editorContent.scrollTop + top - editorTop - 100;
+                    break;
+                }
+            }
         },
         close() {
             if (this.unsave) {

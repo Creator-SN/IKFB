@@ -101,7 +101,7 @@
                                 >
                                 <p
                                     class="highlight"
-                                    @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
+                                    @click="openPDF(x.item, 'inside')"
                                 >PDF</p>
                                 <p
                                     class="sec highlight"
@@ -113,11 +113,25 @@
                                     style="width: 35px; height: 35px;"
                                     :title="local('Open Folder')"
                                     :is-box-shadow="true"
-                                    @click="openFile(`${x.item.id}`)"
+                                    @click="openPDF(x.item, 'inside')"
                                 >
                                     <img
                                         draggable="false"
                                         :src="img.folder"
+                                        alt=""
+                                        style="width: 18px; height: 18px; object-fit: contain;"
+                                    >
+                                </fv-button>
+                                <fv-button
+                                    :theme="theme"
+                                    style="width: 35px; height: 35px;"
+                                    :title="local('Open in Browser')"
+                                    :is-box-shadow="true"
+                                    @click="openPDF(x.item, 'outside')"
+                                >
+                                    <img
+                                        draggable="false"
+                                        :src="img.viewer"
                                         alt=""
                                         style="width: 18px; height: 18px; object-fit: contain;"
                                     >
@@ -339,6 +353,8 @@ import { mapMutations, mapState, mapGetters } from "vuex";
 import pdf from "@/assets/home/pdf.svg";
 import metadata from "@/assets/home/metadata.svg";
 import folder from "@/assets/home/folder.svg";
+import viewer from "@/assets/home/viewer.svg";
+import ikfb from "@/assets/logo.svg";
 
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
@@ -361,7 +377,10 @@ export default {
                 {
                     name: () => this.local("Add"),
                     icon: "Add",
-                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
+                    iconColor: () =>
+                        this.theme === "dark"
+                            ? "rgba(118, 185, 237, 1)"
+                            : "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
                     func: () => {
                         this.show.add = true;
@@ -370,7 +389,10 @@ export default {
                 {
                     name: () => this.local("Import"),
                     icon: "Upload",
-                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
+                    iconColor: () =>
+                        this.theme === "dark"
+                            ? "rgba(118, 185, 237, 1)"
+                            : "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
                     func: this.importPdf,
                 },
@@ -381,7 +403,10 @@ export default {
                         return this.local("Multi-Selection");
                     },
                     icon: "MultiSelect",
-                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
+                    iconColor: () =>
+                        this.theme === "dark"
+                            ? "rgba(118, 185, 237, 1)"
+                            : "rgba(0, 90, 158, 1)",
                     disabled: () => this.ds_db === null || !this.lock,
                     func: () => {
                         this.editable ^= true;
@@ -390,7 +415,10 @@ export default {
                 {
                     name: () => this.local("Copy to Partitions"),
                     icon: "FabricMovetoFolder",
-                    iconColor: () => this.theme === 'dark' ? 'rgba(118, 185, 237, 1)' : 'rgba(0, 90, 158, 1)',
+                    iconColor: () =>
+                        this.theme === "dark"
+                            ? "rgba(118, 185, 237, 1)"
+                            : "rgba(0, 90, 158, 1)",
                     disabled: () =>
                         this.currentChoosen.length === 0 || !this.lock,
                     func: () => {
@@ -450,6 +478,8 @@ export default {
                 pdf: pdf,
                 metadata: metadata,
                 folder: folder,
+                viewer: viewer,
+                ikfb: ikfb,
             },
             show: {
                 add: false,
@@ -459,6 +489,7 @@ export default {
                 metadata: false,
                 folder: false,
                 pdfImporter: false,
+                chooseViewer: true,
             },
             lock: true,
         };
@@ -678,6 +709,7 @@ export default {
                 item: item,
                 target: page,
                 scrollTop: 0,
+                displayMode: 0,
                 history: [],
             });
             this.toggleEditor(true);
@@ -692,6 +724,19 @@ export default {
             ipc.on("open-file-callback", (event, data) => {
                 console.log(data);
             });
+        },
+        openPDF(item, mode = "outside") {
+            if (mode === "inside") {
+                this.reviseEditor({
+                    type: "item",
+                    item: item,
+                    target: item.pages.length > 0 ? item.pages[0] : null,
+                    scrollTop: 0,
+                    displayMode: 1,
+                    history: [],
+                });
+                this.toggleEditor(true);
+            } else this.openFile(item.pdf);
         },
         copyItemsToPartitions(partitions_id) {
             let t = [].concat(this.groups);
@@ -870,7 +915,9 @@ export default {
                 theme: this.theme,
                 confirm: async () => {
                     let item = this.items.find((it) => it.id === itemId);
-                    let index = item.pages.indexOf(item.pages.find(page => page.id === pageId));
+                    let index = item.pages.indexOf(
+                        item.pages.find((page) => page.id === pageId)
+                    );
                     item.pages.splice(index, 1);
                     await this.reviseDS({
                         $index: this.data_index,

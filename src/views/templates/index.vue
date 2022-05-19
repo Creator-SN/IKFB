@@ -228,6 +228,7 @@ export default {
             this.reviseEditor({
                 type: "template",
                 item: {},
+                displayMode: 0,
                 target: template,
             });
             this.toggleEditor(true);

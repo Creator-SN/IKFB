@@ -15,6 +15,20 @@
                 :key="pageIdx"
             >
                 <canvas :ref="`pdfCanvas:${pageIdx}`"></canvas>
+                <div
+                    :ref="`textLayer:${pageIdx}`"
+                    :style="{opacity: show.toolbar.quickNote ? '' : 0}"
+                ></div>
+                <note-layer
+                    v-if="show.toolbar.quickNote"
+                    v-show="displayMode === 1"
+                    :value="pdfNoteList[pageIdx]"
+                    :theme="theme"
+                    :local="local"
+                    :scale="currentScale + additionScaleRatio"
+                    :pdfNoteInfo="pdfNoteInfo"
+                    :reviseEditor="reviseEditor"
+                ></note-layer>
             </div>
             <fv-progress-ring
                 v-if="totalPages === 0"
@@ -28,124 +42,172 @@
             <div
                 v-show="container.width !== 0"
                 class="ikfb-pdf-tool-bar"
-                :style="{left: `${container.left + 60}px`, top: `${container.top + 45}px`, width: `${container.width - 120}px`}"
+                :style="{left: `${container.left + 60}px`, top: `${container.top + 35}px`, width: `${container.width - 120}px`}"
             >
-                <div class="left-block">
-                    <fv-text-box
-                        v-model="currentPageStr"
-                        :theme="theme"
-                        fontSize="12"
-                        style="width: 40px; height: 100%;"
-                        @keyup="toPage"
-                    ></fv-text-box>
-                    <p style="margin-left: 5px; font-size: 12px;">/ {{totalPages}}</p>
-                </div>
-                <div class="right-block">
-                    <fv-button
-                        :theme="theme"
-                        class="control-btn"
-                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
-                        style="margin-left: 2px;"
-                        @click="scaleDown"
-                    >
-                        <i class="ms-Icon ms-Icon--Remove"></i>
-                    </fv-button>
-                    <fv-button
-                        :theme="theme"
-                        class="control-btn"
-                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
-                        style="margin-left: 2px;"
-                        @click="scaleUp"
-                    >
-                        <i class="ms-Icon ms-Icon--Add"></i>
-                    </fv-button>
-                </div>
-            </div>
-        </transition>
-        <transition :name="show.translate ? 'move-right-to-left' : 'move-left-to-right'">
-            <div
-                v-show="show.translate"
-                class="ikfb-pdf-translation-panel"
-            >
-                <div class="control-banner">
-                    <fv-button
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        :is-box-shadow="true"
-                        @click="show.translate = false"
-                    >
-                        <i class="ms-Icon ms-Icon--Cancel"></i>
-                    </fv-button>
-                </div>
-                <fv-text-field
-                    v-model="translateObj.selection"
-                    :theme="theme"
-                    :placeholder="local(`Edit Text Here and Re-Translate by Press (Ctrl + Enter)`)"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : 'rgba(255, 255, 255, 1)'"
-                    class="text-field"
-                    fontSize="13"
-                    :border-radius="6"
-                    @keyup="ctrlEnterTranslate"
-                ></fv-text-field>
-                <fv-text-field
-                    v-show="translateObj.selection !== '' && translateObj.text !== ''"
-                    v-model="translateObj.text"
-                    :theme="theme"
-                    class="text-field"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 0.6)' : 'rgba(255, 255, 255, 0.3)'"
-                    fontSize="13"
-                    readonly
-                    :border-radius="6"
-                ></fv-text-field>
-                <fv-shimmer
-                    v-if="translateObj.selection !== '' && translateObj.text === ''"
-                    :theme="theme"
-                    style="position: relative; width: 100%; height: 100%; flex: 1;"
-                >
-                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-                        <div
-                            v-for="(item, index) in 2"
-                            :key="index"
-                            style="margin-top: 5px; display: flex; align-items: center;"
-                        >
-                            <div
-                                class="sample"
-                                style="width: 80%; margin: 5px;"
-                            ></div>
-                            <div
-                                class="sample"
-                                style="width: 80%; flex: 1; margin: 5px;"
-                            ></div>
-                        </div>
-                        <div
-                            v-for="(item, index) in 2"
-                            :key="`s2: ${index}`"
-                            style="margin-top: 5px; display: flex; align-items: center;"
-                        >
-                            <div
-                                class="sample"
-                                style="width: 80%; height: 15px; margin: 5px;"
-                                :style="{width: `${100 - index * 10}%`}"
-                            ></div>
-                        </div>
+                <div class="ikfb-pdf-tool-bar-wrapper">
+                    <div class="left-block">
+                        <fv-text-box
+                            v-model="currentPageStr"
+                            :theme="theme"
+                            fontSize="12"
+                            style="width: 40px; height: 100%;"
+                            @keyup="toPage"
+                        ></fv-text-box>
+                        <p style="margin-left: 5px; font-size: 12px;">/ {{totalPages}}</p>
                     </div>
-                </fv-shimmer>
+                    <div class="right-block">
+                        <fv-button
+                            :theme="theme"
+                            class="control-btn"
+                            :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
+                            :title="local(`Scale Down`)"
+                            style="margin-left: 2px;"
+                            @click="scaleDown"
+                        >
+                            <i class="ms-Icon ms-Icon--Remove"></i>
+                        </fv-button>
+                        <fv-button
+                            :theme="theme"
+                            class="control-btn"
+                            :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
+                            :title="local(`Scale Up`)"
+                            style="margin-left: 2px;"
+                            @click="scaleUp"
+                        >
+                            <i class="ms-Icon ms-Icon--Add"></i>
+                        </fv-button>
+                        <fv-button
+                            :theme="theme"
+                            class="control-btn"
+                            :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
+                            :title="local(`Open with Browser`)"
+                            style="margin-left: 2px;"
+                            @click="$emit('open-with-browser')"
+                        >
+                            <i class="ms-Icon ms-Icon--Globe"></i>
+                        </fv-button>
+                        <fv-button
+                            :theme="show.toolbar.quickNote ? 'dark' : theme"
+                            class="control-btn"
+                            :background="show.toolbar.quickNote ? 'rgba(247, 191, 100, 1)' : theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
+                            :title="local(`Toggle QuickNote`)"
+                            style="margin-left: 2px;"
+                            @click="show.toolbar.quickNote ^= true"
+                        >
+                            <i class="ms-Icon ms-Icon--QuickNote"></i>
+                        </fv-button>
+                        <fv-button
+                            :theme="show.toolbar.translate ? 'dark' : theme"
+                            class="control-btn"
+                            :background="show.toolbar.translate ? 'rgba(0, 98, 158, 1)' : theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
+                            :title="local(`Toggle Translator`)"
+                            style="margin-left: 2px;"
+                            @click="show.toolbar.translate ^= true"
+                        >
+                            <i class="ms-Icon ms-Icon--LocaleLanguage"></i>
+                        </fv-button>
+                    </div>
+                </div>
+                <transition :name="show.translate ? 'move-right-to-left' : 'move-left-to-right'">
+                    <div
+                        v-show="show.translate"
+                        class="ikfb-pdf-translation-panel"
+                    >
+                        <div class="control-banner">
+                            <fv-button
+                                :theme="theme"
+                                :borderRadius="30"
+                                class="control-btn"
+                                :is-box-shadow="true"
+                                @click="show.translate = false"
+                            >
+                                <i class="ms-Icon ms-Icon--Cancel"></i>
+                            </fv-button>
+                        </div>
+                        <fv-text-field
+                            v-model="translateObj.selection"
+                            :theme="theme"
+                            :placeholder="local(`Edit Text Here and Re-Translate by Press (Ctrl + Enter)`)"
+                            :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : 'rgba(255, 255, 255, 1)'"
+                            class="text-field"
+                            fontSize="13"
+                            :border-radius="6"
+                            @keyup="ctrlEnterTranslate"
+                        ></fv-text-field>
+                        <fv-text-field
+                            v-show="translateObj.selection !== '' && translateObj.text !== ''"
+                            v-model="translateObj.text"
+                            :theme="theme"
+                            class="text-field"
+                            :background="theme === 'dark' ? 'rgba(36, 36, 36, 0.6)' : 'rgba(255, 255, 255, 0.3)'"
+                            fontSize="13"
+                            readonly
+                            :border-radius="6"
+                        ></fv-text-field>
+                        <fv-shimmer
+                            v-if="translateObj.selection !== '' && translateObj.text === ''"
+                            :theme="theme"
+                            style="position: relative; width: 100%; height: 100%; flex: 1;"
+                        >
+                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+                                <div
+                                    v-for="(item, index) in 2"
+                                    :key="index"
+                                    style="margin-top: 5px; display: flex; align-items: center;"
+                                >
+                                    <div
+                                        class="sample"
+                                        style="width: 80%; margin: 5px;"
+                                    ></div>
+                                    <div
+                                        class="sample"
+                                        style="width: 80%; flex: 1; margin: 5px;"
+                                    ></div>
+                                </div>
+                                <div
+                                    v-for="(item, index) in 2"
+                                    :key="`s2: ${index}`"
+                                    style="margin-top: 5px; display: flex; align-items: center;"
+                                >
+                                    <div
+                                        class="sample"
+                                        style="width: 80%; height: 15px; margin: 5px;"
+                                        :style="{width: `${100 - index * 10}%`}"
+                                    ></div>
+                                </div>
+                            </div>
+                        </fv-shimmer>
+                    </div>
+                </transition>
             </div>
         </transition>
+        <add-ring-button
+            v-model="show.addNote"
+            :parent="$el"
+            :selectionObj="selectionObj"
+            @choose-selection="$emit('choose-selection', $event)"
+        ></add-ring-button>
     </div>
 </template>
 
 <script>
 import gsap from "gsap";
 
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { TextLayerBuilder } from "pdfjs-dist/web/pdf_viewer";
+
+import addRingButton from "./addRingButton.vue";
+import noteLayer from "./noteLayer.vue";
+
 import "pdfjs-dist/web/pdf_viewer.css";
 
 const { ipcRenderer: ipc } = require("electron");
 
 export default {
+    components: {
+        addRingButton,
+        noteLayer,
+    },
     props: {
         url: {
             default:
@@ -184,9 +246,23 @@ export default {
                 text: "",
                 pronunciation: "",
             },
+            selectionObj: {
+                pos: {
+                    left: 0,
+                    top: 0,
+                    canvasIndex: 0,
+                },
+                rangeNodes: [],
+                content: "",
+            },
             show: {
                 translate: false,
                 editable: false,
+                addNote: false,
+                toolbar: {
+                    translate: true,
+                    quickNote: false,
+                },
             },
             timer: {
                 width: null,
@@ -237,9 +313,78 @@ export default {
         "translateObj.selection"() {
             this.toTranslate(800);
         },
+        highlightNodes: {
+            deep: true,
+            handler() {
+                this.refreshHighlight();
+            },
+        },
+        displayMode() {
+            if (this.displayMode !== 0) {
+                let width = this.$el.clientWidth;
+                let scrollerWidth = this.$refs.scroller_view.clientWidth;
+                this.$el.scrollLeft =
+                    (scrollerWidth - width) / 2;
+            }
+        },
     },
     computed: {
+        ...mapState({
+            targetContent: (state) => state.editor.targetContent,
+            pdfNoteInfo: (state) => state.editor.pdfNoteInfo,
+            displayMode: (state) => state.editor.displayMode,
+        }),
         ...mapGetters(["local"]),
+        highlightNodes() {
+            let content = this.targetContent.content;
+            let result = [];
+            for (let i = 0; i < content.length; i++) {
+                let node = content[i];
+                if (node.content) content = content.concat(node.content);
+                try {
+                    if (node.type === "pdfNote") {
+                        result.push({
+                            guid: node.attrs.guid,
+                            pos: node.attrs.pos,
+                            rangeNodes: node.attrs.rangeNodes,
+                            content: node.attrs.content,
+                        });
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            return result;
+        },
+        pdfNoteList() {
+            let content = this.targetContent.content;
+            let arr = [];
+            let result = [];
+            for (let i = 0; i < content.length; i++) {
+                let node = content[i];
+                if (node.content) content = content.concat(node.content);
+                try {
+                    if (node.type === "pdfNote") {
+                        arr.push({
+                            guid: node.attrs.guid,
+                            type: node.type,
+                            content: node.content,
+                            idx: node.attrs.pos.canvasIndex,
+                            pos: node.attrs.pos,
+                        });
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            for (let item of arr) {
+                if (!result[item.idx]) {
+                    result[item.idx] = [];
+                }
+                result[item.idx].push(item);
+            }
+            return result;
+        },
     },
     mounted() {
         this.timerInit();
@@ -249,6 +394,9 @@ export default {
         this.eventInit();
     },
     methods: {
+        ...mapMutations({
+            reviseEditor: "reviseEditor",
+        }),
         timerInit() {
             this.timer.width = setInterval(() => {
                 const { left, top, right, bottom } =
@@ -263,8 +411,8 @@ export default {
         },
         eventInit() {
             this.$el.addEventListener("scroll", this.refreshCurrentPage);
-            let translateEvent = () => {
-                let result = this.getRangeNodes();
+            let getTextEvent = () => {
+                let result = this.getRangeNodes(this.$refs.scroller_view);
                 let text = "";
                 if (result.length === 1) {
                     text = result[0].node.innerText.slice(
@@ -280,12 +428,70 @@ export default {
                     });
                 }
                 text = text.replace(/ +/g, " ");
+                return {
+                    text,
+                    rangeNodes: result,
+                };
+            };
+            let insideTextLayer = (event) => {
+                let x = event.target;
+                let _self = false;
+                while (x && x.tagName && x.tagName.toLowerCase() != "body") {
+                    if ([...x.classList].includes("textLayer")) {
+                        _self = true;
+                        break;
+                    }
+                    x = x.parentNode;
+                }
+                return _self;
+            };
+            let translateEvent = (event) => {
+                if (!this.show.toolbar.translate) return;
+                if (!insideTextLayer(event)) return;
+                let text = getTextEvent().text;
                 this.translateObj.selection = text;
                 if (this.translateObj.selection !== "")
                     this.show.translate = true;
                 this.toTranslate();
             };
+            let addPDFNoteEvent = (event) => {
+                if (!insideTextLayer(event)) return;
+                let { text, rangeNodes } = getTextEvent();
+                if (text.replace(/ +/g, "") === "") {
+                    this.show.addNote = false;
+                    return;
+                }
+                this.selectionObj.content = text;
+                this.selectionObj.rangeNodes = rangeNodes;
+                let node = rangeNodes[0].node;
+                let targetNode = {
+                    index: 0,
+                    node: null,
+                };
+                for (let i = 1; i <= this.totalPages; i++) {
+                    let pdf_item = this.$refs[`pdf_item:${i}`][0];
+                    let index = [].indexOf.call(
+                        pdf_item.querySelectorAll("span"),
+                        node
+                    );
+                    if (index > -1) {
+                        targetNode.index = i;
+                        targetNode.node = pdf_item;
+                        break;
+                    }
+                }
+                this.selectionObj.pos.left =
+                    parseFloat(
+                        getComputedStyle(node).getPropertyValue("left")
+                    ) / targetNode.node.offsetWidth;
+                this.selectionObj.pos.top =
+                    parseFloat(getComputedStyle(node).getPropertyValue("top")) /
+                    targetNode.node.offsetHeight;
+                this.selectionObj.pos.canvasIndex = targetNode.index;
+                this.show.addNote = true;
+            };
             this.$refs.scroller_view.addEventListener("click", translateEvent);
+            this.$refs.scroller_view.addEventListener("click", addPDFNoteEvent);
             ipc.on("translate-callback", (event, res) => {
                 this.translateObj.text = res.text;
                 this.translateObj.pronunciation = res.pronunciation;
@@ -398,7 +604,9 @@ export default {
                 canvas.style.height = `${viewport.height}px`;
 
                 //
-                this.scroller.width = `${viewport.width + 50}px`;
+                this.scroller.width = `${
+                    viewport.width + (this.displayMode === 1 ? 1000 : 50)
+                }px`;
 
                 if (!performance) {
                     page.render({
@@ -411,12 +619,10 @@ export default {
                         })
                         .then((textContent) => {
                             // 创建文本图层div
-                            const textLayerDiv = document.createElement("div");
+                            let textLayerDiv =
+                                this.$refs[`textLayer:${num}`][0];
                             textLayerDiv.setAttribute("class", "textLayer");
-                            // 将文本图层div添加至每页pdf的div中
-                            this.$refs[`pdf_item:${num}`][0].appendChild(
-                                textLayerDiv
-                            );
+                            textLayerDiv.innerHTML = "";
 
                             // 创建新的TextLayerBuilder实例
                             var textLayer = new TextLayerBuilder({
@@ -428,6 +634,8 @@ export default {
                             textLayer.setTextContent(textContent);
 
                             textLayer.render();
+
+                            this.refreshHighlight();
 
                             pageX.version = this.hmrVersion;
                             // console.log(
@@ -518,6 +726,19 @@ export default {
             let children = root.querySelectorAll("span");
             start.index = Array.prototype.indexOf.call(children, start.node);
             end.index = Array.prototype.indexOf.call(children, end.node);
+            if (
+                range.collapsed === true ||
+                range.startContainer === range.endContainer
+            ) {
+                return [
+                    {
+                        node: start.node,
+                        offset: range.startOffset,
+                        endOffset: range.endOffset,
+                        index: start.index,
+                    },
+                ];
+            }
             let result = [];
             result.push(start);
             for (let i = start.index + 1; i < end.index; i++) {
@@ -547,7 +768,33 @@ export default {
             if (!(event.keyCode === 13 && event.ctrlKey)) return;
             this.toTranslate();
         },
-        toPage(event) {
+        refreshHighlight() {
+            let root = this.$refs.scroller_view;
+            let children = root.querySelectorAll("span");
+            let updateGuid = (event) => {
+                this.reviseEditor({
+                    pdfNoteInfo: {
+                        guid: event.target.getAttribute("guid"),
+                        version: this.$Guid(),
+                    },
+                });
+            };
+            children.forEach((child) => {
+                child.classList.remove("highlight");
+                child.removeAttribute("guid");
+                child.onclick = null;
+            });
+            for (let node of this.highlightNodes) {
+                for (let i = 0; i < node.rangeNodes.length; i++) {
+                    let index = node.rangeNodes[i].index;
+                    if (!children[index]) continue;
+                    children[index].setAttribute("class", "highlight");
+                    children[index].setAttribute("guid", node.guid);
+                    children[index].onclick = updateGuid;
+                }
+            }
+        },
+        toPage(event, offset = 0) {
             if (event.keyCode !== 13) return;
             if (this.currentPageStr <= 0) {
                 this.currentPageStr = 1;
@@ -567,7 +814,7 @@ export default {
                     );
             }
             gsap.to(this.$el, {
-                scrollTop: height,
+                scrollTop: height + offset,
                 duration: 0.2,
                 ease: "power3.out",
             });
@@ -598,12 +845,14 @@ export default {
         }
 
         .ikfb-pdf-tool-bar {
-            background: rgba(50, 50, 50, 0.8);
-            color: whitesmoke;
-        }
+            .ikfb-pdf-tool-bar-wrapper {
+                background: rgba(50, 50, 50, 0.8);
+                color: whitesmoke;
+            }
 
-        .ikfb-pdf-translation-panel {
-            background: rgba(50, 50, 50, 0.8);
+            .ikfb-pdf-translation-panel {
+                background: rgba(50, 50, 50, 0.8);
+            }
         }
     }
 
@@ -628,99 +877,142 @@ export default {
             margin-bottom: 15px;
             flex-shrink: 0;
             box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            overflow: visible;
+            overflow-x: visible;
 
             canvas {
                 transition: all 0.3s ease-out;
+            }
+
+            .textLayer {
+                span.highlight {
+                    background-color: #4158d0;
+                    background-image: linear-gradient(
+                        43deg,
+                        #4158d0 0%,
+                        #c850c0 16%,
+                        #ffcc70 36%
+                    );
+                    background-size: 300%;
+                    border-radius: 1.5px;
+                    background-position: 0% 50%;
+                    transition: background-position 0.8s;
+
+                    &:hover {
+                        background-position: 50% 50%;
+                        border-bottom: #4158d0 solid 2px;
+                    }
+
+                    &:active {
+                        background-color: #4158d0;
+                        background-image: linear-gradient(
+                            43deg,
+                            #4158d0 0%,
+                            #c850c0 46%,
+                            #ffcc70 100%
+                        );
+                        background-position: 150% 50%;
+                        border-bottom: #4158d0 solid 2px;
+                    }
+                }
             }
         }
     }
 
     .ikfb-pdf-tool-bar {
-        @include Vcenter;
-
         position: fixed;
         left: 15px;
         top: 50px;
         width: 100%;
         height: 40px;
-        padding: 5px 15px;
-        background: rgba(247, 247, 247, 0.8);
-        border: rgba(120, 120, 120, 0.1) solid thin;
-        border-radius: 12px;
         box-sizing: border-box;
         transition: all 0.3s;
-        box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1),
-            0px 3px 6px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(50px);
-        -webkit-backdrop-filter: blur(50px);
+        z-index: 3;
 
-        .left-block {
+        .ikfb-pdf-tool-bar-wrapper {
             @include Vcenter;
 
             position: relative;
             width: 100%;
             height: 100%;
-            flex: 1;
-        }
+            padding: 5px 15px;
+            background: rgba(247, 247, 247, 0.8);
+            border: rgba(120, 120, 120, 0.1) solid thin;
+            border-radius: 12px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1),
+                0px 3px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
 
-        .right-block {
-            @include HendVcenter;
+            .left-block {
+                @include Vcenter;
 
-            position: relative;
-            width: 100%;
-            height: 100%;
-            flex: 1;
-        }
+                position: relative;
+                width: 100%;
+                height: 100%;
+                flex: 1;
+            }
 
-        .control-btn {
-            width: 40px;
-            height: 100%;
-        }
-    }
+            .right-block {
+                @include HendVcenter;
 
-    .ikfb-pdf-translation-panel {
-        @include VcenterC;
-
-        position: fixed;
-        right: 15px;
-        top: 120px;
-        width: 350px;
-        height: 500px;
-        padding: 5px 12px;
-        background: rgba(239, 239, 239, 0.6);
-        border: rgba(120, 120, 120, 0.1) solid thin;
-        border-radius: 6px;
-        box-sizing: border-box;
-        box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1),
-            0px 3px 8px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-
-        .control-banner {
-            @include HendVcenter;
-
-            position: relative;
-            width: 100%;
-            height: 50px;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                flex: 1;
+            }
 
             .control-btn {
                 width: 30px;
-                height: 30px;
-                margin: 5px;
+                height: 100%;
             }
         }
 
-        .text-field {
-            width: 100%;
-            height: 100%;
-            margin: 5px 0px;
-            flex: 1;
-            transition: all 0.3s;
+        .ikfb-pdf-translation-panel {
+            @include VcenterC;
 
-            textarea {
-                padding: 8px;
-                line-height: 2;
+            position: absolute;
+            right: 0px;
+            top: 50px;
+            width: 350px;
+            height: 500px;
+            padding: 5px 12px;
+            background: rgba(239, 239, 239, 0.6);
+            border: rgba(120, 120, 120, 0.1) solid thin;
+            border-radius: 6px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1),
+                0px 3px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 3;
+
+            .control-banner {
+                @include HendVcenter;
+
+                position: relative;
+                width: 100%;
+                height: 50px;
+
+                .control-btn {
+                    width: 30px;
+                    height: 30px;
+                    margin: 5px;
+                }
+            }
+
+            .text-field {
+                width: 100%;
+                height: 100%;
+                margin: 5px 0px;
+                flex: 1;
+                transition: all 0.3s;
+
+                textarea {
+                    padding: 8px;
+                    line-height: 2;
+                }
             }
         }
     }
