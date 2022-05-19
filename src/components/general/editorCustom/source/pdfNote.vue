@@ -106,7 +106,7 @@ export default {
                 let el = root.querySelectorAll("span")[idx];
                 const { top } = el.getBoundingClientRect();
                 const { top: containerTop } = container.getBoundingClientRect();
-                container.scrollTop = container.scrollTop + top - containerTop + 75;
+                container.scrollTop = container.scrollTop + top - containerTop - 75;
             } catch (e) {
                 console.log(e);
             }
