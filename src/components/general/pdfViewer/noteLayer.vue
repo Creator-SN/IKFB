@@ -3,9 +3,9 @@
         <div
             v-for="(note, idx) in value"
             class="pdf-note-block"
-            :class="[{choosen: note.guid === pdfNoteInfo.guid}]"
+            :class="[{choosen: note.guid === pdfNoteInfo.guid,}]"
             :key="idx"
-            :style="{left: note.pos.left.toFixed(2) < 0.5 ? '-320px' : 'calc(100% + 20px)', top: `${note.pos.top.toFixed(2) * 100}%`, transform: `scale(${scale < 1 ? scale - 0.1 : 1})`}"
+            :style="{left: note.pos.left.toFixed(2) < 0.5 ? '-320px' : 'calc(100% + 20px)', top: `${note.pos.top.toFixed(2) * 100}%`, transform: `scale(${scale < 1 ? scale - 0.1 : 1})`, 'transform-origin': `${note.pos.left.toFixed(2) < 0.5 ? 100 : 0}% 0%`}"
             @click="chooseCurrent(idx)"
         >
             <power-editor

@@ -11,7 +11,6 @@
             <div
                 v-for="pageIdx in totalPages"
                 class="pdf-item"
-                :class="[{hide: !show.toolbar.quickNote}]"
                 :ref="`pdf_item:${pageIdx}`"
                 :key="pageIdx"
             >
@@ -309,6 +308,7 @@ export default {
             this.currentPageStr = this.currentPage.toString();
         },
         "translateObj.selection"() {
+            this.translateObj.text = "";
             this.toTranslate(800);
         },
         highlightNodes: {
@@ -319,9 +319,7 @@ export default {
         },
         displayMode() {
             if (this.displayMode !== 0) {
-                let width = this.$el.clientWidth;
-                let scrollerWidth = this.$refs.scroller_view.clientWidth;
-                this.$el.scrollLeft = (scrollerWidth - width) / 2;
+                this.alignFormat();
             }
         },
     },
@@ -604,6 +602,7 @@ export default {
                 this.scroller.width = `${
                     viewport.width + (this.displayMode === 1 ? 1000 : 50)
                 }px`;
+                this.alignFormat();
 
                 if (!performance) {
                     page.render({
@@ -622,7 +621,7 @@ export default {
                             textLayerDiv.innerHTML = "";
 
                             // 创建新的TextLayerBuilder实例
-                            var textLayer = new TextLayerBuilder({
+                            let textLayer = new TextLayerBuilder({
                                 textLayerDiv: textLayerDiv,
                                 pageIndex: page.pageIndex,
                                 viewport: viewport,
@@ -632,7 +631,9 @@ export default {
 
                             textLayer.render();
 
-                            this.refreshHighlight();
+                            setTimeout(() => {
+                                this.refreshHighlight();
+                            }, 300);
 
                             pageX.version = this.hmrVersion;
                             // console.log(
@@ -703,6 +704,9 @@ export default {
                         offset: range.startOffset,
                         endOffset: range.endOffset,
                         index: null,
+                        relativeIndex: [
+                            ...root.parentNode.querySelectorAll(root.tagName),
+                        ].indexOf(root),
                     },
                 ];
             }
@@ -721,8 +725,14 @@ export default {
             if (end.node.nodeType === Node.TEXT_NODE)
                 end.node = end.node.parentNode;
             let children = root.querySelectorAll("span");
-            start.index = Array.prototype.indexOf.call(children, start.node);
-            end.index = Array.prototype.indexOf.call(children, end.node);
+            start.index = [...children].indexOf(start.node);
+            start.relativeIndex = [
+                ...start.node.parentNode.querySelectorAll("span"),
+            ].indexOf(start.node);
+            end.index = [...children].indexOf(end.node);
+            end.relativeIndex = [
+                ...end.node.parentNode.querySelectorAll("span"),
+            ].indexOf(end.node);
             if (
                 range.collapsed === true ||
                 range.startContainer === range.endContainer
@@ -733,6 +743,7 @@ export default {
                         offset: range.startOffset,
                         endOffset: range.endOffset,
                         index: start.index,
+                        relativeIndex: start.relativeIndex,
                     },
                 ];
             }
@@ -744,6 +755,9 @@ export default {
                     offset: null,
                     endOffset: Infinity,
                     index: i,
+                    relativeIndex: [
+                        ...children[i].parentNode.querySelectorAll("span"),
+                    ].indexOf(children[i]),
                 });
             }
             result.push(end);
@@ -766,9 +780,8 @@ export default {
             this.toTranslate();
         },
         refreshHighlight() {
-            let root = this.$refs.scroller_view;
-            let children = root.querySelectorAll("span");
             let updateGuid = (event) => {
+                if(!this.show.toolbar.quickNote) this.show.toolbar.quickNote = true;
                 this.reviseEditor({
                     pdfNoteInfo: {
                         guid: event.target.getAttribute("guid"),
@@ -776,20 +789,35 @@ export default {
                     },
                 });
             };
+
+            let root = this.$refs.scroller_view;
+            let children = root.querySelectorAll("span");
             children.forEach((child) => {
                 child.classList.remove("highlight");
                 child.removeAttribute("guid");
                 child.onclick = null;
             });
+
             for (let node of this.highlightNodes) {
+                let num = node.pos.canvasIndex;
+                let parent = this.$refs[`textLayer:${num}`][0];
+                if (!parent) continue;
+                let children = parent.querySelectorAll("span");
                 for (let i = 0; i < node.rangeNodes.length; i++) {
-                    let index = node.rangeNodes[i].index;
+                    let index = node.rangeNodes[i].relativeIndex
+                        ? node.rangeNodes[i].relativeIndex
+                        : 0;
                     if (!children[index]) continue;
                     children[index].setAttribute("class", "highlight");
                     children[index].setAttribute("guid", node.guid);
                     children[index].onclick = updateGuid;
                 }
             }
+        },
+        alignFormat() {
+            let width = this.$el.clientWidth;
+            let scrollerWidth = this.$refs.scroller_view.clientWidth;
+            this.$el.scrollLeft = (scrollerWidth - width) / 2;
         },
         toPage(event, offset = 0) {
             if (event.keyCode !== 13) return;
@@ -928,6 +956,7 @@ export default {
                         );
                         background-position: 150% 50%;
                         border-bottom: #4158d0 solid 2px;
+                        transition: background-position 0.1s;
                     }
                 }
             }

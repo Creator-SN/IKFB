@@ -613,7 +613,7 @@ export default {
             for (let node of rangeNodes) {
                 if (node.offset === Infinity) node.offset = 9999999999;
                 if (node.endOffset === Infinity) node.endOffset = 9999999999;
-                r.push(node);
+                r.push(JSON.parse(JSON.stringify(node)));
             }
             let inteliInsert = (x) => {
                 // 防止光标在pdfNote内部时嵌套添加
@@ -649,7 +649,7 @@ export default {
                         type: "pdfNote",
                         attrs: {
                             guid: this.$Guid(),
-                            pos: pos,
+                            pos: JSON.parse(JSON.stringify(pos)),
                             rangeNodes: r,
                             content: content,
                         },

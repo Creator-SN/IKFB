@@ -51,12 +51,25 @@ export default {
     methods: {
         eventInit() {
             window.addEventListener("click", this.refreshPos);
+            window.addEventListener("click", this.outsideClickEvent);
         },
         refreshPos(event) {
             if (!this.parent) return;
             const { left, top } = this.parent.getBoundingClientRect();
             this.pos.left = event.x - left + this.parent.scrollLeft + 10;
             this.pos.top = event.y - top + this.parent.scrollTop + 10;
+        },
+        outsideClickEvent(event) {
+            let x = event.target;
+            let _self = false;
+            while (x && x.tagName && x.tagName.toLowerCase() != "body") {
+                if (x == this.$el || [...x.classList].includes("textLayer")) {
+                    _self = true;
+                    break;
+                }
+                x = x.parentNode;
+            }
+            if (!_self) this.thisValue = false;
         },
     },
 };
@@ -67,15 +80,21 @@ export default {
     transition: all 0.3s;
 }
 
-.add-ring-button-enter-active, .add-ring-button-leave-active {
+.add-ring-button-enter-active {
     transition: transform 0.3s;
 }
 
-.add-ring-button-enter, .add-ring-button-leave-to {
+.add-ring-button-leave-active {
+    transition: transform 0s;
+}
+
+.add-ring-button-enter,
+.add-ring-button-leave-to {
     transform: scale(0);
 }
 
-.add-ring-button-enter-to, .add-ring-button-leave {
+.add-ring-button-enter-to,
+.add-ring-button-leave {
     transform: scale(1);
 }
 </style>
