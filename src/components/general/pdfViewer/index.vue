@@ -8,25 +8,29 @@
             :style="{width: scroller.width}"
             ref="scroller_view"
         >
-            <div
+            <pdf-item
+                :value="getPdfPage(pageIdx)"
                 v-for="pageIdx in totalPages"
-                class="pdf-item"
                 :ref="`pdf_item:${pageIdx}`"
                 :key="pageIdx"
-            >
-                <canvas :ref="`pdfCanvas:${pageIdx}`"></canvas>
-                <div :ref="`textLayer:${pageIdx}`"></div>
-                <note-layer
-                    v-if="show.toolbar.quickNote"
-                    v-show="displayMode === 1"
-                    :value="pdfNoteList[pageIdx]"
-                    :theme="theme"
-                    :local="local"
-                    :scale="currentScale + additionScaleRatio"
-                    :pdfNoteInfo="pdfNoteInfo"
-                    :reviseEditor="reviseEditor"
-                ></note-layer>
-            </div>
+                :root="$el"
+                :parent="$refs.scroller_view"
+                :pageIdx="pageIdx"
+                :hmrVersion="hmrVersion"
+                :displayMode="displayMode"
+                :local="local"
+                :currentScale.sync="currentScale"
+                :additionScaleRatio="additionScaleRatio"
+                :scrollTop="container.scrollTop"
+                :pdfNoteInfo="pdfNoteInfo"
+                :pdfNoteList="pdfNoteList"
+                :highlightNodes="highlightNodes"
+                :reviseEditor="reviseEditor"
+                :show="show.toolbar"
+                :theme="theme"
+                @update-page="revisePdfPage(pageIdx, $event)"
+                @show-quick-note="show.toolbar.quickNote = $event"
+            ></pdf-item>
             <fv-progress-ring
                 v-if="totalPages === 0"
                 loading="true"
@@ -191,10 +195,9 @@
 import gsap from "gsap";
 
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { TextLayerBuilder } from "pdfjs-dist/web/pdf_viewer";
 
+import pdfItem from "./pdfItem.vue";
 import addRingButton from "./addRingButton.vue";
-import noteLayer from "./noteLayer.vue";
 
 import "pdfjs-dist/web/pdf_viewer.css";
 
@@ -202,8 +205,8 @@ const { ipcRenderer: ipc } = require("electron");
 
 export default {
     components: {
+        pdfItem,
         addRingButton,
-        noteLayer,
     },
     props: {
         url: {
@@ -222,8 +225,6 @@ export default {
             visualPages: [],
             currentScale: -1,
             additionScaleRatio: 0,
-            width: 0,
-            height: 0,
             pdfDoc: null,
             pdfPages: [],
             hmrVersion: 0,
@@ -234,6 +235,7 @@ export default {
                 bottom: 0,
                 width: 0,
                 height: 0,
+                scrollTop: 0,
             },
             scroller: {
                 width: `100%`,
@@ -284,38 +286,16 @@ export default {
         },
         additionScaleRatio() {
             this.hmrVersion += 1;
-            if (this.currentPage > 1) this.renderPage(this.currentPage - 1);
-            this.renderPage(this.currentPage);
-            if (this.currentPage < this.totalPages)
-                this.renderPage(this.currentPage + 1);
-            this.$nextTick(() => {
-                this.visualCanvas();
-                this.loadingPages(true);
-            });
-            this.loadingPages(true);
         },
         currentPage() {
-            if (this.currentPage > 1) this.renderPage(this.currentPage - 1);
-            this.renderPage(this.currentPage);
-            if (this.currentPage < this.totalPages)
-                this.renderPage(this.currentPage + 1);
-            this.$nextTick(() => {
-                this.visualCanvas();
-                this.visualPages.forEach((page) => {
-                    this.renderPage(page);
-                });
-            });
             this.currentPageStr = this.currentPage.toString();
         },
         "translateObj.selection"() {
             this.translateObj.text = "";
             this.toTranslate(800);
         },
-        highlightNodes: {
-            deep: true,
-            handler() {
-                this.refreshHighlight();
-            },
+        "show.toolbar.quickNote"() {
+            this.widthFormat();
         },
         displayMode() {
             if (this.displayMode !== 0) {
@@ -380,6 +360,19 @@ export default {
             }
             return result;
         },
+        getPdfPage() {
+            return (pageIdx) => {
+                let item = this.pdfPages.find((it) => it.num === pageIdx);
+                return item
+                    ? item
+                    : {
+                          num: pageIdx,
+                          page: null,
+                          lock: true,
+                          version: -1,
+                      };
+            };
+        },
     },
     mounted() {
         this.timerInit();
@@ -405,7 +398,10 @@ export default {
             }, 50);
         },
         eventInit() {
-            this.$el.addEventListener("scroll", this.refreshCurrentPage);
+            this.$el.addEventListener("scroll", () => {
+                this.refreshCurrentPage();
+                this.container.scrollTop = this.$el.scrollTop;
+            });
             let getTextEvent = () => {
                 let result = this.getRangeNodes(this.$refs.scroller_view);
                 let text = "";
@@ -464,7 +460,7 @@ export default {
                     node: null,
                 };
                 for (let i = 1; i <= this.totalPages; i++) {
-                    let pdf_item = this.$refs[`pdf_item:${i}`][0];
+                    let pdf_item = this.$refs[`pdf_item:${i}`][0].$el;
                     let index = [].indexOf.call(
                         pdf_item.querySelectorAll("span"),
                         node
@@ -522,131 +518,7 @@ export default {
                             lock: true,
                             version: -1,
                         });
-                        this.renderPage(i);
                     });
-                }
-            });
-        },
-        loadingPages(performance = false) {
-            let promises = [];
-            this.$nextTick(() => {
-                for (let i = 1; i <= this.totalPages; i++) {
-                    if (!performance) promises.push(this.renderPage(i));
-                    else {
-                        promises.push(
-                            this.renderPage(i, !this.visualPages.includes(i))
-                        );
-                    }
-                }
-            });
-        },
-        getRatio(ctx) {
-            let dpr = window.devicePixelRatio || 1;
-            let bsr =
-                ctx.webkitBackingStorePixelRatio ||
-                ctx.mozBackingStorePixelRatio ||
-                ctx.msBackingStorePixelRatio ||
-                ctx.oBackingStorePixelRatio ||
-                ctx.backingStorePixelRatio ||
-                1;
-
-            return dpr / bsr;
-        },
-        async renderPage(num, performance = false) {
-            let pageX = this.pdfPages.find((page) => page.num === num);
-            let { page } = pageX;
-            if (!pageX.lock) return;
-            pageX.lock = false;
-
-            return new Promise((resolve) => {
-                let canvas = this.$refs[`pdfCanvas:${num}`][0];
-                let ctx = canvas.getContext("2d");
-                // 获取页面比率
-                let ratio = this.getRatio(ctx);
-
-                // 根据页面宽度和视口宽度的比率就是内容区的放大比率
-                if (this.currentScale == -1) {
-                    let dialogWidth = this.$el.clientWidth - 5;
-                    let pageWidth = page.view[2] * ratio;
-                    let scale = dialogWidth / pageWidth;
-                    this.currentScale = scale;
-                }
-
-                let viewport = page.getViewport({
-                    scale: this.currentScale + this.additionScaleRatio,
-                });
-
-                // 记录内容区宽高，后期添加水印时需要
-                this.width = viewport.width * ratio;
-                this.height = viewport.height * ratio;
-
-                // 当前版本和热重载版本一致时，仅更新Canvas布局尺寸
-                if (pageX.version === this.hmrVersion) {
-                    // 展示尺寸
-                    canvas.style.width = `${viewport.width}px`;
-                    canvas.style.height = `${viewport.height}px`;
-                    pageX.lock = true;
-                    resolve(0);
-                    return;
-                }
-
-                // 画布渲染尺寸
-                canvas.width = this.width;
-                canvas.height = this.height;
-
-                // 展示尺寸
-                canvas.style.width = `${viewport.width}px`;
-                canvas.style.height = `${viewport.height}px`;
-
-                //
-                this.scroller.width = `${
-                    viewport.width + (this.displayMode === 1 ? 1000 : 50)
-                }px`;
-                this.alignFormat();
-
-                if (!performance) {
-                    page.render({
-                        canvasContext: ctx,
-                        viewport,
-                        transform: [ratio, 0, 0, ratio, 0, 0],
-                    })
-                        .promise.then(() => {
-                            return page.getTextContent();
-                        })
-                        .then((textContent) => {
-                            // 创建文本图层div
-                            let textLayerDiv =
-                                this.$refs[`textLayer:${num}`][0];
-                            textLayerDiv.setAttribute("class", "textLayer");
-                            textLayerDiv.innerHTML = "";
-
-                            // 创建新的TextLayerBuilder实例
-                            let textLayer = new TextLayerBuilder({
-                                textLayerDiv: textLayerDiv,
-                                pageIndex: page.pageIndex,
-                                viewport: viewport,
-                            });
-
-                            textLayer.setTextContent(textContent);
-
-                            textLayer.render();
-
-                            setTimeout(() => {
-                                this.refreshHighlight();
-                            }, 300);
-
-                            pageX.version = this.hmrVersion;
-                            // console.log(
-                            //     pageX.num,
-                            //     "render success",
-                            //     pageX.version
-                            // );
-                            pageX.lock = true;
-                            resolve(1);
-                        });
-                } else {
-                    pageX.lock = true;
-                    resolve(0);
                 }
             });
         },
@@ -655,7 +527,7 @@ export default {
             let arr = [];
             for (let i = 1; i <= this.totalPages; i++) {
                 const { bottom } =
-                    this.$refs[`pdfCanvas:${i}`][0].getBoundingClientRect();
+                    this.$refs[`pdf_item:${i}`][0].$el.getBoundingClientRect();
                 arr.push({
                     i,
                     value: Math.abs(bottom - this.container.height),
@@ -665,32 +537,38 @@ export default {
                 return a.value - b.value;
             });
             this.currentPage = arr[0].i;
-            this.visualCanvas();
         },
-        visualCanvas() {
-            if (!this.pdfDoc) return;
-            let visualPages = [];
-            for (let i = 1; i <= this.totalPages; i++) {
-                const { top, bottom } =
-                    this.$refs[`pdfCanvas:${i}`][0].getBoundingClientRect();
-                if (
-                    (top >= 0 && top <= this.container.height) ||
-                    (bottom >= 0 && bottom <= this.container.height)
-                ) {
-                    visualPages.push(i);
-                }
-            }
-            this.visualPages = visualPages;
+        revisePdfPage(idx, obj) {
+            let index = this.pdfPages.findIndex((item) => item.num === idx);
+            if (index === -1) return;
+            this.$set(this.pdfPages, index, obj);
         },
         scaleUp() {
             if (this.currentScale + this.additionScaleRatio < 5.7) {
                 this.additionScaleRatio += 0.3;
+                this.widthFormat();
             }
         },
         scaleDown() {
             if (this.currentScale + this.additionScaleRatio > 0.6) {
                 this.additionScaleRatio -= 0.3;
+                this.widthFormat();
             }
+        },
+        tryFindTextLayerIndex(node) {
+            let parent = node.parentNode;
+            while (
+                parent &&
+                parent.tagName &&
+                parent.tagName.toLowerCase() != "body"
+            ) {
+                if ([...parent.classList].includes("textLayer")) {
+                    let children = this.$el.querySelectorAll("div.textLayer");
+                    return [...children].indexOf(parent) / 1 + 1;
+                }
+                parent = parent.parentNode;
+            }
+            return 1;
         },
         getRangeNodes(rootNode = null) {
             let selection = window.getSelection();
@@ -704,6 +582,7 @@ export default {
                         offset: range.startOffset,
                         endOffset: range.endOffset,
                         index: null,
+                        layerIndex: this.tryFindTextLayerIndex(root),
                         relativeIndex: [
                             ...root.parentNode.querySelectorAll(root.tagName),
                         ].indexOf(root),
@@ -729,10 +608,12 @@ export default {
             start.relativeIndex = [
                 ...start.node.parentNode.querySelectorAll("span"),
             ].indexOf(start.node);
+            start.layerIndex = this.tryFindTextLayerIndex(start.node);
             end.index = [...children].indexOf(end.node);
             end.relativeIndex = [
                 ...end.node.parentNode.querySelectorAll("span"),
             ].indexOf(end.node);
+            end.layerIndex = this.tryFindTextLayerIndex(end.node);
             if (
                 range.collapsed === true ||
                 range.startContainer === range.endContainer
@@ -743,6 +624,7 @@ export default {
                         offset: range.startOffset,
                         endOffset: range.endOffset,
                         index: start.index,
+                        layerIndex: this.tryFindTextLayerIndex(start.node),
                         relativeIndex: start.relativeIndex,
                     },
                 ];
@@ -755,6 +637,7 @@ export default {
                     offset: null,
                     endOffset: Infinity,
                     index: i,
+                    layerIndex: this.tryFindTextLayerIndex(children[i]),
                     relativeIndex: [
                         ...children[i].parentNode.querySelectorAll("span"),
                     ].indexOf(children[i]),
@@ -779,40 +662,19 @@ export default {
             if (!(event.keyCode === 13 && event.ctrlKey)) return;
             this.toTranslate();
         },
-        refreshHighlight() {
-            let updateGuid = (event) => {
-                if(!this.show.toolbar.quickNote) this.show.toolbar.quickNote = true;
-                this.reviseEditor({
-                    pdfNoteInfo: {
-                        guid: event.target.getAttribute("guid"),
-                        version: this.$Guid(),
-                    },
-                });
-            };
-
-            let root = this.$refs.scroller_view;
-            let children = root.querySelectorAll("span");
-            children.forEach((child) => {
-                child.classList.remove("highlight");
-                child.removeAttribute("guid");
-                child.onclick = null;
+        widthFormat() {
+            let el = this.$refs.scroller_view;
+            el = el.querySelectorAll(".pdf-item")[0];
+            if (!el) return;
+            this.scroller.width = `${
+                el.offsetWidth +
+                (this.displayMode === 1 && this.show.toolbar.quickNote
+                    ? 1000
+                    : 50)
+            }px`;
+            this.$nextTick(() => {
+                this.alignFormat();
             });
-
-            for (let node of this.highlightNodes) {
-                let num = node.pos.canvasIndex;
-                let parent = this.$refs[`textLayer:${num}`][0];
-                if (!parent) continue;
-                let children = parent.querySelectorAll("span");
-                for (let i = 0; i < node.rangeNodes.length; i++) {
-                    let index = node.rangeNodes[i].relativeIndex
-                        ? node.rangeNodes[i].relativeIndex
-                        : 0;
-                    if (!children[index]) continue;
-                    children[index].setAttribute("class", "highlight");
-                    children[index].setAttribute("guid", node.guid);
-                    children[index].onclick = updateGuid;
-                }
-            }
         },
         alignFormat() {
             let width = this.$el.clientWidth;
@@ -829,7 +691,7 @@ export default {
             }
             let height = 0;
             for (let i = 2; i <= this.currentPageStr; i++) {
-                let pdfItem = this.$refs[`pdf_item:${i - 1}`][0];
+                let pdfItem = this.$refs[`pdf_item:${i - 1}`][0].$el;
                 height +=
                     pdfItem.offsetHeight +
                     parseFloat(

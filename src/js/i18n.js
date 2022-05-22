@@ -479,4 +479,24 @@ export default {
         "en": "Edit Text Here and Re-Translate by Press (Ctrl + Enter)",
         "cn": "在这里编辑文本并且按下(Ctrl + 回车)重新翻译"
     },
+    "Scale Down": {
+        "en": "Scale Down",
+        "cn": "缩小"
+    },
+    "Scale Up": {
+        "en": "Scale Up",
+        "cn": "放大"
+    },
+    "Open with Browser": {
+        "en": "Open with Browser",
+        "cn": "用浏览器打开"
+    },
+    "Toggle QuickNote": {
+        "en": "Toggle QuickNote",
+        "cn": "启用/关闭快速笔记"
+    },
+    "Toggle Translator": {
+        "en": "Toggle Translator",
+        "cn": "启用/关闭翻译"
+    }
 }
