@@ -32,7 +32,7 @@ jobs:
           cache: "yarn"
 
       - name: install dependencies
-        run: yarn add --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       - name: build win x64
         run: yarn electron:build
@@ -81,7 +81,7 @@ jobs:
           cache: "yarn"
 
       - name: install dependencies
-        run: yarn
+        run: yarn install --frozen-lockfile
 
       - name: build macos x64
         run: yarn electron:build
