@@ -22,16 +22,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Uses NodeJs Environment
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
+          cache: "yarn"
 
       - name: install dependencies
-        run: yarn
+        run: yarn add --frozen-lockfile
 
       - name: build win x64
         run: yarn electron:build
@@ -50,8 +51,18 @@ jobs:
           mv "./dist_electron/IKFB Setup $v.exe.blockmap" "IKFB-Setup-$v.exe.blockmap"
           mv "./dist_electron/latest.yml" "latest.yml"
 
+      - name: Upload Prerelease
+        uses: ncipollo/release-action@v1
+        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+        with:
+          allowUpdates: true
+          artifacts: "*.exe,*.blockmap,*.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+
       - name: Upload Release
         uses: ncipollo/release-action@v1
+        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
         with:
           allowUpdates: true
           artifacts: "*.exe,*.blockmap,*.yml"
@@ -67,6 +78,7 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
+          cache: "yarn"
 
       - name: install dependencies
         run: yarn
@@ -88,8 +100,18 @@ jobs:
           mv ./dist_electron/IKFB-$v-mac.zip.blockmap ./IKFB-$v-mac.zip.blockmap
           mv ./dist_electron/latest-mac.yml ./latest-mac.yml
 
+      - name: Upload Prerelease
+        uses: ncipollo/release-action@v1
+        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+        with:
+          allowUpdates: true
+          artifacts: "*.dmg,*.blockmap,*.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+
       - name: Upload Release
         uses: ncipollo/release-action@v1
+        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
         with:
           allowUpdates: true
           artifacts: "*.dmg,*.blockmap,*.yml"
