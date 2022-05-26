@@ -184,6 +184,7 @@
                     v-if="displayMode !== 0 && pdfUrl"
                     :url="pdfUrl"
                     :theme="theme"
+                    :disabledEditor="!showNav"
                     class="pdf-viewer"
                     @open-with-browser="openFile(`${item.id}/${item.pdf + '.pdf'}`)"
                     @choose-selection="addPDFNote"

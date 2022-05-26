@@ -736,7 +736,7 @@ export default {
                     history: [],
                 });
                 this.toggleEditor(true);
-            } else this.openFile(item.pdf);
+            } else this.openFile(`${item.id}/${item.pdf}.pdf`);
         },
         copyItemsToPartitions(partitions_id) {
             let t = [].concat(this.groups);

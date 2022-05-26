@@ -92,6 +92,7 @@
                             class="control-btn"
                             :background="show.toolbar.quickNote ? 'rgba(247, 191, 100, 1)' : theme === 'dark' ? 'rgba(36, 36, 36, 1)': 'rgba(247, 247, 247, 1)'"
                             :title="local(`Toggle QuickNote`)"
+                            :disabled="disabledEditor"
                             style="margin-left: 2px;"
                             @click="show.toolbar.quickNote ^= true"
                         >
@@ -212,6 +213,9 @@ export default {
         url: {
             default:
                 "C:/Users/Alever/OneDrive/Documents/Papers/IKFB/root/items/c8732a00/c8732a00.pdf",
+        },
+        disabledEditor: {
+            default: false,
         },
         theme: {
             default: "light",
@@ -446,6 +450,7 @@ export default {
                 this.toTranslate();
             };
             let addPDFNoteEvent = (event) => {
+                if (this.disabledEditor) return;
                 if (!insideTextLayer(event)) return;
                 let { text, rangeNodes } = getTextEvent();
                 if (text.replace(/ +/g, "") === "") {

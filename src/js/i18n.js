@@ -498,5 +498,9 @@ export default {
     "Toggle Translator": {
         "en": "Toggle Translator",
         "cn": "启用/关闭翻译"
+    },
+    "Open in Browser": {
+        "en": "Open in Browser",
+        "cn": "用浏览器打开"
     }
 }
