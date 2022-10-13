@@ -13,6 +13,8 @@
 
 # IKFB
 
+### **This project is archived and you can check out our new project [Fabulous](https://github.com/Creator-SN/Fabulous).**
+
 Involution King Fun Book (IKFB, Chinese: 快卷, 卷王快乐本) is an integrated management system for papers and literature. The UI design is based on the [VFluent](https://github.com/aleversn/VFluent), which is inspired by the Microsft [Fluent Design System](https://developer.microsoft.com/en-us/fluentui#/). 
 
 The Application is **Cross Platform** and powered by Electron.
